@@ -214,7 +214,6 @@ function aw()
         bp = bq.Name
     end)
      br = r()
-    pcall(function() if setclipboard then setclipboard(hwid) print("✓ HWID copied to clipboard:", hwid) end end)
      bu = os.date("%I:%M:%S %p")
      bv = os.date("%B %d, %Y")
      bw = {
@@ -312,15 +311,15 @@ end
     return l2 or "IIIIIIIIIIIIlIIIIIIIIIlIIIIlIlIIIIlIlIIIIIIlIIlIllIIIlllIIlIIIIIIIIIIIllIIIIlIIIIIlIIIIIIllIIlIIIIlIIIIIIIIlIIIIIIIIIIlIIIIIII"
 end
 
- m = i() -- actual HWID
- n = k() -- client ID
+ m = i() 
+ n = k() 
 
  function o()
     local ok, p = pcall(function()
         return game:HttpGet(b, true)
     end)
     if ok and p then
-        -- try Lua first
+        
         local ok2, q = pcall(function()
             return loadstring(p)()
         end)
@@ -328,7 +327,7 @@ end
             d = q
             return true
         else
-            -- try JSON
+         
             local ok3, r = pcall(function()
                 return HttpService:JSONDecode(p)
             end)
@@ -9350,7 +9349,9 @@ end
         Tab = Window:Tab({
             Name = "Rage"
         })do
-    local RageConfig = {
+
+
+    RageConfig = {
         Enabled = false,
         DownedCheck = true,
         FireShift = 18.2,
@@ -9454,6 +9455,9 @@ end
         end
 
         function HitSoundpl()
+            local HitsoundEnabled = Flags["Hitsound Enabled"]
+            if HitsoundEnabled and not HitsoundEnabled.Value then return end
+
             local Id = RageConfig.HitSoundList[RageConfig.HitsoundKey]
             if not Id or Id == "" then return end
             local Sound = NewInstance("Sound")
@@ -9560,7 +9564,10 @@ end
             Insert(Finals, NewCFrame(FirePos, HitPos).LookVector)
 
             ShootRemote:FireServer(RageTimers.Tick, Key, Tool, "FDS9I83", FirePos, Finals, false)
-            Reloading(Tool)
+
+            if Flags["Rage Auto Reload"] and Flags["Rage Auto Reload"].Value then
+                Reloading(Tool)
+            end
 
             for Index, Final in next, Finals do
                 HitRemote:FireServer("\240\159\167\136", Tool, Key, Index, Bone, HitPos, Final, nil, nil)
@@ -9680,17 +9687,7 @@ end
             if Number and Number >= 0 then RageConfig.FireDelay = Number end
         end })
 
-        local HitsoundOptions = {}
-        for SoundName in next, RageConfig.HitSoundList do
-            HitsoundOptions[#HitsoundOptions + 1] = SoundName
-        end
-        Sort(HitsoundOptions)
-
-        Section:Dropdown({ Name = "Hitsound", Options = HitsoundOptions, Default = "HitMarker", Size = 125, Flag = "Rage Hitsound", Callback = function(Value)
-            RageConfig.HitsoundKey = Value
-            if HitSoundpl then HitSoundpl() end
-        end })
-        Section:Slider({ Name = "Hitsound volume", Min = 0, Max = 2, Default = 0.8, Decimals = 0.01, Flag = "Rage Hitsound Volume", Callback = function(Value) RageConfig.HitVolumes = Value end })
+        Section:Toggle({ Name = "Auto reload", Default = true, Flag = "Rage Auto Reload" })
     end
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
@@ -10206,48 +10203,41 @@ end
                 Tree = Section:ExpandableToggle({
                     Name = "Hitsound",
                     Flag = "Hitsound Enabled",
-                    Size = 78,
+                    Default = true,
+                    Size = 52,
                     Opened = true
                 })
                 do
+                    local HitsoundOptions = {}
+
+                    for SoundName in next, RageConfig.HitSoundList do
+                        HitsoundOptions[#HitsoundOptions + 1] = SoundName
+                    end
+
+                    Sort(HitsoundOptions)
+
                     Tree:Dropdown({
                         Name = "Sound",
-                        Flag = "Hitsound",
-                        Options = { "Disabled" },
-                        Default = "Disabled",
+                        Flag = "Rage Hitsound",
+                        Options = HitsoundOptions,
+                        Default = "HitMarker",
                         Size = 125,
                         Callback = function(Value, Config)
-                            local Hitsound = Visuals.Cache.Hitsound
-                            local SoundId = HitsoundIds[Value] or ""
+                            RageConfig.HitsoundKey = Value
 
-                            if Hitsound.SoundId == SoundId then return end
-
-                            Hitsound.SoundId = SoundId
-
-                            if Value == "Disabled" or Config then return end
-
-                            local Cloned = Clone(Hitsound)
-                            Cloned.Parent = CurrentCamera
-
-                            Destroy(Cloned)
+                            if not Config and HitSoundpl then
+                                HitSoundpl()
+                            end
                         end
                     })
 
                     Tree:Slider({
                         Name = "Volume",
-                        Flag = "Hitsound Volume",
-                        Min = 1, Max = 300, Default = 100,
+                        Flag = "Rage Hitsound Volume",
+                        Min = 0, Max = 2, Default = 0.8,
                         Decimals = 0.01,
-                        Prefix = "%",
                         Callback = function(Value)
-                            Visuals.Cache.Hitsound.Volume = (Value / 100)
-                        end
-                    })
-
-                    Tree:Button({
-                        Name = "Refresh Hitsounds",
-                        Callback = function()
-                            Misc.RefreshHitsounds()
+                            RageConfig.HitVolumes = Value
                         end
                     })
                 end
@@ -11328,6 +11318,36 @@ end
                         Watermark.Outline.Position = NewUDim2(1, -23, 0, 23)
                     end
                 })
+
+                Section:Button({
+                    Name = "Unload",
+                    Confirm = true,
+                    Callback = function()
+                        Info.Spectating = false
+
+                        for _, Values in next, Flags do
+                            if typeof(Values) ~= "table" then continue end
+
+                            if typeof(Values.Set) == "function" then
+                                if Values.Value == true then
+                                    pcall(Values.Set, false)
+                                end
+                            else
+                                for _, Flag in next, Values do
+                                    if typeof(Flag) == "table" and typeof(Flag.Set) == "function" and Flag.Value == true then
+                                        pcall(Flag.Set, false)
+                                    end
+                                end
+                            end
+                        end
+
+                        for Player in next, Esp.Players do
+                            pcall(Esp.RemovePlayer, Player)
+                        end
+
+                        Menu.Unload()
+                    end
+                })
             end
 
             Section = Tab:Section({
@@ -11639,6 +11659,82 @@ end
                     end
                 })
 
+                Section:Dropdown({
+                    Name = "Teleport Mode",
+                    Options = { "Above", "Behind", "In Front", "Below" },
+                    Default = "Behind",
+                    Flag = "Teleport Mode"
+                })
+
+                Section:Button({
+                    Name = "Teleport To Player",
+                    Callback = function()
+                        if not ChosenInfo then return end
+
+                        local Character = LocalPlayer.Character
+                        local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
+
+                        local TargetCharacter = ChosenInfo.Player.Character
+                        local TargetRoot = TargetCharacter and FindFirstChild(TargetCharacter, "HumanoidRootPart")
+
+                        if Root and TargetRoot then
+                            local Mode = Flags["Teleport Mode"].Value
+
+                            local Offset = NewCFrame(0, 0, 3)
+
+                            if Mode == "Above" then
+                                Offset = NewCFrame(0, 5, 0)
+                            elseif Mode == "In Front" then
+                                Offset = NewCFrame(0, 0, -3)
+                            elseif Mode == "Below" then
+                                Offset = NewCFrame(0, -5, 0)
+                            end
+
+                            Root.CFrame = TargetRoot.CFrame * Offset
+                        end
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Spectate",
+                    Callback = function(Value)
+                        Info.Spectating = Value
+
+                        if not Value then
+                            local Character = LocalPlayer.Character
+                            local Humanoid = Character and FindFirstChildWhichIsA(Character, "Humanoid")
+
+                            if Humanoid then
+                                CurrentCamera.CameraSubject = Humanoid
+                            end
+                        end
+                    end
+                })
+
+                Heartbeat:Connect(function()
+                    if not Info.Spectating then return end
+
+                    local Target = ChosenInfo and ChosenInfo.Player
+
+                    local Subject
+
+                    if Target and Target.Parent then
+                        local TargetCharacter = Target.Character
+
+                        Subject = TargetCharacter and FindFirstChildWhichIsA(TargetCharacter, "Humanoid")
+                    end
+
+                    if not Subject then
+                        local Character = LocalPlayer.Character
+
+                        Subject = Character and FindFirstChildWhichIsA(Character, "Humanoid")
+                    end
+
+                    if Subject and CurrentCamera.CameraSubject ~= Subject then
+                        CurrentCamera.CameraSubject = Subject
+                    end
+                end)
+
                 Section:Button({
                     Name = "Reset All",
                     Callback = function()
@@ -11703,7 +11799,11 @@ end
 
         Bar = Theme:Bar({
             Side = "Fill",
-            ButtonsSide = "Center",
+            ButtonsSide = "Right",
+
+            TextBox = true,
+            Placeholder = "Theme Name",
+
             Buttons = {
                 {
                     "Default.json",
@@ -11762,6 +11862,24 @@ end
                 },
 
                 {
+                    "New",
+                    function()
+                        local Name = Bar.Value
+
+                        if Name and Name ~= "" then
+                            Menu.ConfigTheme("New", Name)
+
+                            local Button = Bar.Buttons[1]
+
+                            Button.Options = Menu.ConfigTheme("List")
+
+                            Button.Close()
+                            Button.SetValue(Name .. ".json")
+                        end
+                    end
+                },
+
+                {
                     "Save",
                     function()
                         local String = Bar.Buttons[1].GetChosen()
@@ -11776,25 +11894,11 @@ end
                     "Refresh",
                     function()
                         local Button = Bar.Buttons[1]
-                        local Choice = Button.GetChosen()
 
-                        local NewTheme = Menu.ConfigTheme("List")
-
-                        Button.Options = NewTheme
+                        Button.Options = Menu.ConfigTheme("List")
 
                         Button.Close()
-
-                        if not Find(NewTheme, Choice) then
-                            local First = NewTheme[1]
-
-                            if First then
-                                Button.SetValue(First)
-                            else
-                                Button.SetValue("Default.json")
-                            end
-                        else
-                            Button.SetValue(Choice)
-                        end
+                        Button.SetValue("Default.json")
                     end
                 }
             }
@@ -16083,7 +16187,7 @@ do
         local Map = WaitForChild(Workspace, "Map", 30)
         if not Map then return end
 
-        AimAssist = {
+        for Index, Value in next, {
             Enabled = false,
             Fov = 10,
             Speed = 50,
@@ -16098,9 +16202,13 @@ do
             VisualizeFov = true,
             FovColor = NewRGB(181, 179, 253),
             PriorityOnly = false
-        }
+        } do
+            if AimAssist[Index] == nil then
+                AimAssist[Index] = Value
+            end
+        end
 
-        TriggerBot = {
+        for Index, Value in next, {
             Enabled = false,
             Hitboxes = { "Head", "Body", "Arms", "Legs" },
             Magnet = false,
@@ -16109,7 +16217,11 @@ do
             MagnetAccuracy = 60,
             MagnetPriority = "Closest",
             PriorityOnly = false
-        }
+        } do
+            if TriggerBot[Index] == nil then
+                TriggerBot[Index] = Value
+            end
+        end
 
         local PointMap = { Head = { "Head" }, Body = { "Torso" }, Arms = { "Right Arm", "Left Arm" }, Legs = { "Right Leg", "Left Leg" } }
         local PriorityMap = { Head = "Head", Body = "Torso" }
@@ -16488,7 +16600,7 @@ do
         FovCircle.Visible = false
 
         RenderStepped:Connect(function()
-            if AimAssist.VisualizeFov then
+            if AimAssist.Enabled and AimAssist.VisualizeFov then
                 local Size = CurrentCamera.ViewportSize
                 FovCircle.Radius = (Tan(math.rad(AimAssist.Fov) / 2) / Tan(math.rad(CurrentCamera.FieldOfView) / 2)) * (Size.Y / 2)
                 FovCircle.Position = Size / 2
