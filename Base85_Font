@@ -5,10 +5,6 @@
 
 
 
-
-
-
-
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -417,11 +413,6 @@ RunService.Heartbeat:Connect(function()
         af = z
     end
 end)
-
-
-
-
-
 
 
 
@@ -10589,7 +10580,7 @@ end
 
             MultiSection = Tab:MultiSection({
                 Name = "Others",
-                Size = 220,
+                Size = 290,
                 Side = "Right",
                 Sections = { "Local", "Camera", "3D", "Tracers" }
             })
@@ -10771,6 +10762,25 @@ end
                                 LocalPlayer.CameraMaxZoomDistance = Value
                             end
                         end
+                    })
+
+                    Section:Toggle({
+                        Name = "Aspect Ratio",
+                        Flag = "Aspect Ratio"
+                    })
+
+                    Section:Slider({
+                        Name = "Ratio Horizontal",
+                        Flag = "Aspect Horizontal",
+                        Min = 0, Max = 100, Default = 100,
+                        Prefix = "%"
+                    })
+
+                    Section:Slider({
+                        Name = "Ratio Vertical",
+                        Flag = "Aspect Vertical",
+                        Min = 0, Max = 100, Default = 100,
+                        Prefix = "%"
                     })
 
                     Section:Toggle({
@@ -11131,7 +11141,7 @@ end
 
             Section = Tab:Section({
                 Name = "Utility",
-                Size = 269
+                Size = 285
             })
             do
 
@@ -11169,6 +11179,19 @@ end
 
                         if ChatUI then
                             ChatUI.Enabled = Value
+                        end
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Infinity Sound",
+                    Flag = "Infinity Sound",
+                    Callback = function(Value)
+                        local Module = InfinitySound
+                        local Fn = Module and Module.Set
+
+                        if Fn then
+                            Fn(Value)
                         end
                     end
                 })
@@ -16611,6 +16634,167 @@ do
             end
         end)
     end)
+end
+
+
+-- Aspect Ratio
+do
+    RunService:BindToRenderStep("LuckyAspectSkew", Enum.RenderPriority.Camera.Value + 1, function()
+        local Enabled = Flags["Aspect Ratio"]
+
+        if not Enabled or not Enabled.Value then return end
+
+        local Horizontal = (Flags["Aspect Horizontal"].Value or 100) / 100
+        local Vertical = (Flags["Aspect Vertical"].Value or 100) / 100
+
+        if Horizontal == 1 and Vertical == 1 then return end
+
+        local Camera = Workspace.CurrentCamera
+
+        if not Camera then return end
+
+        local X, Y, Z,
+            R00, R01, R02,
+            R10, R11, R12,
+            R20, R21, R22 = Camera.CFrame:GetComponents()
+
+        Camera.CFrame = NewCFrame(
+            X, Y, Z,
+            R00 * Horizontal, R01 * Vertical, R02,
+            R10,              R11 * Vertical, R12,
+            R20 * Horizontal, R21 * Vertical, R22
+        )
+    end)
+end
+
+
+do
+    InfinitySound = {
+        Sound = nil,
+        AssetPath = nil,
+        Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/syntax"
+    }
+
+    local function ResolveAsset()
+        if InfinitySound.AssetPath then
+            return InfinitySound.AssetPath
+        end
+
+        local FileName = "Imisstheraging.mp3"
+
+        if not IsFile(FileName) then
+            local Ok, Data = pcall(function()
+                return game:HttpGet(InfinitySound.Url, true)
+            end)
+
+            if not Ok or type(Data) ~= "string" or Data == "" then
+                return nil
+            end
+
+            Data = Data:gsub("%s+", "")
+
+            local Decoded
+            Ok, Decoded = pcall(Decode, Data)
+
+            if not Ok or not Decoded or Decoded == "" then
+                return nil
+            end
+
+            if not pcall(WriteFile, FileName, Decoded) then
+                return nil
+            end
+        end
+
+        local Ok, Asset = pcall(GetCustomAsset, FileName)
+
+        if Ok and Asset and Asset ~= "" then
+            InfinitySound.AssetPath = Asset
+
+            return Asset
+        end
+
+        return nil
+    end
+
+    function InfinitySound.Stop()
+        local Sound = InfinitySound.Sound
+        InfinitySound.Sound = nil
+
+        if Sound then
+            pcall(function()
+                Sound:Stop()
+                Destroy(Sound)
+            end)
+        end
+    end
+
+    function InfinitySound.Start()
+        InfinitySound.Stop()
+
+        local Asset = ResolveAsset()
+
+        if not Asset then
+            return
+        end
+
+        pcall(function()
+            local Settings = GetService(Game, "UserSettings"):GetService("UserGameSettings")
+
+            if Settings and Settings.MasterVolume ~= nil then
+                Settings.MasterVolume = 1
+            end
+        end)
+
+        local Sound = NewInstance("Sound")
+        Sound.Volume = 10
+        Sound.Looped = false
+        Sound.PlaybackSpeed = 0.95
+        Sound.RollOffMode = Enum.RollOffMode.Linear
+        Sound.MaxDistance = 100000
+        Sound.EmitterSize = 1000
+        Sound.SoundId = Asset
+--[[
+        local Chorus = NewInstance("ChorusSoundEffect")
+        Chorus.Depth = 0.95
+        Chorus.Mix = 0.95
+        Chorus.Rate = 0.9
+        Chorus.Parent = Sound
+
+        local Echo = NewInstance("EchoSoundEffect")
+        Echo.Delay = 0.25
+        Echo.DryLevel = -10
+        Echo.WetLevel = 3
+        Echo.Parent = Sound
+
+        local Equalizer = NewInstance("EqualizerSoundEffect")
+        Equalizer.HighGain = 12
+        Equalizer.MidGain = 8
+        Equalizer.LowGain = 10
+        Equalizer.Parent = Sound
+    ]]
+        Sound.Parent = Workspace
+        InfinitySound.Sound = Sound
+
+        
+
+        Sound.Ended:Connect(function()
+            if InfinitySound.Sound == Sound then
+                InfinitySound.Sound = nil
+            end
+
+            pcall(Destroy, Sound)
+        end)
+
+        Sound:Play()
+    end
+
+    function InfinitySound.Set(Value)
+        if Value then
+            Spawn(InfinitySound.Start)
+        else
+            InfinitySound.Stop()
+        end
+    end
 end
 
 do
