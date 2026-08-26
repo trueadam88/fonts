@@ -4,9 +4,6 @@
 
 
 
-
-
-
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -415,14 +412,6 @@ RunService.Heartbeat:Connect(function()
         af = z
     end
 end)
-
-
-
-
-
-
-
-
 
 
 
@@ -9374,19 +9363,93 @@ end
 
             MultiSection = Tab:MultiSection({
                 Name = "Misc",
-                Size = 229,
+                Size = 360,
                 Side = "Right",
-                Sections = { "General", "Gun Mods", "Melee Mods" }
+                Sections = {  "Gun Mods", "Melee Mods" }
             })
             do
+
+
                 Section = MultiSection[1]
                 do
+                        Section:Toggle({
+                            Name = "No Recoil",
+                            Flag = "Gun No Recoil",
+                            Unsafe = true
+                        })
 
+                        Section:Slider({
+                            Name = "Recoil Factor",
+                            Flag = "Gun Recoil Value",
+                            Min = 0, Max = 30, Default = 0,
+                            Decimals = 0.1
+                        })
+
+                        Section:Toggle({
+                            Name = "No Spread",
+                            Flag = "Gun No Spread",
+                            Unsafe = true
+                        })
+
+                        Section:Slider({
+                            Name = "Spread Factor",
+                            Flag = "Gun Spread Value",
+                            Min = 0, Max = 30, Default = 0,
+                            Decimals = 0.1
+                        })
+
+                        Section:Toggle({
+                            Name = "Override Fire Rate",
+                            Flag = "Gun Fire Rate Enabled",
+                            Unsafe = true
+                        })
+
+                        Section:Slider({
+                            Name = "Fire Delay",
+                            Flag = "Gun Fire Delay",
+                            Min = 0.01, Max = 0.3, Default = 0.15,
+                            Decimals = 0.001,
+                            Prefix = "s"
+                        })
+
+                        Section:Toggle({
+                            Name = "Instant Scope",
+                            Flag = "Instant Aim",
+                            Unsafe = true
+                        })
+
+                        Section:Toggle({
+                            Name = "Instant Equip",
+                            Flag = "Instant Equip",
+                            Unsafe = true
+                        })
                 end
 
                 Section = MultiSection[2]
                 do
-                 
+                        Section:Toggle({
+                            Name = "Auto Melee",
+                            Flag = "Auto Melee",
+                            Unsafe = true
+                        }):Keybind({
+                            Mode = "Toggle",
+                            Flag = "Auto Melee Keybind",
+                            Name = "Auto Melee"
+                        })
+
+                        Section:Slider({
+                            Name = "Max Distance",
+                            Flag = "Auto Melee Distance",
+                            Min = 0, Max = 25, Default = 15,
+                            Decimals = 0.5
+                        })
+
+                        Section:Dropdown({
+                            Name = "Hit Part",
+                            Flag = "Auto Melee Part",
+                            Options = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" },
+                            Default = "Torso"
+                        })
                 end
             end
         end
@@ -9411,7 +9474,7 @@ end
         CacheThreshold = 0.5,
         HitsoundKey = "HitMarker",
         HitVolumes = 0.8, 
-        HitSoundList = {   -- TODO: add uv_aidan confirmation hit sound l8r
+        SoundList = {   -- TODO: add uv_aidan confirmation hit sound l8r
             ["HitMarker"]="8543972310",["AR2 Head"]="2062016772",["AR2 Body"]="2062015952",["AR2 Limb"]="6659353525",
             ["BB HitM"]="4645745735",["BB Kill"]="2636743632",["PD Head"]="4585351098",["PD Body"]="4585364605",
             ["Neverlose"]="8726881116",["Gamesense"]="4817809188",["Baimware"]="3124331820",["Steve"]="4965083997",
@@ -9492,7 +9555,7 @@ end
             local HitsoundEnabled = Flags["Hitsound Enabled"]
             if HitsoundEnabled and not HitsoundEnabled.Value then return end
 
-            local Id = RageConfig.HitSoundList[RageConfig.HitsoundKey]
+            local Id = RageConfig.SoundList[RageConfig.HitsoundKey]
             if not Id or Id == "" then return end
             local Sound = NewInstance("Sound")
             Sound.Volume = RageConfig.HitVolumes
@@ -9922,7 +9985,7 @@ end
         do
             MultiSection = Tab:MultiSection({
                 Name = "ESP",
-                Sections = { "Players", "NPCs", "World" },
+                Sections = { "Players" },
                 Size = 309
             })
             do
@@ -10270,32 +10333,6 @@ end
                         })
                     end
                 end
-
-
-
-
-
-
-
-
-
-                Section = MultiSection[2]
-                do
-                  
-                end
-
-                Section = MultiSection[3]
-                do
-                  
-                    
-
-                 
-
-                  
-
-                  
-                    
-                end
             end
 
             Section = Tab:Section({
@@ -10313,7 +10350,7 @@ end
                 do
                     local HitsoundOptions = {}
 
-                    for SoundName in next, RageConfig.HitSoundList do
+                    for SoundName in next, RageConfig.SoundList do
                         HitsoundOptions[#HitsoundOptions + 1] = SoundName
                     end
 
@@ -10692,13 +10729,22 @@ end
 
             MultiSection = Tab:MultiSection({
                 Name = "Others",
-                Size = 290,
+                Size = 310,
                 Side = "Right",
                 Sections = { "Local", "Camera", "3D", "Tracers" }
             })
             do
                 Section = MultiSection[1]
                 do
+                    Section:Toggle({
+                        Name = "Body Chams",
+                        Flag = "Body Chams"
+                    }):Colorpicker({
+                        Color = MenuTheme.Accent.A,
+                        Transparency = 0,
+                        Flag = "Body Chams Color"
+                    })
+
                     Tree = Section:ExpandableToggle({
                         Name = "ViewModel Arms",
                         Flag = "ViewModel Arms",
@@ -11116,7 +11162,7 @@ end
             MultiSection = Tab:MultiSection({
                 Name = "Main",
                 Size = 260,
-                Sections = { "Character", "Farming" }
+                Sections = { "Character" }
             })
             do
                 Section = MultiSection[1]
@@ -11241,14 +11287,7 @@ end
                   
                 end
 
-                Section = MultiSection[2]
-                do
 
-
-
-
-              
-                end
             end
 
             Section = Tab:Section({
@@ -11296,7 +11335,7 @@ end
                 })
 
                 Section:Toggle({
-                    Name = "Infinity Sound",
+                    Name = "chill Friend!, take a destroyer pill.",
                     Flag = "Infinity Sound",
                     Callback = function(Value)
                         local Module = InfinitySound
@@ -11813,33 +11852,49 @@ end
                     Flag = "Teleport Mode"
                 })
 
+                local function TeleportToChosen()
+                    if not ChosenInfo then return end
+
+                    local Character = LocalPlayer.Character
+                    local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
+
+                    local TargetCharacter = ChosenInfo.Player.Character
+                    local TargetRoot = TargetCharacter and FindFirstChild(TargetCharacter, "HumanoidRootPart")
+
+                    if Root and TargetRoot then
+                        local Mode = Flags["Teleport Mode"].Value
+
+                        local Offset = NewCFrame(0, 0, 3)
+
+                        if Mode == "Above" then
+                            Offset = NewCFrame(0, 5, 0)
+                        elseif Mode == "In Front" then
+                            Offset = NewCFrame(0, 0, -3)
+                        elseif Mode == "Below" then
+                            Offset = NewCFrame(0, -5, 0)
+                        end
+
+                        Root.CFrame = TargetRoot.CFrame * Offset
+                    end
+                end
+
                 Section:Button({
                     Name = "Teleport To Player",
-                    Callback = function()
-                        if not ChosenInfo then return end
+                    Callback = TeleportToChosen
+                })
 
-                        local Character = LocalPlayer.Character
-                        local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
-
-                        local TargetCharacter = ChosenInfo.Player.Character
-                        local TargetRoot = TargetCharacter and FindFirstChild(TargetCharacter, "HumanoidRootPart")
-
-                        if Root and TargetRoot then
-                            local Mode = Flags["Teleport Mode"].Value
-
-                            local Offset = NewCFrame(0, 0, 3)
-
-                            if Mode == "Above" then
-                                Offset = NewCFrame(0, 5, 0)
-                            elseif Mode == "In Front" then
-                                Offset = NewCFrame(0, 0, -3)
-                            elseif Mode == "Below" then
-                                Offset = NewCFrame(0, -5, 0)
-                            end
-
-                            Root.CFrame = TargetRoot.CFrame * Offset
+              
+                Section:Toggle({
+                    Name = "Teleport Key",
+                    Callback = function(Value)
+                        if Value then
+                            TeleportToChosen()
                         end
                     end
+                }):Keybind({
+                    Mode = "Held",
+                    Flag = "Teleport To Player Keybind",
+                    Name = "Teleport To Player"
                 })
 
                 Section:Toggle({
@@ -13981,6 +14036,7 @@ do
         Movement.SetUp = function(Character)
             if Movement.Connections.WalkSpeed then
                 Movement.Connections.WalkSpeed:Disconnect()
+                
                 Movement.Connections.WalkSpeed = nil
             end
 
@@ -17281,6 +17337,778 @@ do
             AutoStomp.LastCycle = Clock()
             AutoStomp.Busy = false
         end)
+    end)
+end
+
+
+do
+    GunMods = {
+        Originals = {},
+        Pending = {},
+        LastState = "",
+        LastCheck = 0,
+    }
+
+    local function RestartClient(Tool)
+        local Client = FindFirstChild(Tool, "Client")
+        if Client then
+            Client.Disabled = true
+            Client.Disabled = false
+        end
+
+        local PassClient = FindFirstChild(Tool, "PassClient")
+        if PassClient then
+            PassClient.Disabled = true
+            PassClient.Disabled = false
+        end
+    end
+
+    local function ModifyGun(Tool)
+        if not (Tool and IsA(Tool, "Tool") and FindFirstChild(Tool, "IsGun")) then return end
+
+        local ConfigModule = FindFirstChild(Tool, "Config")
+        if not ConfigModule or not IsA(ConfigModule, "ModuleScript") then return end
+
+        local Ok, Config = pcall(require, ConfigModule)
+        if not Ok or type(Config) ~= "table" then return end
+
+        local Original = GunMods.Originals[Tool]
+        if not Original then
+            Original = {
+                Recoil = Config.Recoil,
+                Spread = Config.Spread,
+                FireRate = Config.FireRate,
+            }
+            GunMods.Originals[Tool] = Original
+        end
+
+        local Changed = false
+        local function SetField(Key, Value)
+            if Config[Key] ~= Value then
+                Config[Key] = Value
+                Changed = true
+            end
+        end
+
+        if Flags["Gun No Recoil"].Value then
+            SetField("Recoil", Flags["Gun Recoil Value"].Value)
+        else
+            SetField("Recoil", Original.Recoil)
+        end
+
+        if Flags["Gun No Spread"].Value then
+            SetField("Spread", Flags["Gun Spread Value"].Value)
+        else
+            SetField("Spread", Original.Spread)
+        end
+
+        if Flags["Gun Fire Rate Enabled"].Value then
+            SetField("FireRate", 1 / Flags["Gun Fire Delay"].Value)
+        else
+            SetField("FireRate", Original.FireRate)
+        end
+
+        if Changed or GunMods.Pending[Tool] then
+            if Tool.Parent == LocalPlayer.Character then
+                GunMods.Pending[Tool] = true
+            else
+                GunMods.Pending[Tool] = nil
+                RestartClient(Tool)
+            end
+        end
+    end
+
+    local function ModifyAllGuns()
+        local Character = LocalPlayer.Character
+        if Character then
+            for _, Child in next, GetChildren(Character) do
+                if IsA(Child, "Tool") then
+                    pcall(ModifyGun, Child)
+                end
+            end
+        end
+
+        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
+        if Backpack then
+            for _, Child in next, GetChildren(Backpack) do
+                if IsA(Child, "Tool") then
+                    pcall(ModifyGun, Child)
+                end
+            end
+        end
+    end
+
+    local function WatchBackpack(Backpack)
+        Backpack.ChildAdded:Connect(function(Child)
+            if IsA(Child, "Tool") then
+                Wait()
+                pcall(ModifyGun, Child)
+            end
+        end)
+
+        for _, Child in next, GetChildren(Backpack) do
+            if IsA(Child, "Tool") then
+                pcall(ModifyGun, Child)
+            end
+        end
+    end
+
+    LocalPlayer.ChildAdded:Connect(function(Child)
+        if IsA(Child, "Backpack") then
+            Spawn(WatchBackpack, Child)
+        end
+    end)
+
+    local function WatchCharacter(Character)
+        Character.ChildAdded:Connect(function(Child)
+            if IsA(Child, "Tool") then
+                Wait()
+                pcall(ModifyGun, Child)
+            end
+        end)
+    end
+
+    LocalPlayer.CharacterAdded:Connect(WatchCharacter)
+
+    if LocalPlayer.Character then
+        WatchCharacter(LocalPlayer.Character)
+    end
+
+    do
+        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
+        if Backpack then
+            Spawn(WatchBackpack, Backpack)
+        end
+    end
+
+    Heartbeat:Connect(function()
+        if Clock() - GunMods.LastCheck < 0.25 then return end
+        GunMods.LastCheck = Clock()
+
+        local State = Format(
+            "%s|%s|%s|%s|%s|%s",
+            tostring(Flags["Gun No Recoil"].Value), tostring(Flags["Gun Recoil Value"].Value),
+            tostring(Flags["Gun No Spread"].Value), tostring(Flags["Gun Spread Value"].Value),
+            tostring(Flags["Gun Fire Rate Enabled"].Value), tostring(Flags["Gun Fire Delay"].Value)
+        )
+
+        if State == GunMods.LastState then return end
+        GunMods.LastState = State
+
+        ModifyAllGuns()
+    end)
+end
+
+
+do
+    BodyChams = {
+        Originals = {},
+        Parts = {},
+        LastCheck = 0,
+        Dirty = true,
+        Character = nil,
+    }
+
+    local BodyPartNames = {
+        ["Head"] = true,
+        ["Torso"] = true,
+        ["Left Arm"] = true,
+        ["Right Arm"] = true,
+        ["Left Leg"] = true,
+        ["Right Leg"] = true,
+    }
+
+    local ForceField = Enum.Material.ForceField
+
+    local function IsTarget(Part)
+        if not IsA(Part, "BasePart") then return false end
+        if BodyPartNames[Part.Name] then return true end
+
+        local Parent = Part.Parent
+
+        return Parent ~= nil and IsA(Parent, "Accoutrement")
+    end
+
+    local function WatchCharacter(Character)
+        BodyChams.Character = Character
+        BodyChams.Dirty = true
+
+        Character.DescendantAdded:Connect(function()
+            BodyChams.Dirty = true
+        end)
+
+        Character.DescendantRemoving:Connect(function()
+            BodyChams.Dirty = true
+        end)
+    end
+
+    LocalPlayer.CharacterAdded:Connect(WatchCharacter)
+
+    if LocalPlayer.Character then
+        WatchCharacter(LocalPlayer.Character)
+    end
+
+    local function RebuildParts()
+        BodyChams.Dirty = false
+
+        local Parts = {}
+        local Character = BodyChams.Character
+
+        if Character and Character.Parent then
+            for _, Part in next, Character:GetDescendants() do
+                if IsTarget(Part) then
+                    Insert(Parts, Part)
+                end
+            end
+        end
+
+        BodyChams.Parts = Parts
+    end
+
+    local function Apply(Part, TargetColor, TargetTransparency)
+        if not BodyChams.Originals[Part] then
+            BodyChams.Originals[Part] = {
+                Color = Part.Color,
+                Material = Part.Material,
+                Transparency = Part.Transparency,
+            }
+        end
+
+        if Part.Material ~= ForceField then Part.Material = ForceField end
+        if Part.Color ~= TargetColor then Part.Color = TargetColor end
+        if Part.Transparency ~= TargetTransparency then Part.Transparency = TargetTransparency end
+    end
+
+    local function Restore()
+        for Part, Original in next, BodyChams.Originals do
+            pcall(function()
+                if Part.Parent then
+                    Part.Color = Original.Color
+                    Part.Material = Original.Material
+                    Part.Transparency = Original.Transparency
+                end
+            end)
+        end
+
+        BodyChams.Originals = {}
+    end
+
+    Heartbeat:Connect(function()
+        if Clock() - BodyChams.LastCheck < 0.25 then return end
+        BodyChams.LastCheck = Clock()
+
+        if not Flags["Body Chams"].Value then
+            if next(BodyChams.Originals) then
+                Restore()
+            end
+
+            return
+        end
+
+        if BodyChams.Dirty then
+            RebuildParts()
+        end
+
+        local Picker = Flags["Body Chams Color"]
+        local TargetColor = Picker.Color
+        local TargetTransparency = Picker.Transparency
+
+        for _, Part in next, BodyChams.Parts do
+            if Part.Parent then
+                pcall(Apply, Part, TargetColor, TargetTransparency)
+            end
+        end
+    end)
+end
+
+do
+    InstantAim = {
+        Entries = {},
+        Originals = {},
+        LastState = false,
+        LastCheck = 0,
+        Scanning = false,
+        ScanQueued = false,
+        SchedulePending = false,
+    }
+
+    local function Register(Object)
+        if InstantAim.Originals[Object] then return end
+
+        local Aim = rawget(Object, "AimSettings")
+        local Sniper = rawget(Object, "SniperSettings")
+
+        Aim = type(Aim) == "table" and Aim or nil
+        Sniper = type(Sniper) == "table" and Sniper or nil
+
+        if not (Aim or Sniper) then return end
+
+        Insert(InstantAim.Entries, Object)
+
+        local Original = {}
+
+        if Aim then
+            Original.AimSpeed = Aim.AimSpeed
+            Original.AimAnimSpeed = Aim.AimAnimSpeed
+        end
+
+        if Sniper then
+            Original.SniperSpeed = Sniper.AimSpeed
+            Original.SniperAnimSpeed = Sniper.AimAnimSpeed
+        end
+
+        InstantAim.Originals[Object] = Original
+    end
+
+    local function ApplyEntry(Object)
+        local Aim = rawget(Object, "AimSettings")
+        if type(Aim) == "table" then
+            Aim.AimSpeed = 0.01
+            Aim.AimAnimSpeed = math.huge
+        end
+
+        local Sniper = rawget(Object, "SniperSettings")
+        if type(Sniper) == "table" then
+            Sniper.AimSpeed = 0.01
+            Sniper.AimAnimSpeed = math.huge
+        end
+    end
+
+    local function ApplyEntries()
+        if not Flags["Instant Aim"].Value then return end
+
+        for _, Object in next, InstantAim.Entries do
+            pcall(ApplyEntry, Object)
+        end
+    end
+
+   
+    local function ScanEntries()
+        local Objects = getgc(true)
+        local Budget = 0
+
+        for Index = 1, #Objects do
+            local Object = Objects[Index]
+
+            if type(Object) == "table"
+                and (rawget(Object, "AimSettings") ~= nil or rawget(Object, "SniperSettings") ~= nil) then
+                pcall(Register, Object)
+            end
+
+            Budget = Budget + 1
+
+            if Budget >= 15000 then
+                Budget = 0
+                Wait()
+
+                if not Flags["Instant Aim"].Value then return end
+            end
+        end
+    end
+
+    local function RequestScan()
+        if InstantAim.Scanning then
+            InstantAim.ScanQueued = true
+            return
+        end
+
+        InstantAim.Scanning = true
+
+        Spawn(function()
+            ApplyEntries()
+
+            repeat
+                InstantAim.ScanQueued = false
+                pcall(ScanEntries)
+                ApplyEntries()
+            until not InstantAim.ScanQueued
+
+            InstantAim.Scanning = false
+        end)
+    end
+
+    local function untogglinstan()
+        for _, Object in next, InstantAim.Entries do
+            local Original = InstantAim.Originals[Object] or {}
+
+            local Aim = rawget(Object, "AimSettings")
+            if type(Aim) == "table" and Original.AimSpeed ~= nil then
+                Aim.AimSpeed = Original.AimSpeed
+                Aim.AimAnimSpeed = Original.AimAnimSpeed
+            end
+
+            local Sniper = rawget(Object, "SniperSettings")
+            if type(Sniper) == "table" and Original.SniperSpeed ~= nil then
+                Sniper.AimSpeed = Original.SniperSpeed
+                Sniper.AimAnimSpeed = Original.SniperAnimSpeed
+            end
+        end
+    end
+
+    local function checkthisout()
+        if InstantAim.SchedulePending then return end
+        InstantAim.SchedulePending = true
+
+        Spawn(function()
+            for _, DelayTime in next, { 1, 3, 6 } do
+                Wait(DelayTime)
+
+                if not Flags["Instant Aim"].Value then break end
+
+                RequestScan()
+            end
+
+            InstantAim.SchedulePending = false
+        end)
+    end
+
+    local function WatchContainer(Container)
+        Container.ChildAdded:Connect(function(Child)
+            if IsA(Child, "Tool") and Flags["Instant Aim"].Value then
+                checkthisout()
+            end
+        end)
+    end
+
+    LocalPlayer.ChildAdded:Connect(function(Child)
+        if IsA(Child, "Backpack") then
+            WatchContainer(Child)
+        end
+    end)
+
+    do
+        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
+        if Backpack then
+            WatchContainer(Backpack)
+        end
+    end
+
+    LocalPlayer.CharacterAdded:Connect(function(Character)
+        WatchContainer(Character)
+
+        if Flags["Instant Aim"].Value then
+            checkthisout()
+        end
+    end)
+
+    if LocalPlayer.Character then
+        WatchContainer(LocalPlayer.Character)
+    end
+
+    Heartbeat:Connect(function()
+        if Clock() - InstantAim.LastCheck < 0.25 then return end
+        InstantAim.LastCheck = Clock()
+
+        local Enabled = Flags["Instant Aim"].Value
+
+        if Enabled == InstantAim.LastState then return end
+        InstantAim.LastState = Enabled
+
+        if Enabled then
+            RequestScan()
+            checkthisout()
+        else
+            untogglinstan()
+        end
+    end)
+end
+
+
+do
+    InstantEquip = {
+        Originals = {},
+        Pending = setmetatable({}, { __mode = "k" }),
+        LastState = false,
+        LastCheck = 0,
+    }
+
+    local function RestartClient(Tool)
+        for _, Name in next, { "Client", "PassClient" } do
+            local Script = FindFirstChild(Tool, Name)
+            if Script then
+                pcall(function()
+                    Script.Disabled = true
+                    Script.Disabled = false
+                end)
+            end
+        end
+    end
+
+    local function WriteConfig(Tool, Enable)
+        if not IsA(Tool, "Tool") then return false end
+
+        local Module = FindFirstChild(Tool, "Config")
+        if not Module then return false end
+
+        local Ok, Config = pcall(require, Module)
+        if not Ok or type(Config) ~= "table" then return false end
+
+        if Enable then
+            if not InstantEquip.Originals[Config] then
+                InstantEquip.Originals[Config] = {
+                    EquipTime = rawget(Config, "EquipTime"),
+                    EquipAnimSpeed = rawget(Config, "EquipAnimSpeed") or 1,
+                }
+            end
+
+            pcall(function()
+                Config.EquipTime = 0.2
+                Config.EquipAnimSpeed = 9999
+            end)
+        else
+            local Original = InstantEquip.Originals[Config]
+            if Original then
+                pcall(function()
+                    Config.EquipTime = Original.EquipTime
+                    Config.EquipAnimSpeed = Original.EquipAnimSpeed
+                end)
+            end
+        end
+
+        return true
+    end
+
+    local function changecfgss(Tool, Enable)
+        if not WriteConfig(Tool, Enable) then return end
+
+        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
+
+        if Backpack and Tool.Parent == Backpack then
+            InstantEquip.Pending[Tool] = nil
+            RestartClient(Tool)
+        else
+            InstantEquip.Pending[Tool] = true
+        end
+    end
+
+    local function changecfgssing(Enable)
+        local Character = LocalPlayer.Character
+        if Character then
+            for _, Child in next, GetChildren(Character) do
+                pcall(changecfgss, Child, Enable)
+            end
+        end
+
+        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
+        if Backpack then
+            for _, Child in next, GetChildren(Backpack) do
+                pcall(changecfgss, Child, Enable)
+            end
+        end
+
+        if not Enable then
+            InstantEquip.Originals = {}
+        end
+    end
+
+    local function WatchBackpack(Backpack)
+        Backpack.ChildAdded:Connect(function(Child)
+            if not IsA(Child, "Tool") then return end
+
+            Wait()
+
+            if Flags["Instant Equip"].Value then
+                pcall(changecfgss, Child, true)
+            elseif InstantEquip.Pending[Child] then
+                InstantEquip.Pending[Child] = nil
+                pcall(RestartClient, Child)
+            end
+        end)
+    end
+
+    local function WatchCharacter(Character)
+        Character.ChildAdded:Connect(function(Child)
+            if IsA(Child, "Tool") and Flags["Instant Equip"].Value then
+                Wait()
+                pcall(WriteConfig, Child, true)
+            end
+        end)
+    end
+
+    LocalPlayer.ChildAdded:Connect(function(Child)
+        if IsA(Child, "Backpack") then
+            WatchBackpack(Child)
+        end
+    end)
+
+    do
+        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
+        if Backpack then
+            WatchBackpack(Backpack)
+        end
+    end
+
+    LocalPlayer.CharacterAdded:Connect(function(Character)
+        WatchCharacter(Character)
+
+        if Flags["Instant Equip"].Value then
+            Spawn(function()
+                Wait(0.5)
+                changecfgssing(true)
+            end)
+        end
+    end)
+
+    if LocalPlayer.Character then
+        WatchCharacter(LocalPlayer.Character)
+    end
+
+    Heartbeat:Connect(function()
+        if Clock() - InstantEquip.LastCheck < 0.25 then return end
+        InstantEquip.LastCheck = Clock()
+
+        local Enabled = Flags["Instant Equip"].Value
+
+        if Enabled == InstantEquip.LastState then return end
+        InstantEquip.LastState = Enabled
+
+        changecfgssing(Enabled)
+    end)
+end
+
+
+do
+    AutoMelee = {
+        Busy = false,
+        LastCycle = 0,
+        LastCheck = 0,
+        Emote = "\240\159\141\158",
+    }
+
+    local function GetMeleeSpec(Tool)
+        local Module = FindFirstChild(Tool, "Config")
+        if not Module then return end
+
+        local Ok, Config = pcall(require, Module)
+        if not Ok or type(Config) ~= "table" then return end
+
+        local Mains = rawget(Config, "Mains")
+        if type(Mains) ~= "table" then return end
+
+        for _, Spec in next, Mains do
+            if type(Spec) == "table" and Spec.Hitter and Spec.SwingWait then
+                return Spec
+            end
+        end
+    end
+
+    local function GetHitter(Entry, Character, Tool)
+        if type(Entry) ~= "table" then return end
+
+        if Entry[1] == "Tool" then
+            return FindFirstChild(Tool, Entry[2])
+        end
+
+        if Entry[1] == "Char" then
+            return FindFirstChild(Character, Entry[2])
+        end
+    end
+
+    local function GetClosestTarget(Character, Range)
+        local Root = FindFirstChild(Character, "HumanoidRootPart")
+        if not Root then return end
+
+        local Characters = FindFirstChild(Workspace, "Characters")
+        if not Characters then return end
+
+        local PlayerData = Info and Info.PlayerData or {}
+        local Best, BestDistance = nil, Range
+
+        for _, Model in next, GetChildren(Characters) do
+            if Model ~= Character and Model.Name ~= LocalPlayer.Name then
+                local Record = PlayerData[Model.Name]
+
+                if not (Record and Record.Whitelist) then
+                    local TargetRoot = FindFirstChild(Model, "HumanoidRootPart")
+                    local Humanoid = FindFirstChild(Model, "Humanoid")
+
+                    if TargetRoot and Humanoid and Humanoid.Health > 0 and not FindFirstChildWhichIsA(Model, "ForceField") then
+                        local Distance = (TargetRoot.Position - Root.Position).Magnitude
+
+                        if Distance <= BestDistance then
+                            Best = Model
+                            BestDistance = Distance
+                        end
+                    end
+                end
+            end
+        end
+
+        return Best
+    end
+
+    local function MeleeCycle(Character, Tool, Target)
+        AutoMelee.Busy = true
+
+        pcall(function()
+            local Spec = GetMeleeSpec(Tool)
+            if not Spec then return end
+
+            local Hitter = GetHitter(Spec.Hitter, Character, Tool)
+            if not Hitter then return end
+
+            local Events = FindFirstChild(ReplicatedStorage, "Events")
+            if not Events then return end
+
+            local Swing = FindFirstChild(Events, "XMHH.2")
+            local Hit = FindFirstChild(Events, "XMHH2.2")
+            if not (Swing and Hit) then return end
+
+            local Seed = Swing:InvokeServer(AutoMelee.Emote, tick(), Tool, "43TRFWX", "Normal", 0, true)
+            if Seed == nil then
+                Wait(0.4)
+                return
+            end
+
+            Wait(Spec.SwingWait or 0.25)
+
+            local PartFlag = Flags["Auto Melee Part"]
+            local PartName = PartFlag and PartFlag.Value or "Torso"
+
+            for _ = 1, 4 do
+                if not Flags["Auto Melee"].Value then break end
+                if not (Target and Target.Parent) then break end
+
+                local Humanoid = FindFirstChild(Target, "Humanoid")
+                if not Humanoid or Humanoid.Health <= 0 then break end
+
+                local HitPart = FindFirstChild(Target, PartName)
+                    or FindFirstChild(Target, "HumanoidRootPart")
+                    or FindFirstChild(Target, "Head")
+                if not HitPart then break end
+
+                Hit:FireServer(AutoMelee.Emote, tick(), Tool, "2389ZFX34", Seed, false, Hitter, HitPart, Target, NewVector3(0, 0, 0), NewVector3(0, 1, 0))
+
+                Wait(0.1)
+            end
+        end)
+
+        AutoMelee.Busy = false
+    end
+
+    Heartbeat:Connect(function()
+        if Clock() - AutoMelee.LastCheck < 0.1 then return end
+        AutoMelee.LastCheck = Clock()
+
+        local EnabledFlag = Flags["Auto Melee"]
+        if not (EnabledFlag and EnabledFlag.Value) then return end
+        if AutoMelee.Busy then return end
+        if Clock() - AutoMelee.LastCycle < 0.15 then return end
+
+        local Character = LocalPlayer.Character
+        if not Character then return end
+
+        local Tool = FindFirstChildWhichIsA(Character, "Tool")
+        if not Tool or FindFirstChild(Tool, "IsGun") then return end
+
+        local RangeFlag = Flags["Auto Melee Distance"]
+        local Range = RangeFlag and RangeFlag.Value or 15
+
+        local Target = GetClosestTarget(Character, Range)
+        if not Target then return end
+
+        AutoMelee.LastCycle = Clock()
+        Spawn(MeleeCycle, Character, Tool, Target)
     end)
 end
 
