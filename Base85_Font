@@ -5,6 +5,8 @@
 
 
 
+
+
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -413,6 +415,7 @@ RunService.Heartbeat:Connect(function()
         af = z
     end
 end)
+
 
 
 
@@ -9310,11 +9313,62 @@ end
             end
 
             Section = Tab:Section({
-                Name = "envyings has potential. cuz hes my son <3",
+                Name = "Silent Aim",
                 Size = 300,
                 Side = "Right"
             })
             do
+                Section:Toggle({
+                    Name = "Enabled",
+                    Unsafe = true,
+                    Flag = "Silent Aim Enabled"
+                }):Keybind({
+                    Mode = "Toggle",
+                    Flag = "Silent Aim Keybind",
+                    Name = "Silent Aim"
+                })
+
+                Section:Slider({
+                    Name = "Hit Chance",
+                    Flag = "Silent Aim Hit Chance",
+                    Min = 0, Max = 100, Default = 100,
+                    Prefix = "%"
+                })
+
+                Section:Toggle({
+                    Name = "Wall Check",
+                    Flag = "Silent Aim Wall Check",
+                    Default = true
+                })
+
+                Section:Dropdown({
+                    Name = "Target Part",
+                    Flag = "Silent Aim Target Part",
+                    Options = { "Random", "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" },
+                    Default = "Head"
+                })
+
+                Section:Toggle({
+                    Name = "Draw FOV",
+                    Flag = "Silent Aim Draw FOV"
+                }):Colorpicker({
+                    Color = NewRGB(255, 0, 0),
+                    Flag = "Silent Aim FOV Color"
+                })
+
+                Section:Dropdown({
+                    Name = "FOV Position",
+                    Flag = "Silent Aim FOV Position",
+                    Options = { "Center", "Mouse" },
+                    Default = "Center"
+                })
+
+                Section:Slider({
+                    Name = "FOV Radius",
+                    Flag = "Silent Aim FOV",
+                    Min = 10, Max = 600, Default = 100,
+                    Prefix = "px"
+                })
              
             end
 
@@ -9344,13 +9398,17 @@ end
 
     RageConfig = {
         Enabled = false,
-        DownedCheck = true,
-        FireShift = 18.2,
-        BoneShift = 23.5,
-        FireDelay = 0.1,
-        Fov = 100,
-        RenderFov = true,
+        RapidFire = false,
+        DownCheck = true,
+        TargetMode = "Normal",
+        Fov = 120,
         FovColor = NewRGB(255, 255, 255),
+        OriginRadius = 18.5,
+        OriginScans = 24,
+        HitRadius = 23.5,
+        HitScans = 24,
+        ScanRate = 14,
+        CacheThreshold = 0.5,
         HitsoundKey = "HitMarker",
         HitVolumes = 0.8, 
         HitSoundList = {   -- TODO: add uv_aidan confirmation hit sound l8r
@@ -9388,62 +9446,47 @@ end
     }
 
     Spawn(function()
-        local GTag
-        pcall(function() GTag = getrenv()._G.gTag end)
-
         local CharacterStats = WaitForChild(ReplicatedStorage, "CharStats", 30)
         local Events = WaitForChild(ReplicatedStorage, "Events", 30)
-        local Map = WaitForChild(Workspace, "Map", 30)
 
         local ReloadRemote = Events and WaitForChild(Events, "GNX_R", 30)
         local ShootRemote = Events and WaitForChild(Events, "GNX_S", 30)
         local HitRemote = Events and WaitForChild(Events, "ZFKLF__H", 30)
 
-        if not (Map and ReloadRemote and ShootRemote and HitRemote) then return end
+        if not (ReloadRemote and ShootRemote and HitRemote) then return end
 
-        local MapParts = FindFirstChild(Map, "Parts")
-
-        local blacklistings = {}
-
-        for Index, Object in next, {
-
-            FindFirstChild(Workspace, "Debris"), FindFirstChild(Workspace, "Filter"), FindFirstChild(Workspace, "Characters"),
-            MapParts and FindFirstChild(MapParts, "Grinders"), FindFirstChild(Map, "VendingMachines"), FindFirstChild(Map, "StreetLights"),
-            FindFirstChild(Map, "BredMakurz"), FindFirstChild(Map, "Security"), FindFirstChild(Map, "Doors"),
-            FindFirstChild(Map, "Shopz"), FindFirstChild(Map, "ATMz")
-
-        } 
-        
-        do
-            blacklistings[#blacklistings + 1] = Object
-        end
+        local RageTimers = { Tick = 0, LastShot = 0, LastReload = 0 }
+        local ScanState = { LastScan = 0, Round = 0 }
+        local ValidPair, LockedPath = nil, nil
 
         local RayParams = NewRayParams()
         RayParams.FilterType = Enum.RaycastFilterType.Exclude
-        RayParams.IgnoreWater = true
-        RayParams.RespectCanCollide = true
-
-        local Vectordirectio = {
-            NewVector3(1, 0, 0), NewVector3(-1, 0, 0), NewVector3(0, 1, 0), NewVector3(0, -1, 0),
-            NewVector3(1, 1, 0), NewVector3(-1, 1, 0), NewVector3(1, -1, 0), NewVector3(-1, -1, 0),
-            NewVector3(0, 0, 1), NewVector3(0, 0, -1)
-        }
-
-        local RageTimers = { Tick = 0, LastShot = 0, LastReload = 0 }
 
         local FovCircle = NewDrawing("Circle")
         FovCircle.Visible = false
-        FovCircle.Color = RageConfig.FovColor
-        FovCircle.Radius = RageConfig.Fov
         FovCircle.Thickness = 1
         FovCircle.NumSides = 64
         FovCircle.Filled = false
+        FovCircle.Transparency = 1
 
-        function IsDowned(PlayerName)
+        local ScanVectors = {
+            NewVector3(1, 0, 0), NewVector3(0, 0, 1), NewVector3(0, 1, 0),
+            -NewVector3(1, 0, 0), -NewVector3(0, 0, 1), -NewVector3(0, 1, 0),
+            NewVector3(1, 1, 0) / math.sqrt(2), NewVector3(1, 0, 1) / math.sqrt(2), NewVector3(0, 1, 1) / math.sqrt(2),
+            NewVector3(-1, 1, 0) / math.sqrt(2), NewVector3(-1, 0, 1) / math.sqrt(2),
+            -NewVector3(1, 0, 1) / math.sqrt(2), -NewVector3(-1, 0, 1) / math.sqrt(2), -NewVector3(0, -1, 1) / math.sqrt(2),
+            NewVector3(1, 1, 1) / math.sqrt(3), NewVector3(-1, 1, 1) / math.sqrt(3), NewVector3(1, 1, -1) / math.sqrt(3),
+            -NewVector3(1, 1, 1) / math.sqrt(3), -NewVector3(1, -1, 1) / math.sqrt(3),
+            NewVector3(1, 2, 0) / math.sqrt(5), NewVector3(-1, 2, 0) / math.sqrt(5), NewVector3(1, 0, 2) / math.sqrt(5), NewVector3(-1, 0, 2) / math.sqrt(5),
+            -NewVector3(-1, 0, 2) / math.sqrt(5), -NewVector3(1, 0, 2) / math.sqrt(5),
+        }
+
+        local function IsDowned(PlayerName)
             local Stats = CharacterStats and FindFirstChild(CharacterStats, PlayerName)
             local Downed = Stats and FindFirstChild(Stats, "Downed")
             return Downed and Downed.Value or false
         end
+
 
         function HitSoundpl()
             local HitsoundEnabled = Flags["Hitsound Enabled"]
@@ -9459,117 +9502,243 @@ end
             Destroy(Sound)
         end
 
-        function Reloading(Tool)
+        local function Reloading(Tool)
             if (RageTimers.Tick - RageTimers.LastReload) > 0.05 then
                 RageTimers.LastReload = RageTimers.Tick
                 ReloadRemote:FireServer(RageTimers.Tick, "KLWE89U0", Tool)
             end
         end
 
-        function Keystring(Length)
-            local Result = ""
-            for Index = 1, Length do
-                Result = Result .. Char(Random(65, 122))
-            end
-            return Result
+        local function CheckWallbang(P1, P2)
+            RayParams.FilterDescendantsInstances = { LocalPlayer.Character, CurrentCamera }
+            local Distance = (P2 - P1).Magnitude
+            local Result = Raycast(Workspace, P1, (P2 - P1).Unit * Distance, RayParams)
+            return not Result or (Result.Position - P2).Magnitude <= 24
         end
 
-        function Targing(PlayerList, Fov, SkipDowned, Origin)
-            local BestCharacter, BestRoot, BestDist = nil, nil, nil
+        local function GetTarget()
+            local Character = LocalPlayer.Character
+            local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
+            if not Root then return nil end
+
+            local Mode = RageConfig.TargetMode
             local MousePos = UserInputService:GetMouseLocation()
-            local UnlimitedFov = Fov >= 500
+            local MyPos = Root.Position
 
-            for PlayerIndex, Player in next, PlayerList do
-                if Player == LocalPlayer then continue end
-                local PlayerInfo = Info.PlayerData[Player.Name]
-                if PlayerInfo and PlayerInfo.Whitelist then continue end
-                local Character = Player.Character
-                if not Character then continue end
-                if Character:FindFirstChildOfClass("ForceField") then continue end
-                local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-                if not Humanoid or Humanoid.Health <= 0 then continue end
-                local RootPart = Humanoid.RootPart
-                if not RootPart then continue end
-                if SkipDowned and IsDowned(Player.Name) then continue end
-                local RootPos = RootPart.CFrame.Position
+            local Pool, PriorityPool = {}, {}
 
-                if UnlimitedFov then
-                    local Distance = Round(((Origin or CurrentCamera.CFrame.Position) - RootPos).Magnitude)
-                    if BestDist == nil or Distance < BestDist then
-                        BestDist = Distance
-                        BestRoot = RootPart
-                        BestCharacter = Character
-                    end
-                else
-                    local ScreenPos, Visible = CurrentCamera:WorldToViewportPoint(RootPos)
-                    if Visible then
-                        local MouseDist = Round((MousePos - NewVector2(ScreenPos.X, ScreenPos.Y)).Magnitude)
-                        if MouseDist <= Fov then
-                            local Distance = Round((CurrentCamera.CFrame.Position - RootPos).Magnitude)
-                            if BestDist == nil or Distance < BestDist then
-                                BestDist = Distance
-                                BestRoot = RootPart
-                                BestCharacter = Character
-                            end
+            for Index, Player in next, Players:GetPlayers() do
+                if Player ~= LocalPlayer then
+                    local PlayerInfo = Info.PlayerData[Player.Name]
+
+                    if not (PlayerInfo and PlayerInfo.Whitelist) then
+                        Insert(Pool, Player)
+
+                        if PlayerInfo and PlayerInfo.Priority then
+                            Insert(PriorityPool, Player)
                         end
                     end
                 end
             end
-            return BestCharacter, BestRoot
-        end
 
-        function CanWall(Origin, Direction, Blacklist)
-            RayParams.FilterDescendantsInstances = Blacklist
-            local Result = Raycast(Workspace, Origin, Direction, RayParams)
-            if Result and Result.Instance then
-                local Hit = Result.Instance
-                Insert(Blacklist, Hit)
-                if FindFirstChild(Hit, "FilterV") or Hit.Transparency == 1 or not Hit.CanCollide then
-                    return CanWall(Origin, Direction, Blacklist)
-                end
-                if GTag and (GTag(Hit, "MainIgnorePart") or GTag(Hit, "MainIgnorePart_1") or GTag(Hit, "MainIgnorePart_2") or GTag(Hit, "MainIgnorePart_3")) then
-                    return CanWall(Origin, Direction, Blacklist)
-                end
-                return false
+       
+            if #PriorityPool > 0 then
+                Pool = PriorityPool
             end
-            return true
-        end
 
-        function Aroundpos(Range, Position, Storage, IsFireOrigin)
-            for OffsetIndex, Offset in next, Vectordirectio do
-                local Shifted = Position + (Offset * Range)
-                Storage[#Storage + 1] = IsFireOrigin and { Position = Shifted } or Shifted
+            local Best, Metric = nil, math.huge
+
+            for Index, Player in next, Pool do
+                local TargetChar = Player.Character
+                local RootPart = TargetChar and FindFirstChild(TargetChar, "HumanoidRootPart")
+                local Humanoid = TargetChar and TargetChar:FindFirstChildOfClass("Humanoid")
+
+                if RootPart and Humanoid and Humanoid.Health > 0
+                    and not TargetChar:FindFirstChildOfClass("ForceField")
+                    and not (RageConfig.DownCheck and IsDowned(Player.Name)) then
+
+                    local InFov = true
+
+                    if Mode == "FOV" then
+                        InFov = false
+
+                        local ScreenPos, OnScreen = CurrentCamera:WorldToViewportPoint(RootPart.Position)
+
+                        if OnScreen and (MousePos - NewVector2(ScreenPos.X, ScreenPos.Y)).Magnitude <= RageConfig.Fov then
+                            InFov = true
+                        end
+                    end
+
+                    if InFov then
+                     
+                        local Distance = (MyPos - RootPart.Position).Magnitude
+
+                        if Distance < Metric then
+                            Metric = Distance
+                            Best = Player
+                        end
+                    end
+                end
             end
-            return Storage
+
+            return Best
         end
 
-        function Execute(Tool, Bone, FirePos, HitPos)
+        local function GetOffsetsFixed(FirePos, TargetPos, Offset)
+            if not Offset or Offset <= 0 then return { FirePos } end
+
+            local Offsets = { FirePos }
+            local Rotated = NewCFrame(FirePos, TargetPos) * CFrame.Angles(0, 0, math.rad(Random(1, 90)))
+
+            for Index, Direction in next, ScanVectors do
+                Offsets[#Offsets + 1] = Rotated * (Direction * Offset)
+            end
+
+            return Offsets
+        end
+
+        local function GetOffsetsSpiral(Center, PoleDir, Radius, Count)
+            if not Radius or Radius <= 0 or Count <= 0 then return { Center } end
+
+            local Offsets = { Center }
+            local Phi = 0.6180339887
+            local Arbitrary = math.abs(PoleDir.X) < 0.9 and NewVector3(1, 0, 0) or NewVector3(0, 1, 0)
+            local Tangent1 = PoleDir:Cross(Arbitrary).Unit
+            local Tangent2 = PoleDir:Cross(Tangent1).Unit
+
+            for Index = 0, Count - 1 do
+                local Angle = Index * Phi * 2 * math.pi
+                local CosT = 1 - (Index + 0.5) / Count
+                local SinT = math.sqrt(1 - CosT * CosT)
+                local R = Radius * (Random() ^ (1 / 3))
+                local Direction = Tangent1 * (SinT * math.cos(Angle)) + Tangent2 * (SinT * math.sin(Angle)) + PoleDir * CosT
+
+                Offsets[#Offsets + 1] = Center + Direction * R
+            end
+
+            return Offsets
+        end
+
+        local function DoScan()
+            if not RageConfig.Enabled then ValidPair = nil; LockedPath = nil; return end
+
+            local Target = GetTarget()
+            if not Target or not Target.Character then ValidPair = nil; LockedPath = nil; return end
+            if LockedPath and LockedPath.Target ~= Target then LockedPath = nil end
+
+            local Character = LocalPlayer.Character
+            local MyRoot = Character and FindFirstChild(Character, "HumanoidRootPart")
+            local TargetRoot = FindFirstChild(Target.Character, "HumanoidRootPart")
+            if not MyRoot or not TargetRoot then return end
+
+            local MyPos = MyRoot.Position
+            local TargetPos = TargetRoot.Position
+
+            if LockedPath then
+                local MovedOrigin = (MyPos - LockedPath.MyPos).Magnitude
+                local MovedHit = (TargetPos - LockedPath.TPos).Magnitude
+                local InRange = (MyPos - LockedPath.AbsO).Magnitude <= RageConfig.OriginRadius
+                    and (TargetPos - LockedPath.AbsH).Magnitude <= RageConfig.HitRadius
+
+                if MovedOrigin <= RageConfig.CacheThreshold and MovedHit <= RageConfig.CacheThreshold and InRange then
+                    if CheckWallbang(LockedPath.AbsO, LockedPath.AbsH) then
+                        ValidPair = { Origin = LockedPath.AbsO, Hit = LockedPath.AbsH, Target = Target }
+                        return
+                    end
+                end
+
+                LockedPath = nil
+            end
+
+            if RageTimers.Tick - ScanState.LastScan < 1 / RageConfig.ScanRate then return end
+            ScanState.LastScan = RageTimers.Tick
+            ScanState.Round = ScanState.Round + 1
+
+            local NewOrigins, NewHits
+
+            if ScanState.Round % 2 == 0 then
+                NewOrigins = GetOffsetsFixed(MyPos, TargetPos, RageConfig.OriginRadius)
+                NewHits = GetOffsetsFixed(TargetPos, MyPos, RageConfig.HitRadius)
+            else
+                local Pole = (TargetPos - MyPos)
+                if Pole.Magnitude < 0.001 then return end
+                Pole = Pole.Unit
+
+                NewOrigins = GetOffsetsSpiral(MyPos, Pole, RageConfig.OriginRadius, RageConfig.OriginScans)
+                NewHits = GetOffsetsSpiral(TargetPos, -Pole, RageConfig.HitRadius, RageConfig.HitScans)
+            end
+
+            for OriginIndex, Origin in next, NewOrigins do
+                for HitIndex, Hit in next, NewHits do
+                    if CheckWallbang(Origin, Hit) then
+                        LockedPath = { AbsO = Origin, AbsH = Hit, Target = Target, MyPos = MyPos, TPos = TargetPos }
+                        ValidPair = { Origin = Origin, Hit = Hit, Target = Target }
+                        return
+                    end
+                end
+            end
+
+            ValidPair = nil
+        end
+
+        local function TryShoot()
+            if not RageConfig.Enabled or not ValidPair then return end
+
+            local Character = LocalPlayer.Character
+            local Tool = Character and Character:FindFirstChildOfClass("Tool")
+            if not Tool or not FindFirstChild(Tool, "IsGun") then return end
+
+            local WaitTime
+
+            if RageConfig.RapidFire then
+                local ToolName = Tool.Name
+
+                if ToolName:find("Beretta") or ToolName:find("TEC") then
+                    WaitTime = 0
+                else
+                    WaitTime = 0.1
+                    local ToolConfig = FindFirstChild(Tool, "Config")
+
+                    if ToolConfig and ToolConfig:IsA("ModuleScript") then
+                        local Ok, GunSettings = pcall(require, ToolConfig)
+
+                        if Ok and GunSettings then
+                            WaitTime = 1 / (GunSettings.FireRate or 3)
+                        end
+                    end
+                end
+            else
+                WaitTime = 0.5
+            end
+
+            if RageTimers.Tick - RageTimers.LastShot < WaitTime then return end
+
             local Values = FindFirstChild(Tool, "Values")
             local ServerAmmo = Values and FindFirstChild(Values, "SERVER_Ammo")
             if not ServerAmmo or ServerAmmo.Value <= 0 then return end
-            if (RageTimers.Tick - RageTimers.LastShot) <= RageConfig.FireDelay then return end
-            RageTimers.LastShot = RageTimers.Tick
 
-            local Finals = {}
-            local Key = Keystring(30) .. 0
-            Insert(Finals, NewCFrame(FirePos, HitPos).LookVector)
+            local Bone = FindFirstChild(ValidPair.Target.Character, "Head")
+                or FindFirstChild(ValidPair.Target.Character, "HumanoidRootPart")
+            if not Bone then return end
 
-            ShootRemote:FireServer(RageTimers.Tick, Key, Tool, "FDS9I83", FirePos, Finals, false)
+            local Key = "K" .. Random(1000, 9999)
+            local Direction = (ValidPair.Hit - ValidPair.Origin).Unit
+
+            ShootRemote:FireServer(RageTimers.Tick, Key, Tool, "FDS9I83", ValidPair.Origin, { Direction }, false)
+
+            if Flags["Local Tracer Enabled"].Value and Visuals.Cache.LocalBeam and FireTracer then
+                FireTracer(ValidPair.Origin, ValidPair.Hit, Visuals.Cache.LocalBeam)
+            end
+
+            HitRemote:FireServer("\240\159\167\136", Tool, Key, 1, Bone, ValidPair.Hit, Direction)
+            HitSoundpl()
+
+            local Hitmarker = FindFirstChild(Tool, "Hitmarker")
+            if Hitmarker then Hitmarker:Fire(Bone) end
 
             if Flags["Rage Auto Reload"] and Flags["Rage Auto Reload"].Value then
                 Reloading(Tool)
             end
-
-            for Index, Final in next, Finals do
-                HitRemote:FireServer("\240\159\167\136", Tool, Key, Index, Bone, HitPos, Final, nil, nil)
-                if Flags["Local Tracer Enabled"].Value and Visuals.Cache.LocalBeam and FireTracer then
-                    FireTracer(FirePos, HitPos, Visuals.Cache.LocalBeam)
-                end
-                HitSoundpl()
-            end
-
-            local Hitmarker = FindFirstChild(Tool, "Hitmarker")
-            if Hitmarker then Hitmarker:Fire(Bone) end
 
             local Ammo = FindFirstChild(Values, "Ammo")
             local StoredAmmo = FindFirstChild(Values, "StoredAmmo")
@@ -9582,57 +9751,14 @@ end
             if StoredAmmo and ServerStoredAmmo then
                 StoredAmmo.Value = ServerStoredAmmo.Value
             end
-        end
 
-        function ProcessAimbotStep(Character, RootPart, Tool)
-
-            local RootPos = RootPart.CFrame.Position
-            local AllPlayers = Players:GetPlayers()
-            local PriorityPlayers = {}
-
-            for PlayerIndex, Player in next, AllPlayers do
-                local PlayerInfo = Info.PlayerData[Player.Name]
-
-                if PlayerInfo and PlayerInfo.Priority then
-                    Insert(PriorityPlayers, Player)
-                end
-            end
-
-            local TargetChar, TargetRoot
-            if #PriorityPlayers ~= 0 then
-                TargetChar, TargetRoot = Targing(PriorityPlayers, RageConfig.Fov, RageConfig.DownedCheck, RootPos)
-            else
-                TargetChar, TargetRoot = Targing(AllPlayers, RageConfig.Fov, RageConfig.DownedCheck, RootPos)
-            end
-
-            if not TargetChar or not TargetRoot then return end
-
-            local Bone = FindFirstChild(TargetChar, "Head")
-            if not Bone then return end
-
-            local FirePositions = Aroundpos(RageConfig.FireShift, RootPos, { { Position = RootPos } }, true)
-            local HitPositions = Aroundpos(RageConfig.BoneShift, Bone.CFrame.Position, { Bone.CFrame.Position }, false)
-
-            for FireIndex, FirePosData in next, FirePositions do
-                for HitIndex, HitPos in next, HitPositions do
-
-                    local FirePos = FirePosData.Position
-                    local Blacklist = { TargetChar, CurrentCamera, Character }
-
-                    for ObjectIndex = 1, #blacklistings do
-                        Blacklist[#Blacklist + 1] = blacklistings[ObjectIndex]
-                    end
-
-                    if CanWall(FirePos, HitPos - FirePos, Blacklist) then
-                        Execute(Tool, Bone, FirePos, HitPos)
-                    end
-                end
-            end
+            RageTimers.LastShot = RageTimers.Tick
         end
 
         RunService.Stepped:Connect(function()
             RageTimers.Tick = Tick()
-            if RageConfig.Enabled and RageConfig.RenderFov and RageConfig.Fov < 500 then
+
+            if RageConfig.Enabled and RageConfig.TargetMode == "FOV" then
                 FovCircle.Position = UserInputService:GetMouseLocation()
                 FovCircle.Radius = RageConfig.Fov
                 FovCircle.Color = RageConfig.FovColor
@@ -9641,44 +9767,30 @@ end
                 FovCircle.Visible = false
             end
 
-            if not RageConfig.Enabled then return end
-
-            local Character = LocalPlayer.Character
-            if not Character then return end
-
-            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-
-            local RootPart = Humanoid and Humanoid.RootPart
-            if not RootPart then return end
-
-            local Tool = Character:FindFirstChildOfClass("Tool")
-            if not Tool or Tool.Name == "Fists" then return end
-
-            local ToolValues = FindFirstChild(Tool, "Values")
-            if not ToolValues or not FindFirstChild(ToolValues, "SERVER_Ammo") then return end
-
-            ProcessAimbotStep(Character, RootPart, Tool)
+            DoScan()
+            TryShoot()
         end)
     end)
 
     Section = Tab:Section({ Name = "Aimbot", Fill = true })
     do
         local EnableToggle = Section:Toggle({ Name = "Enabled", Default = false, Unsafe = true, Flag = "Rage Enabled", Callback = function(Value) RageConfig.Enabled = Value end })
-        EnableToggle:Keybind({ Mode = "Toggle", Flag = "Rage Keybind", Name = "Rage Enabled" })
+        EnableToggle:Keybind({ Mode = "Toggle", Flag = "Rage Keybind", Name = "Rage Enabled" }):Colorpicker({ Color = NewRGB(255, 255, 255), Flag = "Rage FOV Color", Callback = function(Color) RageConfig.FovColor = Color end })
 
-        Section:Toggle({ Name = "Visualize FOV", Default = true, Flag = "Rage Visualize FOV", Callback = function(Value) RageConfig.RenderFov = Value end }):Colorpicker({ Color = NewRGB(255, 255, 255), Flag = "Rage FOV Color", Callback = function(Color) RageConfig.FovColor = Color end })
-        Section:Slider({ Name = "FOV", Min = 10, Max = 500, Default = 100, Prefix = "px", Decimals = 1, Flag = "Rage FOV", Callback = function(Value) RageConfig.Fov = Value end })
-
-        Section:Toggle({ Name = "Skip downed", Default = true, Flag = "Rage Skip Downed", Callback = function(Value) RageConfig.DownedCheck = Value end })
-
-        Section:Slider({ Name = "Fire shift", Min = 1, Max = 30, Default = 18.2, Prefix = "st", Decimals = 0.1, Flag = "Rage Fire Shift", Callback = function(Value) RageConfig.FireShift = Value end })
-        Section:Slider({ Name = "Bone shift", Min = 1, Max = 30, Default = 23.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Bone Shift", Callback = function(Value) RageConfig.BoneShift = Value end })
-        Section:TextBox({ Placeholder = "Fire delay (s)", Default = "0.1", Flag = "Rage Fire Delay", Callback = function(Text)
-            local Number = tonumber(Text)
-            if Number and Number >= 0 then RageConfig.FireDelay = Number end
-        end })
-
+        Section:Toggle({ Name = "Rapid fire", Default = false, Flag = "Rage Rapid Fire", Callback = function(Value) RageConfig.RapidFire = Value end })
         Section:Toggle({ Name = "Auto reload", Default = true, Flag = "Rage Auto Reload" })
+        Section:Toggle({ Name = "ignore downed", Default = true, Flag = "Rage Skip Downed", Callback = function(Value) RageConfig.DownCheck = Value end })
+
+        Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(Value) RageConfig.TargetMode = Value end })
+
+        Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(Value) RageConfig.Fov = Value end })
+
+        Section:Slider({ Name = "Origin radius", Min = 0.1, Max = 20, Default = 18.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Origin Radius", Callback = function(Value) RageConfig.OriginRadius = Value end })
+        Section:Slider({ Name = "Origin points", Min = 1, Max = 50, Default = 24, Flag = "Rage Origin Scans", Callback = function(Value) RageConfig.OriginScans = Value end })
+        Section:Slider({ Name = "Hit radius", Min = 0.1, Max = 25, Default = 23.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Hit Radius", Callback = function(Value) RageConfig.HitRadius = Value end })
+        Section:Slider({ Name = "Hit points", Min = 1, Max = 50, Default = 24, Flag = "Rage Hit Scans", Callback = function(Value) RageConfig.HitScans = Value end })
+        Section:Slider({ Name = "Rays", Min = 1, Max = 60, Default = 14, Prefix = "%", Flag = "Rage Scan Rate", Callback = function(Value) RageConfig.ScanRate = Value end })
+        Section:Slider({ Name = "Cache Value", Min = 0.1, Max = 25, Default = 0.5, Prefix = "st", Decimals = 0.01, Flag = "Rage Cache Threshold", Callback = function(Value) RageConfig.CacheThreshold = Value end })
     end
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
@@ -11141,7 +11253,7 @@ end
 
             Section = Tab:Section({
                 Name = "Utility",
-                Size = 285
+                Size = 330
             })
             do
 
@@ -11194,6 +11306,18 @@ end
                             Fn(Value)
                         end
                     end
+                })
+
+                Section:Toggle({
+                    Name = "Auto Stomp",
+                    Flag = "Auto Stomp",
+                    Unsafe = true
+                })
+
+                Section:Slider({
+                    Name = "Auto Stomp Range",
+                    Flag = "Auto Stomp Range",
+                    Min = 5, Max = 50, Default = 15
                 })
 
 
@@ -16637,7 +16761,6 @@ do
 end
 
 
--- Aspect Ratio
 do
     RunService:BindToRenderStep("LuckyAspectSkew", Enum.RenderPriority.Camera.Value + 1, function()
         local Enabled = Flags["Aspect Ratio"]
@@ -16666,6 +16789,9 @@ do
         )
     end)
 end
+
+
+
 
 
 do
@@ -16788,14 +16914,376 @@ do
         Sound:Play()
     end
 
+    local PartyPreset = {
+        { "Ambience", true },
+        { "Colorshift", true },
+        { "Exposure", true },
+        { "Exposure Amount", 0.95 },
+        { "Brightness", true },
+        { "Brightness Amount", 1.4 },
+        { "Bloom", true },
+        { "Bloom Intensity", 100 },
+        { "Bloom Size", 100 },
+        { "Bloom Threshold", 2 },
+        { "Custom Skybox", "Twillight" },
+        { "Aspect Ratio", true },
+        { "Aspect Horizontal", 15 },
+        { "Aspect Vertical", 100 },
+        { "Visuals Custom Fov", true },
+        { "Visuals Custom Fov Factor", 120 }
+    }
+
+    local PartySaved
+
+    local function EachColorpicker(Fn)
+        for _, Flag in next, Flags do
+            if type(Flag) == "table" then
+                if Flag.FromRGB and not Flag.Exclude then
+                    Fn(Flag)
+                elseif Flag.Get == nil and Flag.Set == nil then
+                    for _, Sub in next, Flag do
+                        if type(Sub) == "table" and Sub.FromRGB and not Sub.Exclude then
+                            Fn(Sub)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local function PartyStart()
+        if PartySaved then return end
+
+        PartySaved = { Flags = {}, Pickers = {} }
+
+        for Index = 1, #PartyPreset do
+            local Name = PartyPreset[Index][1]
+            local Flag = Flags[Name]
+
+            if Flag then
+                PartySaved.Flags[Name] = Flag.Get()
+                pcall(Flag.Set, PartyPreset[Index][2])
+            end
+        end
+
+        local Pickers = Menu and Menu.RainbowPickers
+
+        if Pickers then
+            EachColorpicker(function(Picker)
+                PartySaved.Pickers[Picker] = Picker.Get()
+                Pickers[Picker] = true
+            end)
+        end
+    end
+
+    local function PartyStop()
+        if not PartySaved then return end
+
+        local Pickers = Menu and Menu.RainbowPickers
+
+        for Picker, Value in next, PartySaved.Pickers do
+            if Pickers then
+                Pickers[Picker] = nil
+            end
+
+            pcall(Picker.Set, Value)
+        end
+
+        for Name, Value in next, PartySaved.Flags do
+            local Flag = Flags[Name]
+
+            if Flag then
+                pcall(Flag.Set, Value)
+            end
+        end
+
+        PartySaved = nil
+    end
+
     function InfinitySound.Set(Value)
         if Value then
             Spawn(InfinitySound.Start)
+            PartyStart()
         else
             InfinitySound.Stop()
+            PartyStop()
         end
     end
 end
+
+do
+    Spawn(function()
+        local Events2 = WaitForChild(ReplicatedStorage, "Events2", 10)
+        local VisualizeEvent = Events2 and WaitForChild(Events2, "Visualize", 10)
+        local EventsFolder = WaitForChild(ReplicatedStorage, "Events", 10)
+        local DamageEvent = EventsFolder and WaitForChild(EventsFolder, "ZFKLF__H", 10)
+
+        if not VisualizeEvent or not DamageEvent then return end
+
+        local RandomParts = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }
+        local RandomIndex = 1
+        local RandomTimer = 0
+
+        local function GetTargetPart()
+            local Value = Flags["Silent Aim Target Part"].Value
+
+            if Value == "Random" then
+                return RandomParts[RandomIndex]
+            end
+
+            return Value
+        end
+
+        local function GetCenter()
+            if Flags["Silent Aim FOV Position"].Value == "Mouse" then
+                return UserInputService:GetMouseLocation()
+            end
+
+            return NewVector2(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
+        end
+
+        VisualizeEvent.Event:Connect(function(_, Key, _, Gun, _, StartPos, BulletsPerShot)
+            if not Flags["Silent Aim Enabled"].Value then return end
+            if math.random(1, 100) > Flags["Silent Aim Hit Chance"].Value then return end
+
+            local Character = LocalPlayer.Character
+            local MyTool = Character and Character:FindFirstChildOfClass("Tool")
+            if not MyTool or Gun ~= MyTool then return end
+
+            if typeof(StartPos) ~= "Vector3" or typeof(BulletsPerShot) ~= "table" then return end
+
+            local PartName = GetTargetPart()
+            local Center = GetCenter()
+            local WallCheck = Flags["Silent Aim Wall Check"].Value
+
+            local Target, ShortestDist = nil, Flags["Silent Aim FOV"].Value
+
+            for _, Player in next, Players:GetPlayers() do
+                if Player ~= LocalPlayer and Player.Character then
+                    local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
+
+                    if not (Data and Data.Whitelist) then
+                        local TargetChar = Player.Character
+                        local Humanoid = TargetChar:FindFirstChildOfClass("Humanoid")
+                        local Part = TargetChar:FindFirstChild(PartName)
+
+                        if Part and Humanoid and Humanoid.Health > 0
+                            and not TargetChar:FindFirstChildOfClass("ForceField") then
+                            local ScreenPos, OnScreen = CurrentCamera:WorldToViewportPoint(Part.Position)
+
+                            if OnScreen then
+                                local Dist = (NewVector2(ScreenPos.X, ScreenPos.Y) - Center).Magnitude
+
+                                if Dist < ShortestDist then
+                                    local Blocked = false
+
+                                    if WallCheck then
+                                        local Ignore = { CurrentCamera, Character, TargetChar }
+                                        Blocked = #CurrentCamera:GetPartsObscuringTarget({ Part.Position }, Ignore) > 0
+                                    end
+
+                                    if not Blocked then
+                                        Target = Player
+                                        ShortestDist = Dist
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            if not Target or not Target.Character then return end
+
+            local HitPart = FindFirstChild(Target.Character, PartName)
+            if not HitPart then return end
+
+            local HitPos = HitPart.Position
+            local LookVec = (HitPos - StartPos).Unit
+
+            Wait(0.005)
+
+            for Index = 1, #BulletsPerShot do
+                DamageEvent:FireServer("\240\159\167\136", Gun, Key, Index, HitPart, HitPos, LookVec)
+            end
+
+            local Hitmarker = FindFirstChild(Gun, "Hitmarker")
+            if Hitmarker then Hitmarker:Fire(HitPart) end
+        end)
+
+        Heartbeat:Connect(function(Delta)
+            if not Flags["Silent Aim Enabled"].Value then return end
+            if Flags["Silent Aim Target Part"].Value ~= "Random" then return end
+
+            RandomTimer = RandomTimer + Delta
+
+            if RandomTimer >= 0.1 then
+                RandomTimer = 0
+                RandomIndex = (RandomIndex % #RandomParts) + 1
+            end
+        end)
+
+        local FovCircle = NewDrawing("Circle")
+        FovCircle.Visible = false
+        FovCircle.Thickness = 1.5
+        FovCircle.NumSides = 64
+        FovCircle.Filled = false
+        FovCircle.Transparency = 1
+
+        RenderStepped:Connect(function()
+            if not Flags["Silent Aim Enabled"].Value or not Flags["Silent Aim Draw FOV"].Value then
+                FovCircle.Visible = false
+                return
+            end
+
+            FovCircle.Position = GetCenter()
+            FovCircle.Radius = Flags["Silent Aim FOV"].Value
+            FovCircle.Color = Flags["Silent Aim FOV Color"].Color
+            FovCircle.Visible = true
+        end)
+    end)
+end
+
+do
+    AutoStomp = {
+        Busy = false,
+        LastCycle = 0,
+        Emote = "\240\159\141\158"
+    }
+
+    local function IsDowned(Name)
+        local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
+        local Stats = CharStats and FindFirstChild(CharStats, Name)
+        local Downed = Stats and FindFirstChild(Stats, "Downed")
+
+        return Downed ~= nil and Downed.Value == true
+    end
+
+   
+    local function GetEquippedMelee()
+        local Character = LocalPlayer.Character
+        local Equipped = Character and FindFirstChildWhichIsA(Character, "Tool")
+
+        if Equipped and not FindFirstChild(Equipped, "IsGun") then
+            return Equipped
+        end
+
+        return nil
+    end
+
+    local function GetClosestDowned(Position, Range)
+        local Characters = FindFirstChild(Workspace, "Characters")
+        local Best, BestPlayer, BestDistance = nil, nil, Range
+
+        for _, Player in next, Players:GetPlayers() do
+            if Player ~= LocalPlayer and IsDowned(Player.Name) then
+                local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
+
+                if not (Data and Data.Whitelist) then
+                    local Model = (Characters and FindFirstChild(Characters, Player.Name)) or Player.Character
+                    local Torso = Model and (FindFirstChild(Model, "Torso") or FindFirstChild(Model, "HumanoidRootPart") or FindFirstChild(Model, "Head"))
+
+                    if Torso then
+                        local Distance = (Torso.Position - Position).Magnitude
+
+                        if Distance < BestDistance then
+                            Best, BestPlayer, BestDistance = Model, Player, Distance
+                        end
+                    end
+                end
+            end
+        end
+
+        return Best, BestPlayer
+    end
+
+    local function StompCycle(Target, TargetPlayer)
+        local Events = FindFirstChild(ReplicatedStorage, "Events")
+        local Swing = Events and FindFirstChild(Events, "XMHH.2")
+        local Hit = Events and FindFirstChild(Events, "XMHH2.2")
+
+        if not Swing or not Hit then return end
+
+        local Tool = GetEquippedMelee()
+
+        if not Tool then return end
+
+        local Ok, Seed = pcall(function()
+            return Swing:InvokeServer(AutoStomp.Emote, tick(), Tool, "EXECQX")
+        end)
+
+        if not Ok or Seed == nil then
+            Wait(0.4)
+            return
+        end
+
+        Wait(0.5)
+
+        for Index = 1, 6 do
+            local Enabled = Flags["Auto Stomp"]
+
+            if not Enabled or not Enabled.Value then return end
+            if not IsDowned(TargetPlayer.Name) then return end
+
+            local Character = LocalPlayer.Character
+            local Leg = Character and FindFirstChild(Character, "Right Leg")
+            local Limb = (Index % 2 == 0 and FindFirstChild(Target, "Head"))
+                or FindFirstChild(Target, "Torso")
+                or FindFirstChild(Target, "Head")
+                or FindFirstChild(Target, "HumanoidRootPart")
+
+            if not Leg or not Limb then return end
+
+            pcall(function()
+                Hit:FireServer(
+                    AutoStomp.Emote,
+                    tick(),
+                    Tool,
+                    "2389ZFX34",
+                    Seed,
+                    false,
+                    Leg,
+                    Limb,
+                    Target,
+                    Leg.Position,
+                    Limb.Position
+                )
+            end)
+
+            Wait(0.05)
+        end
+    end
+
+    Heartbeat:Connect(function()
+        local Enabled = Flags["Auto Stomp"]
+
+        if not Enabled or not Enabled.Value or AutoStomp.Busy then return end
+        if Clock() - AutoStomp.LastCycle < 0.15 then return end
+        if IsDowned(LocalPlayer.Name) then return end
+
+        local Character = LocalPlayer.Character
+        local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
+
+        if not Root then return end
+        if not GetEquippedMelee() then return end
+
+        local RangeFlag = Flags["Auto Stomp Range"]
+        local Range = (RangeFlag and RangeFlag.Value) or 15
+        local Target, TargetPlayer = GetClosestDowned(Root.Position, Range)
+
+        if not Target or not TargetPlayer then return end
+
+        AutoStomp.Busy = true
+        AutoStomp.LastCycle = Clock()
+
+        Spawn(function()
+            pcall(StompCycle, Target, TargetPlayer)
+            AutoStomp.LastCycle = Clock()
+            AutoStomp.Busy = false
+        end)
+    end)
+end
+
 
 do
 
