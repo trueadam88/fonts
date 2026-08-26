@@ -2,6 +2,7 @@
 
 
 
+
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -410,9 +411,6 @@ RunService.Heartbeat:Connect(function()
         af = z
     end
 end)
-
-
-
 
 
 
@@ -9929,8 +9927,8 @@ end
         EnableToggle:Keybind({ Mode = "Toggle", Flag = "Rage Keybind", Name = "Rage Enabled" }):Colorpicker({ Color = NewRGB(255, 255, 255), Flag = "Rage FOV Color", Callback = function(Color) RageConfig.FovColor = Color end })
 
         Section:Toggle({ Name = "Rapid fire", Default = false, Flag = "Rage Rapid Fire", Callback = function(Value) RageConfig.RapidFire = Value end })
-        Section:Toggle({ Name = "Auto reload", Default = true, Flag = "Rage Auto Reload" })
-        Section:Toggle({ Name = "ignore downed", Default = true, Flag = "Rage Skip Downed", Callback = function(Value) RageConfig.DownCheck = Value end })
+        Section:Toggle({ Name = "Auto reload", Default = false, Flag = "Rage Auto Reload" })
+        Section:Toggle({ Name = "ignore downed", Default = false, Flag = "Rage Skip Downed", Callback = function(Value) RageConfig.DownCheck = Value end })
 
         Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(Value) RageConfig.TargetMode = Value end })
 
@@ -10058,7 +10056,7 @@ getgenv().MOVZREPHeadless = {
 ApplyPreset("Headless")
 SetAntiAim(true)
 
-Section:Toggle({ Name = "Enabled", Flag = "AA Enabled", Default = true, Callback = function(v) SetAntiAim(v) end })
+Section:Toggle({ Name = "Enabled", Flag = "AA Enabled", Default = false, Callback = function(v) SetAntiAim(v) end })
 Section:Dropdown({ Name = "Mode", Flag = "AA Mode", Options = { "Headless", "Normal", "Lerp" }, Default = "Headless", Callback = function(v) SetMode(v) end })
 
 
@@ -10431,7 +10429,7 @@ end
                 Tree = Section:ExpandableToggle({
                     Name = "Hitsound",
                     Flag = "Hitsound Enabled",
-                    Default = true,
+                    Default = false,
                     Size = 52,
                     Opened = true
                 })
@@ -11380,7 +11378,7 @@ end
 
             Section = Tab:Section({
                 Name = "Utility",
-                Size = 220
+                Size = 240
             })
             do
 
@@ -11404,7 +11402,7 @@ end
                 Section:Toggle({
                     Name = "Show Chat",
                     Flag = "Chat Visible",
-                    Default = true,
+                    Default = false,
                     Callback = function(Value)
                         local TextChatService = GetService(Game, "TextChatService")
                         local ChatConfig = FindFirstChildWhichIsA(TextChatService, "ChatWindowConfiguration")
@@ -11420,6 +11418,12 @@ end
                             ChatUI.Enabled = Value
                         end
                     end
+                })
+
+                Section:Toggle({
+                    Name = "Mute Alarms",
+                    Flag = "Mute Alarms",
+                    Default = true
                 })
 
                 Section:Toggle({
@@ -21629,6 +21633,84 @@ end
         if EnabledFlag and EnabledFlag.Value and not isCMEnabled then
             CustomModels.SetEnabled(true)
         end
+    end)
+end
+
+
+
+do
+    MuteAlarms = {
+        Originals = {},
+        LastState = false,
+        LastCheck = 0,
+        Folder = nil,
+    }
+
+    local function MuteSound(Sound)
+        if MuteAlarms.Originals[Sound] == nil then
+            MuteAlarms.Originals[Sound] = Sound.Volume
+        end
+
+        Sound.Volume = 0
+    end
+
+    local function MuteAll()
+        local Folder = MuteAlarms.Folder
+        if not Folder then return end
+
+        for _, Object in next, Folder:GetDescendants() do
+            if IsA(Object, "Sound") then
+                pcall(MuteSound, Object)
+            end
+        end
+    end
+
+    local function UnmuteAll()
+        for Sound, Volume in next, MuteAlarms.Originals do
+            pcall(function()
+                if Sound.Parent then
+                    Sound.Volume = Volume
+                end
+            end)
+        end
+
+        MuteAlarms.Originals = {}
+    end
+
+    Spawn(function()
+        local Map = WaitForChild(Workspace, "Map", 30)
+        local Security = Map and WaitForChild(Map, "Security", 30)
+        local Alarms = Security and WaitForChild(Security, "Alarms", 30)
+        if not Alarms then return end
+
+        MuteAlarms.Folder = Alarms
+
+        Alarms.DescendantAdded:Connect(function(Object)
+            if IsA(Object, "Sound") and Flags["Mute Alarms"].Value then
+                pcall(MuteSound, Object)
+            end
+        end)
+
+        if Flags["Mute Alarms"].Value then
+            MuteAlarms.LastState = true
+            MuteAll()
+        end
+
+        Heartbeat:Connect(function()
+            if Clock() - MuteAlarms.LastCheck < 0.25 then return end
+            MuteAlarms.LastCheck = Clock()
+
+            local Enabled = Flags["Mute Alarms"].Value
+
+            if Enabled == MuteAlarms.LastState then return end
+            MuteAlarms.LastState = Enabled
+
+            if Enabled then
+                MuteAll()
+            else
+                UnmuteAll()
+            end
+        end)
     end)
 end
 
