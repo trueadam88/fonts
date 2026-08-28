@@ -934,10 +934,9 @@ local StartTick = Tick()
 
 
 
--- Menu Library
 do
     LPH_NO_VIRTUALIZE(function()
-        local BasePath = "Luckyware.NetV3"
+        local BasePath = "CSGOV3"
 
         Menu = {
             Game = "Fallen Survival",
@@ -6366,7 +6365,7 @@ end
 
                     local Window = Self.Window
 
-                    local Default = Parameters.Default or "-- // Welcome to Luckyware.Net V3 bitch."
+                    local Default = Parameters.Default or "-- // Welcome to V3 bitch."
                     local Hidden = Parameters.Hidden or false
                     local Size = Parameters.Size or 334
                     local Flag = Parameters.Flag
@@ -11625,7 +11624,7 @@ end
                 Section:TextBox({
                     Name = "Custom Title",
                     Flag = "Custom Title",
-                    Default = "Luckyware.Net | {date}",
+                    Default = "Csgo | {date}",
                     Placeholder = "{date}",
                     Callback = function(Text)
                         Dock.SetText(GSub(Text, "{date}", Date("%B. %d, %Y")))
@@ -13198,7 +13197,7 @@ end
         RenderStepped:Connect(function()
             if not Watermark.IsVisible then return end
 
-            local Text = "Luckyware.Net"
+            local Text = "csgo.Net"
 
             local Elements = Flags["Watermark Elements"].Value
             local Amount = #Elements
@@ -21815,7 +21814,7 @@ do
         SetThreadIdentity(7)
 
         Library:Notify({
-            Text = Format("Luckyware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
+            Text = Format("LWV3.net Loaded in: %.3f seconds.", FinishTick - StartTick),
             Time = 5
         })
 
