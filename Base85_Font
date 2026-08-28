@@ -2,7 +2,6 @@
 
 
 
-
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -411,6 +410,12 @@ RunService.Heartbeat:Connect(function()
         af = z
     end
 end)
+
+
+
+
+
+
 
 
 
@@ -9437,6 +9442,13 @@ end
                         })
 
                         Section:Slider({
+                          Name = "hit delay",
+                          Flag = "Auto Melee Hit Delay",
+                          Min = 0.02, Max = 0.5, Default = 0.1,
+                          Decimals = 0.01
+                        })
+
+                        Section:Slider({
                             Name = "Max Distance",
                             Flag = "Auto Melee Distance",
                             Min = 0, Max = 25, Default = 15,
@@ -9560,7 +9572,7 @@ end
         CacheThreshold = 0.5,
         HitsoundKey = "HitMarker",
         HitVolumes = 0.8, 
-        SoundList = {   -- TODO: add uv_aidan confirmation hit sound l8r
+        SoundList = {   -- TODO: add UV confirmation hit sound l8r
             ["HitMarker"]="8543972310",["AR2 Head"]="2062016772",["AR2 Body"]="2062015952",["AR2 Limb"]="6659353525",
             ["BB HitM"]="4645745735",["BB Kill"]="2636743632",["PD Head"]="4585351098",["PD Body"]="4585364605",
             ["Neverlose"]="8726881116",["Gamesense"]="4817809188",["Baimware"]="3124331820",["Steve"]="4965083997",
@@ -9830,7 +9842,7 @@ end
             ValidPair = nil
         end
 
-        function TryShoot()
+        function Shout()
             if not RageConfig.Enabled or not ValidPair then return end
 
             local Character = LocalPlayer.Character
@@ -9839,26 +9851,26 @@ end
 
             local WaitTime
 
-            if RageConfig.RapidFire then
-                local ToolName = Tool.Name
+if RageConfig.RapidFire then
 
-                if ToolName:find("Beretta") or ToolName:find("TEC") then
-                    WaitTime = 0
-                else
-                    WaitTime = 0.1
-                    local ToolConfig = FindFirstChild(Tool, "Config")
-
-                    if ToolConfig and ToolConfig:IsA("ModuleScript") then
-                        local Ok, GunSettings = pcall(require, ToolConfig)
-
-                        if Ok and GunSettings then
-                            WaitTime = 1 / (GunSettings.FireRate or 3)
-                        end
-                    end
-                end
-            else
-                WaitTime = 0.5
+    local ToolName = Tool.Name
+    if ToolName:find("Beretta") or ToolName:find("TEC") then
+        WaitTime = 0
+    else
+        WaitTime = 0.1
+        local ToolConfig = FindFirstChild(Tool, "Config")
+        if ToolConfig and ToolConfig:IsA("ModuleScript") then
+            local Ok, GunSettings = pcall(require, ToolConfig)
+            if Ok and GunSettings then
+                WaitTime = 1 / (GunSettings.FireRate or 3)
             end
+        end
+    end
+else
+   
+    local delayFlag = Flags["Rage Fire Rate Delay"]
+    WaitTime = delayFlag and delayFlag.Value or 0.1
+end
 
             if RageTimers.Tick - RageTimers.LastShot < WaitTime then return end
 
@@ -9917,7 +9929,7 @@ end
             end
 
             DoScan()
-            TryShoot()
+            Shout()
         end)
     end)
 
@@ -9933,7 +9945,24 @@ end
         Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(Value) RageConfig.TargetMode = Value end })
 
         Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(Value) RageConfig.Fov = Value end })
-
+Section:TextBox({
+    Name = "Fire rate",
+    Flag = "Rage Fire Rate Delay",
+    Default = "0.1",          
+    Numeric = true,          
+    Callback = function(Value)
+        
+        local num = tonumber(Value)
+        if num then
+            RageConfig.FireRateDelay = num
+          
+            local flag = Flags["Rage Fire Rate Delay"]
+            if flag then
+                flag.Value = num
+            end
+        end
+    end
+})
         Section:Slider({ Name = "Origin radius", Min = 0.1, Max = 20, Default = 18.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Origin Radius", Callback = function(Value) RageConfig.OriginRadius = Value end })
         Section:Slider({ Name = "Origin points", Min = 1, Max = 50, Default = 24, Flag = "Rage Origin Scans", Callback = function(Value) RageConfig.OriginScans = Value end })
         Section:Slider({ Name = "Hit radius", Min = 0.1, Max = 25, Default = 23.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Hit Radius", Callback = function(Value) RageConfig.HitRadius = Value end })
@@ -9971,7 +10000,7 @@ Section:Toggle({ Name = "Spinbot", Flag = "AA Spinbot", Default = false, Unsafe 
 Section:Slider({ Name = "Spinbot Speed", Flag = "AA Spinbot Speed", Min = 1, Max = 150, Default = 50, Decimals = 1, Callback = function(v) Spinner.Speed = v end })
 
 
--- Todo: holy ai im changing this whole thing once i Care enough to look at crim (i do not take responsability about this code fucking hell)
+
  AntiAim = { Enabled = false, Mode = "Headless", ActivePreset = "Headless", Vector = NewVector3(0,0,0) }
  HeadVector = { Front = NewVector3(0,0,1), Up = NewVector3(0,1,0), Down = NewVector3(0,-1,0), Left = NewVector3(1,0,0), Right = NewVector3(-1,0,0), Normal = NewVector3(0,0,0), Headless = NewVector3(0,2,0) }
  Meta = getrawmetatable(game)                                                         
@@ -11028,44 +11057,47 @@ end
                     })
 
                     Section:Toggle({
-                        Name = "Camera Teleport",
-                        Flag = "Camera Teleport",
-                        Callback = function(Value)
-                            if not Value then return end
+    Name = "Camera Teleport",
+    Flag = "Camera Teleport",
+    Callback = function(Value)
 
-                            local Character = LocalPlayer.Character
-                            local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
+        local freecamFlag = Flags["Freecam"]
+        if not (freecamFlag and freecamFlag.Value) then
+            return
+        end
 
-                            if not Root then return end
+        local Character = LocalPlayer.Character
+        local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
 
-                            local TargetPosition
+        if not Root then return end
 
-                            if Flags["Camera Teleport Mode"].Value == "Mouse" then
-                                local Hit = Mouse.Hit
+        local TargetPosition
 
-                                TargetPosition = Hit and Hit.Position
-                            else
-                                local CameraCFrame = CurrentCamera.CFrame
-                                local TeleportRayParams = NewRayParams()
+        if Flags["Camera Teleport Mode"].Value == "Mouse" then
+            local Hit = Mouse.Hit
 
-                                TeleportRayParams.FilterType = Enum.RaycastFilterType.Blacklist
-                                TeleportRayParams.FilterDescendantsInstances = { Character }
+            TargetPosition = Hit and Hit.Position
+        else
+            local CameraCFrame = CurrentCamera.CFrame
+            local TeleportRayParams = NewRayParams()
 
-                                local Ray = Raycast(Workspace, CameraCFrame.Position, CameraCFrame.LookVector * 1000, TeleportRayParams)
+            TeleportRayParams.FilterType = Enum.RaycastFilterType.Blacklist
+            TeleportRayParams.FilterDescendantsInstances = { Character }
 
-                                TargetPosition = Ray and Ray.Position or (CameraCFrame.Position + CameraCFrame.LookVector * 1000)
-                            end
+            local Ray = Raycast(Workspace, CameraCFrame.Position, CameraCFrame.LookVector * 1000, TeleportRayParams)
 
-                            if TargetPosition then
-                                Root.CFrame = NewCFrame(TargetPosition + NewVector3(0, 3, 0))
-                            end
-                        end
-                    }):Keybind({
-                        Mode = "On Hold",
-                        Flag = "Camera Teleport Keybind",
-                        Name = "Camera Teleport"
-                    })
+            TargetPosition = Ray and Ray.Position or (CameraCFrame.Position + CameraCFrame.LookVector * 1000)
+        end
 
+        if TargetPosition then
+            Root.CFrame = NewCFrame(TargetPosition + NewVector3(0, 3, 0))
+        end
+    end
+}):Keybind({
+    Mode = "On Hold",
+    Flag = "Camera Teleport Keybind",
+    Name = "Camera Teleport"
+})
                     Section:Dropdown({
                         Name = "Camera Teleport Mode",
                         Flag = "Camera Teleport Mode",
@@ -11498,6 +11530,24 @@ end
                 Side = "Right",
                 Size = 269
             })
+
+            --[[
+            Section = Tab:Section({
+                Name = "Minigame",
+                Side = "Right",
+                Size = 105
+            })
+            do
+                Section:Toggle({
+                    Name = "Minigame",
+                    Flag = "Minigame Enabled"
+                })
+
+                Section:Label({
+                    Text = "minigame_map.rbxm"
+                })
+            end
+]]
           
         end
 
@@ -12739,6 +12789,7 @@ end
         }
     end
 
+
     Lua = Library:Window({
         Name = "Lua",
         Size = NewUDim2(0, 490, 0, 400),
@@ -13349,6 +13400,10 @@ do
     Visuals.Bloom = FindFirstChildWhichIsA(Lighting, "BloomEffect", true)
 
     Visuals.World = LPH_NO_VIRTUALIZE(function()
+        if Minigame and Minigame.LightingApplied then
+            return
+        end
+
         local Bloom = Visuals.Bloom
         local Cache = Visuals.Cache
 
@@ -13381,10 +13436,32 @@ do
         end
 
         if Flags["Fog"].Value then
+     
+            local Atmosphere = FindFirstChildWhichIsA(Lighting, "Atmosphere")
+
+            if Atmosphere then
+                if not Visuals.FogHiddenAtmosphere then
+                    Visuals.FogHiddenAtmosphere = Atmosphere
+                end
+
+                Atmosphere.Parent = nil
+            end
+
             Lighting.FogColor = Flags["Fog Color"].Color
             Lighting.FogStart = Flags["Fog Start"].Value
             Lighting.FogEnd = Flags["Fog End"].Value
         else
+            local Hidden = Visuals.FogHiddenAtmosphere
+
+            if Hidden then
+                if not Hidden.Parent then
+                    Hidden.Parent = Lighting
+                end
+
+                Visuals.AtmosphereObject = Hidden
+                Visuals.FogHiddenAtmosphere = nil
+            end
+
             Lighting.FogColor = Cache.FogColor
             Lighting.FogStart = Cache.FogStart
             Lighting.FogEnd = Cache.FogEnd
@@ -13412,6 +13489,10 @@ do
     end)
 
     Visuals.Sky = LPH_NO_VIRTUALIZE(function()
+        if Minigame and Minigame.LightingApplied then
+            return
+        end
+
         local Sky = Visuals.Skybox
 
         if not Sky or not Sky.Parent then
@@ -14114,7 +14195,7 @@ do
 
             if not Humanoid then return end
 
-            Humanoid.JumpPower = Flags["Jump Power"].Value and Flags["Jump Power Amount"].Value 
+            Humanoid.JumpPower = Flags["Jump Power"].Value and Flags["Jump Power Amount"].Value or 50
 
             if not Movement.Connections.JumpPower then
                 Movement.Connections.JumpPower = Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
@@ -14321,6 +14402,7 @@ do
         Movement.LocalFly = function(Character)
             Movement.DisableFly()
             compfly(Character)
+
 
             if Movement.Connections.FlyDied then
                 Movement.Connections.FlyDied:Disconnect()
@@ -15206,8 +15288,8 @@ do
 
                 local Scale = (ScreenY * 1.5) / (Position.Z * 2 * Tan((CurrentCamera.FieldOfView * ToRad) / 2))
 
-                local Width = 2.0833 * Scale
-                local Height = 3.6364 * Scale
+                local Width = 1.0833 * Scale
+                local Height = 1.6364 * Scale
 
                 return NewUDim2(0, Floor(Position.X - (Width / 2)), 0, Floor(Position.Y - (Height / 2.5))), NewUDim2(0, Ceil(Width), 0, Ceil(Height))
             else
@@ -18129,54 +18211,56 @@ do
         return Best
     end
 
-    function MeleeCycle(Character, Tool, Target)
-        AutoMelee.Busy = true
+function MeleeCycle(Character, Tool, Target)
+    AutoMelee.Busy = true
 
-        pcall(function()
-            local Spec = GetMeleeSpec(Tool)
-            if not Spec then return end
+    pcall(function()
+        local Spec = GetMeleeSpec(Tool)
+        if not Spec then return end
 
-            local Hitter = GetHitter(Spec.Hitter, Character, Tool)
-            if not Hitter then return end
+        local Hitter = GetHitter(Spec.Hitter, Character, Tool)
+        if not Hitter then return end
 
-            local Events = FindFirstChild(ReplicatedStorage, "Events")
-            if not Events then return end
+        local Events = FindFirstChild(ReplicatedStorage, "Events")
+        if not Events then return end
 
-            local Swing = FindFirstChild(Events, "XMHH.2")
-            local Hit = FindFirstChild(Events, "XMHH2.2")
-            if not (Swing and Hit) then return end
+        local Swing = FindFirstChild(Events, "XMHH.2")
+        local Hit = FindFirstChild(Events, "XMHH2.2")
+        if not (Swing and Hit) then return end
 
-            local Seed = Swing:InvokeServer(AutoMelee.Emote, tick(), Tool, "43TRFWX", "Normal", 0, true)
-            if Seed == nil then
-                Wait(0.4)
-                return
-            end
+        local Seed = Swing:InvokeServer(AutoMelee.Emote, tick(), Tool, "43TRFWX", "Normal", 0, true)
+        if Seed == nil then
+            Wait(0.4)
+            return
+        end
 
-            Wait(Spec.SwingWait or 0.25)
+        Wait(Spec.SwingWait or 0.25)
 
-            local PartFlag = Flags["Auto Melee Part"]
-            local PartName = PartFlag and PartFlag.Value or "Torso"
+        local PartFlag = Flags["Auto Melee Part"]
+        local PartName = PartFlag and PartFlag.Value or "Torso"
 
-            for _ = 1, 4 do
-                if not Flags["Auto Melee"].Value then break end
-                if not (Target and Target.Parent) then break end
+        local hitDelay = Flags["Auto Melee Hit Delay"] and Flags["Auto Melee Hit Delay"].Value or 0.1
 
-                local Humanoid = FindFirstChild(Target, "Humanoid")
-                if not Humanoid or Humanoid.Health <= 0 then break end
+        for _ = 1, 4 do
+            if not Flags["Auto Melee"].Value then break end
+            if not (Target and Target.Parent) then break end
 
-                local HitPart = FindFirstChild(Target, PartName)
-                    or FindFirstChild(Target, "HumanoidRootPart")
-                    or FindFirstChild(Target, "Head")
-                if not HitPart then break end
+            local Humanoid = FindFirstChild(Target, "Humanoid")
+            if not Humanoid or Humanoid.Health <= 0 then break end
 
-                Hit:FireServer(AutoMelee.Emote, tick(), Tool, "2389ZFX34", Seed, false, Hitter, HitPart, Target, NewVector3(0, 0, 0), NewVector3(0, 1, 0))
+            local HitPart = FindFirstChild(Target, PartName)
+                or FindFirstChild(Target, "HumanoidRootPart")
+                or FindFirstChild(Target, "Head")
+            if not HitPart then break end
 
-                Wait(0.1)
-            end
-        end)
+            Hit:FireServer(AutoMelee.Emote, tick(), Tool, "2389ZFX34", Seed, false, Hitter, HitPart, Target, NewVector3(0, 0, 0), NewVector3(0, 1, 0))
 
-        AutoMelee.Busy = false
-    end
+            Wait(hitDelay)   
+        end
+    end)
+
+    AutoMelee.Busy = false
+end
 
     Heartbeat:Connect(function()
         if Clock() - AutoMelee.LastCheck < 0.1 then return end
@@ -18205,7 +18289,6 @@ do
 end
 
 
--- Skin Changer
 do
     local LP = LocalPlayer
 
@@ -18577,20 +18660,17 @@ function loadSkins() if readfile and isfile then pcall(function() if isfile("sta
         return applySkin()
     end
 
-    -- populate the dependent dropdowns once at startup
     do
         local ClassFlag = Flags["Skin Class"]
         SkinChanger.SetClass(ClassFlag and ClassFlag.Value or "Pistols")
     end
 
-    -- Custom Models system (own closure: ~190 locals need a fresh register budget)
     Spawn(function()
 local currentCMType = "M4:Subzero"
 local isCMEnabled = false
 local cmConnections = {}
 local cmHeartbeatConnection = nil
 
--- Subzero
 local cmSubzeroModel = nil
 local cmSubzeroCurrentSkinClone = nil
 local cmSubzeroLastWeapon = nil
@@ -21646,7 +21726,7 @@ do
         Folder = nil,
     }
 
-    local function MuteSound(Sound)
+    function MuteSound(Sound)
         if MuteAlarms.Originals[Sound] == nil then
             MuteAlarms.Originals[Sound] = Sound.Volume
         end
@@ -21654,7 +21734,7 @@ do
         Sound.Volume = 0
     end
 
-    local function MuteAll()
+    function MuteAll()
         local Folder = MuteAlarms.Folder
         if not Folder then return end
 
@@ -21665,7 +21745,7 @@ do
         end
     end
 
-    local function UnmuteAll()
+    function UnmuteAll()
         for Sound, Volume in next, MuteAlarms.Originals do
             pcall(function()
                 if Sound.Parent then
@@ -21713,6 +21793,8 @@ do
         end)
     end)
 end
+
+
 
 
 do
