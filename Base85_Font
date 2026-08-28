@@ -11302,7 +11302,7 @@ end
 
                     Section:Slider({
                         Name = "Walk Speed Amount",
-                        Min = 16, Max = 300, Default = 50,
+                        Min = 1, Max = 300, Default = 50,
                         Flag = "Walk Speed Amount",
                         Callback = function()
                             local WalkSpeeding = Movement.WalkSpeeding
@@ -11331,7 +11331,7 @@ end
 
                     Section:Slider({
                         Name = "Jump Power Amount",
-                        Min = 50, Max = 300, Default = 100,
+                        Min = 1, Max = 300, Default = 100,
                         Flag = "Jump Power Amount",
                         Callback = function()
                             local Jumpowering = Movement.Jumpowering
