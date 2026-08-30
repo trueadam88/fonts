@@ -251,10 +251,10 @@ pcall(aw)
 
 
 
-
-
-
 --[[
+
+
+
 
 
 
@@ -335,7 +335,7 @@ end
 
 
 function s()
-    for _, t in ipairs(d) do --wl of uvaidan - ai bs not bothering with doing my own when it can be reversed soeasily
+    for _, t in ipairs(d) do --wl of aidan - ai bs not bothering with doing my own when it can be reversed so easily
         if tostring(m) == tostring(t.hwid) and tostring(n) == tostring(t.clientId) then
             return true
         end
@@ -413,12 +413,12 @@ end)
 
 
 
-
-
-
-
-
 ]]
+
+
+
+
+
 
 
 
@@ -855,7 +855,17 @@ local SkyBoxes = {
 		["SkyboxLf"] = "rbxassetid://126931573973019",
 		["SkyboxRt"] = "rbxassetid://135908172504233",
 		["SkyboxUp"] = "rbxassetid://124514468649717"
+    },
+
+        ["cloudycache"] = {
+        ["SkyboxBk"] = "rbxassetid://246480323",
+		["SkyboxDn"] = "rbxassetid://246480523",
+		["SkyboxFt"] = "rbxassetid://246480105",
+		["SkyboxLf"] = "rbxassetid://246480549",
+		["SkyboxRt"] = "rbxassetid://246480565",
+		["SkyboxUp"] = "rbxassetid://246480504"
     }
+
 }
 
 local ChamsAnimations = {
@@ -934,9 +944,10 @@ local StartTick = Tick()
 
 
 
+-- Menu Library
 do
     LPH_NO_VIRTUALIZE(function()
-        local BasePath = "CSGOV3"
+        local BasePath = "Luckyware.NetV3"
 
         Menu = {
             Game = "Fallen Survival",
@@ -6365,7 +6376,7 @@ end
 
                     local Window = Self.Window
 
-                    local Default = Parameters.Default or "-- // Welcome to V3 bitch."
+                    local Default = Parameters.Default or "-- // Welcome to Luckyware.Net V3 bitch."
                     local Hidden = Parameters.Hidden or false
                     local Size = Parameters.Size or 334
                     local Flag = Parameters.Flag
@@ -7422,7 +7433,9 @@ end
 
                         Hue = H,
                         Sat = S,
-                        Vib = V
+                        Vib = V,
+                        RainbowSat = S,
+                        RainbowVib = V
                     }
 
                     local Binds = {
@@ -7546,6 +7559,11 @@ end
 
                                 Colorpicker.Sat = Sat
                                 Colorpicker.Vib = Vib
+
+                                if Colorpicker.Rainbow then
+                                    Colorpicker.RainbowSat = Sat
+                                    Colorpicker.RainbowVib = Vib
+                                end
 
                                 Menu.Tween(ValsatCursor, NewTweenInfo(0.05, Enum.EasingStyle.Linear), { Position = NewUDim2(1 - Sat, -1, 1 - Vib, -1) })
                             end
@@ -8178,6 +8196,9 @@ end
 
                                 Connections[#Connections + 1] = Rainbow.MouseButton1Down:Connect(function()
                                     Colorpicker.Rainbow = not Colorpicker.Rainbow
+
+                                    Colorpicker.RainbowSat = Clamp(Colorpicker.RainbowSat or Colorpicker.Sat or 1, 0, 1)
+                                    Colorpicker.RainbowVib = Clamp(Colorpicker.RainbowVib or Colorpicker.Vib or 1, 0, 1)
 
                                     Menu.RainbowPickers[Colorpicker] = Colorpicker.Rainbow or nil
 
@@ -9147,7 +9168,11 @@ RenderStepped:Connect(function()
     local Hue = (Tick() * 0.25) % 1
 
     for Picker in next, Pickers do
-        Picker.Set({ Hue, 1, 1, Picker.Transparency })
+        if Picker and Picker.Set then
+            local Saturation = Clamp(Picker.RainbowSat or 1, 0, 1)
+            local Value = Clamp(Picker.RainbowVib or 1, 0, 1)
+            Picker.Set({ Hue, Saturation, Value, Picker.Transparency })
+        end
     end
 end)
 
@@ -9204,6 +9229,7 @@ do
         Section:Slider({ Name = "Switch Delay", Min = 0, Max = 2500, Default = 100, Prefix = "ms", Flag = "AimAssist SwitchDelay", Callback = function(v) AimAssist.SwitchDelay = v end })
         Section:Slider({ Name = "Aim Speed", Min = 1, Max = 100, Default = 50, Flag = "AimAssist Speed", Callback = function(v) AimAssist.Speed = v end })
         Section:Slider({ Name = "Accuracy", Min = 1, Max = 100, Default = 60, Prefix = "%", Flag = "AimAssist Accuracy", Callback = function(v) AimAssist.Accuracy = v end })
+        Section:Toggle({ Name = "Skip Downed", Default = false, Flag = "AimAssist Skip Downed", Callback = function(v) AimAssist.SkipDowned = v end })
         Section:Toggle({ Name = "Visualize FOV", Default = false, Flag = "AimAssist VisualizeFov", Callback = function(v) AimAssist.VisualizeFov = v end }):Colorpicker({ Color = NewRGB(181, 179, 253), Flag = "AimAssist FOV Color", Callback = function(Color) AimAssist.FovColor = Color end })
         Section:Slider({ Name = "FOV", Min = 1, Max = 35, Default = 10, Decimals = 0.1, Prefix = "°", Flag = "AimAssist Fov", Callback = function(v) AimAssist.Fov = v end })
     
@@ -9271,6 +9297,13 @@ end
                     Callback = function(v) TriggerBot.Magnet = v end
                 })
 
+                Section:Toggle({
+                    Name = "Skip Downed",
+                    Flag = "TriggerBot Skip Downed",
+                    Default = false,
+                    Callback = function(v) TriggerBot.SkipDowned = v end
+                })
+
                 Section:Dropdown({
                     Name = "Magnet Priority",
                     Options = { "Closest", "Head", "Body" },
@@ -9331,6 +9364,12 @@ end
                     Name = "Wall Check",
                     Flag = "Silent Aim Wall Check",
                     Default = true
+                })
+
+                Section:Toggle({
+                    Name = "Skip Downed",
+                    Flag = "Silent Aim Skip Downed",
+                    Default = false
                 })
 
                 Section:Dropdown({
@@ -9459,6 +9498,12 @@ end
                             Flag = "Auto Melee Part",
                             Options = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" },
                             Default = "Torso"
+                        })
+
+                        Section:Toggle({
+                            Name = "Skip Downed",
+                            Flag = "Auto Melee Skip Downed",
+                            Default = false
                         })
                 end
 
@@ -9983,6 +10028,12 @@ function ToggleSpinbot(On)
     if On and not Spinning then
         Spinning = Spawn(function()
             while Spinner.Enabled do
+                local StopOnFly = Flags["AA_spin_check_fly_lool"]
+                if StopOnFly and StopOnFly.Value and Flags["Fly Enabled"] and Flags["Fly Enabled"].Value then
+                    Wait()
+                    continue
+                end
+
                 local Root = LocalPlayer.Character and FindFirstChild(LocalPlayer.Character, "HumanoidRootPart")
                 if Root then Root.CFrame = Root.CFrame * CFrame.Angles(0, math.rad(Spinner.Speed % 150), 0) end
                 Wait()
@@ -9995,12 +10046,13 @@ function ToggleSpinbot(On)
     end
 end
 
-Section:Toggle({ Name = "Spinbot", Flag = "AA Spinbot", Default = false, Unsafe = true, Callback = function(v) ToggleSpinbot(v) end })
+Section:Toggle({ Name = "Spinbot", Flag = "AA Spinbot", Default = false, Unsafe = true, Callback = function(v) ToggleSpinbot(v) end }):Keybind({ Mode = "Toggle", Flag = "AA Spinbot Keybind", Name = "Spinbot" })
 Section:Slider({ Name = "Spinbot Speed", Flag = "AA Spinbot Speed", Min = 1, Max = 150, Default = 50, Decimals = 1, Callback = function(v) Spinner.Speed = v end })
+Section:Toggle({ Name = "FlySpin check", Flag = "AA_spin_check_fly_lool", Default = true })
 
 
 
- AntiAim = { Enabled = false, Mode = "Headless", ActivePreset = "Headless", Vector = NewVector3(0,0,0) }
+ AntiAim = { Enabled = false, Mode = "Headless", activesss = "Headless", Vector = NewVector3(0,0,0) }
  HeadVector = { Front = NewVector3(0,0,1), Up = NewVector3(0,1,0), Down = NewVector3(0,-1,0), Left = NewVector3(1,0,0), Right = NewVector3(-1,0,0), Normal = NewVector3(0,0,0), Headless = NewVector3(0,2,0) }
  Meta = getrawmetatable(game)                                                         
  Original = Meta and Meta.__namecall
@@ -10010,7 +10062,7 @@ Section:Slider({ Name = "Spinbot Speed", Flag = "AA Spinbot Speed", Min = 1, Max
 function ApplyPreset(Name)
     local V = HeadVector[Name]
     if not V then return false end
-    AntiAim.ActivePreset = Name
+    AntiAim.activesss = Name
     AntiAim.Vector = V
     getgenv().NewLookVector = V
     return true
@@ -10057,7 +10109,7 @@ function SetAntiAim(On)
     AntiAim.Enabled = On
     if On then
         SetHook(true)
-        if AntiAim.Mode == "Lerp" then RunUnhittable() else ApplyPreset(AntiAim.ActivePreset or "Headless") end
+        if AntiAim.Mode == "Lerp" then RunUnhittable() else ApplyPreset(AntiAim.activesss or "Headless") end
     else
         if Unhita then pcall(task.cancel, Unhita); Unhita = nil end
         SetHook(false)
@@ -10832,7 +10884,7 @@ end
                 Section:Dropdown({
                     Name = "Skybox",
                     Flag = "Custom Skybox",
-                    Options = { "Default", "Nebula", "Blue Nebula", "Setting Hills", "Blue Aurora", "Red Aurora", "Pink Vision", "Twillight", "Distopia", "Peaceful" },
+                    Options = { "Default", "Nebula", "Blue Nebula", "Setting Hills", "Blue Aurora", "Red Aurora", "Pink Vision", "Twillight", "Distopia", "Peaceful", "cloudycache" },
                     Default = "Default",
                     Size = 125,
                     Callback = function()
@@ -11125,6 +11177,15 @@ end
                     })
 
                     Section:Toggle({
+                        Name = "Aiming check",
+                        Flag = "Aimcheck_Fov",
+                        Default = false,
+                        Callback = function()
+                            Camera.UpdateFOV()
+                        end
+                    })
+
+                    Section:Toggle({
                         Name = "Zoom",
                         Flag = "Zoom",
                         Callback = function()
@@ -11150,6 +11211,7 @@ end
                             Camera.UpdateFOV()
                         end
                     })
+
                 end
 
                 Section = MultiSection[3]
@@ -11302,7 +11364,7 @@ end
 
                     Section:Slider({
                         Name = "Walk Speed Amount",
-                        Min = 1, Max = 300, Default = 50,
+                        Min = 16, Max = 300, Default = 50,
                         Flag = "Walk Speed Amount",
                         Callback = function()
                             local WalkSpeeding = Movement.WalkSpeeding
@@ -11331,7 +11393,7 @@ end
 
                     Section:Slider({
                         Name = "Jump Power Amount",
-                        Min = 1, Max = 300, Default = 100,
+                        Min = 50, Max = 300, Default = 100,
                         Flag = "Jump Power Amount",
                         Callback = function()
                             local Jumpowering = Movement.Jumpowering
@@ -11367,6 +11429,16 @@ end
                         Name = "Fly Enabled",
                         Flag = "Fly Enabled",
                         Callback = function(Value)
+                            if Value and Flags["AA_spin_check_fly_lool"] and Flags["AA_spin_check_fly_lool"].Value and Flags["AA Spinbot"] and Flags["AA Spinbot"].Value then
+                                local SpinFlag = Flags["AA Spinbot"]
+
+                                if SpinFlag and SpinFlag.Set then
+                                    SpinFlag:Set(false)
+                                else
+                                    ToggleSpinbot(false)
+                                end
+                            end
+
                             if Value then
                                 local EnableFly = Movement.EnableFly
 
@@ -11445,7 +11517,7 @@ end
                         local PlayerGui = FindFirstChildWhichIsA(LocalPlayer, "PlayerGui")
                         local ChatUI = PlayerGui and PlayerGui:FindFirstChild("Chat")
 
-                        if ChatUI then
+                         if ChatUI then
                             ChatUI.Enabled = Value
                         end
                     end
@@ -11494,11 +11566,6 @@ end
 
 
 
-
-
-
-
-
             end
 
             Section = Tab:Section({
@@ -11530,23 +11597,7 @@ end
                 Size = 269
             })
 
-            --[[
-            Section = Tab:Section({
-                Name = "Minigame",
-                Side = "Right",
-                Size = 105
-            })
-            do
-                Section:Toggle({
-                    Name = "Minigame",
-                    Flag = "Minigame Enabled"
-                })
-
-                Section:Label({
-                    Text = "minigame_map.rbxm"
-                })
-            end
-]]
+         
           
         end
 
@@ -11624,7 +11675,7 @@ end
                 Section:TextBox({
                     Name = "Custom Title",
                     Flag = "Custom Title",
-                    Default = "Csgo | {date}",
+                    Default = "Luckyware.Net | {date}",
                     Placeholder = "{date}",
                     Callback = function(Text)
                         Dock.SetText(GSub(Text, "{date}", Date("%B. %d, %Y")))
@@ -13197,7 +13248,7 @@ end
         RenderStepped:Connect(function()
             if not Watermark.IsVisible then return end
 
-            local Text = "csgo.Net"
+            local Text = "Luckyware.Net"
 
             local Elements = Flags["Watermark Elements"].Value
             local Amount = #Elements
@@ -13267,13 +13318,144 @@ end
 do
     local FrustumY
     local FrustumX
+    Camera.NativeFov = Camera.NativeFov or CurrentCamera.FieldOfView
+
+    local function aimcheck(Tool)
+        if not Tool then return nil end
+
+        local ValuesFolder = FindFirstChild(Tool, "Values")
+        local AimDown = ValuesFolder and FindFirstChild(ValuesFolder, "AimDown")
+
+        if AimDown and AimDown.Value ~= nil then
+            local Value = AimDown.Value
+
+            if Value == true or Value == 1 then
+                return true
+            end
+
+            if Value == false or Value == 0 then
+                return false
+            end
+        end
+
+        return nil
+    end
+
+    local function isniggaiming()
+        local Character = LocalPlayer.Character
+        local WorkspaceCharacters = FindFirstChild(Workspace, "Characters")
+        local WorkspaceCharacter = WorkspaceCharacters and FindFirstChild(WorkspaceCharacters, LocalPlayer.Name)
+
+        local EquippedTool = Character and FindFirstChildWhichIsA(Character, "Tool")
+        local WorkspaceTool = nil
+
+        if WorkspaceCharacter then
+            if EquippedTool then
+                WorkspaceTool = FindFirstChild(WorkspaceCharacter, EquippedTool.Name)
+            end
+
+            if not WorkspaceTool then
+                WorkspaceTool = FindFirstChildWhichIsA(WorkspaceCharacter, "Tool")
+            end
+        end
+
+        local ToolAimDown = aimcheck(WorkspaceTool)
+
+        if ToolAimDown == nil then
+            ToolAimDown = aimcheck(EquippedTool)
+        end
+
+        if ToolAimDown == nil and WorkspaceCharacter then
+            for _, Child in next, GetChildren(WorkspaceCharacter) do
+                local Value = aimcheck(Child)
+
+                if Value ~= nil then
+                    ToolAimDown = Value
+                    break
+                end
+            end
+        end
+
+        if ToolAimDown ~= nil then
+            return ToolAimDown
+        end
+
+        if not Character then return nil end
+
+        local Tool = EquippedTool
+
+        for _, Name in next, { "AimDown" } do
+            local Obj = (Tool and FindFirstChild(Tool, Name)) or (WorkspaceTool and FindFirstChild(WorkspaceTool, Name)) or FindFirstChild(Character, Name)
+
+            if Obj and Obj.Value ~= nil then
+                local Value = Obj.Value
+
+                if Value == true or Value == 1 then
+                    return true
+                end
+
+                if Value == false or Value == 0 then
+                    return false
+                end
+            end
+
+            local ToolAttribute = Tool and Tool:GetAttribute(Name)
+            if ToolAttribute == true or ToolAttribute == 1 then
+                return true
+            end
+
+            if ToolAttribute == false or ToolAttribute == 0 then
+                return false
+            end
+
+            local WorkspaceToolAttribute = WorkspaceTool and WorkspaceTool:GetAttribute(Name)
+            if WorkspaceToolAttribute == true or WorkspaceToolAttribute == 1 then
+                return true
+            end
+
+            if WorkspaceToolAttribute == false or WorkspaceToolAttribute == 0 then
+                return false
+            end
+
+            local CharAttribute = Character:GetAttribute(Name)
+            if CharAttribute == true or CharAttribute == 1 then
+                return true
+            end
+
+            if CharAttribute == false or CharAttribute == 0 then
+                return false
+            end
+        end
+
+        return nil
+    end
 
 
     Camera.UpdateFOV = LPH_NO_VIRTUALIZE(function()
-        if Flags["Zoom"].Value then
+        local ZoomEnabled = Flags["Zoom"].Value
+        local CustomFovEnabled = Flags["Visuals Custom Fov"].Value
+
+        if not ZoomEnabled and not CustomFovEnabled then
+            Camera.NativeFov = CurrentCamera.FieldOfView
+        end
+
+        if ZoomEnabled then
             CurrentCamera.FieldOfView = (20 / Flags["Zoom Multiplier"].Value)
-        elseif Flags["Visuals Custom Fov"].Value then
-            CurrentCamera.FieldOfView = Flags["Visuals Custom Fov Factor"].Value
+        elseif CustomFovEnabled then
+            local DisableOnAimFlag = Flags["Aimcheck_Fov"]
+
+            if DisableOnAimFlag and DisableOnAimFlag.Value then
+                local AimDownState = isniggaiming()
+
+            
+                if AimDownState == true then
+                    CurrentCamera.FieldOfView = Camera.NativeFov or 70
+                else
+                    CurrentCamera.FieldOfView = Flags["Visuals Custom Fov Factor"].Value
+                end
+            else
+                CurrentCamera.FieldOfView = Flags["Visuals Custom Fov Factor"].Value
+            end
         end
 
         FrustumY = Tan(CurrentCamera.FieldOfView * ToRad / 2)
@@ -13322,6 +13504,11 @@ do
     Camera.Init = function()
         CurrentCamera:GetPropertyChangedSignal("FieldOfView"):Connect(Camera.UpdateFOV)
         CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(Camera.UpdateSize)
+        RenderStepped:Connect(function()
+            if Flags["Visuals Custom Fov"].Value and Flags["Aimcheck_Fov"].Value then
+                Camera.UpdateFOV()
+            end
+        end)
 
         Camera.UpdateFOV()
         Camera.UpdateSize()
@@ -13399,9 +13586,7 @@ do
     Visuals.Bloom = FindFirstChildWhichIsA(Lighting, "BloomEffect", true)
 
     Visuals.World = LPH_NO_VIRTUALIZE(function()
-        if Minigame and Minigame.LightingApplied then
-            return
-        end
+
 
         local Bloom = Visuals.Bloom
         local Cache = Visuals.Cache
@@ -13488,9 +13673,7 @@ do
     end)
 
     Visuals.Sky = LPH_NO_VIRTUALIZE(function()
-        if Minigame and Minigame.LightingApplied then
-            return
-        end
+
 
         local Sky = Visuals.Skybox
 
@@ -14411,6 +14594,10 @@ do
             if Fly.Humanoid then
                 Movement.Connections.FlyDied = Fly.Humanoid.Died:Connect(Movement.DisableFly)
             end
+
+            if Flags["Fly Enabled"] and Flags["Fly Enabled"].Value then
+                Movement.EnableFly()
+            end
         end
 
         UserInputService.InputBegan:Connect(function(Input, GameProcessed)
@@ -14627,6 +14814,22 @@ do
             Movement.SetUp(Character)
 
             Movement.LocalFly(Character)
+
+            Spawn(function()
+                Wait(0.2)
+
+                if Flags["Walk Speed"] and Flags["Walk Speed"].Value then
+                    Movement.WalkSpeeding()
+                end
+
+                if Flags["Jump Power"] and Flags["Jump Power"].Value then
+                    Movement.Jumpowering()
+                end
+
+                if Flags["Fly Enabled"] and Flags["Fly Enabled"].Value then
+                    Movement.EnableFly()
+                end
+            end)
 
         end)
 
@@ -16577,7 +16780,8 @@ do
             WallCheck = true,
             VisualizeFov = true,
             FovColor = NewRGB(181, 179, 253),
-            PriorityOnly = false
+            PriorityOnly = false,
+            SkipDowned = false
         } do
             if AimAssist[Index] == nil then
                 AimAssist[Index] = Value
@@ -16592,7 +16796,8 @@ do
             MagnetSpeed = 50,
             MagnetAccuracy = 60,
             MagnetPriority = "Closest",
-            PriorityOnly = false
+            PriorityOnly = false,
+            SkipDowned = false
         } do
             if TriggerBot[Index] == nil then
                 TriggerBot[Index] = Value
@@ -16602,6 +16807,14 @@ do
         local PointMap = { Head = { "Head" }, Body = { "Torso" }, Arms = { "Right Arm", "Left Arm" }, Legs = { "Right Leg", "Left Leg" } }
         local PriorityMap = { Head = "Head", Body = "Torso" }
         local ValidParts = { Head = true, Torso = true, ["Right Arm"] = true, ["Left Arm"] = true, ["Right Leg"] = true, ["Left Leg"] = true }
+
+        local function IsPlayerDownedByName(PlayerName)
+            local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
+            local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
+            local Downed = Stats and FindFirstChild(Stats, "Downed")
+
+            return Downed and Downed.Value or false
+        end
 
         function TranslateHitboxPoints(Points)
             local Result, Count = {}, 0
@@ -16805,7 +17018,7 @@ do
                 local Data = CurrentTarget.Data
                 local Info = Info.PlayerData[Data.Name]
 
-                if Part and Part.Parent and Data.RootPosition and not (Info and Info.Whitelist) and (Data == PrevTargetData or Tick() - PrevTargetTick > AimAssist.SwitchDelay / 1000) then
+                if Part and Part.Parent and Data.RootPosition and not (Info and Info.Whitelist) and not (AimAssist.SkipDowned and IsPlayerDownedByName(Data.Name)) and (Data == PrevTargetData or Tick() - PrevTargetTick > AimAssist.SwitchDelay / 1000) then
                     local AimPos = Part.Position
 
                     if MagnetActive or AimAssist.WallCheck then
@@ -16852,6 +17065,7 @@ do
                 local Data = Enemies[i]
                 local RootPos = Data.RootPosition
                 if not RootPos or Data.IsForceField then continue end
+                if AimAssist.SkipDowned and IsPlayerDownedByName(Data.Name) then continue end
 
                 local Info = Info.PlayerData[Data.Name]
                 if Info and Info.Whitelist then continue end
@@ -16933,6 +17147,7 @@ do
             for i = 1, EnemyCount do
                 local Data = Enemies[i]
                 if not Data.RootPosition or Data.IsForceField then continue end
+                if TriggerBot.SkipDowned and IsPlayerDownedByName(Data.Name) then continue end
                 local Info = Info.PlayerData[Data.Name]
                 if Info and Info.Whitelist then continue end
                 if TriggerBot.PriorityOnly and not (Info and Info.Priority) then continue end
@@ -17271,6 +17486,14 @@ do
             return NewVector2(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
         end
 
+        local function IsPlayerDownedByName(PlayerName)
+            local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
+            local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
+            local Downed = Stats and FindFirstChild(Stats, "Downed")
+
+            return Downed and Downed.Value or false
+        end
+
         VisualizeEvent.Event:Connect(function(_, Key, _, Gun, _, StartPos, BulletsPerShot)
             if not Flags["Silent Aim Enabled"].Value then return end
             if math.random(1, 100) > Flags["Silent Aim Hit Chance"].Value then return end
@@ -17284,6 +17507,7 @@ do
             local PartName = GetTargetPart()
             local Center = GetCenter()
             local WallCheck = Flags["Silent Aim Wall Check"].Value
+            local SkipDowned = Flags["Silent Aim Skip Downed"] and Flags["Silent Aim Skip Downed"].Value
 
             local Target, ShortestDist = nil, Flags["Silent Aim FOV"].Value
 
@@ -17291,7 +17515,7 @@ do
                 if Player ~= LocalPlayer and Player.Character then
                     local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
 
-                    if not (Data and Data.Whitelist) then
+                    if not (Data and Data.Whitelist) and not (SkipDowned and IsPlayerDownedByName(Player.Name)) then
                         local TargetChar = Player.Character
                         local Humanoid = TargetChar:FindFirstChildOfClass("Humanoid")
                         local Part = TargetChar:FindFirstChild(PartName)
@@ -18185,13 +18409,14 @@ do
         if not Characters then return end
 
         local PlayerData = Info and Info.PlayerData or {}
+        local SkipDowned = Flags["Auto Melee Skip Downed"] and Flags["Auto Melee Skip Downed"].Value
         local Best, BestDistance = nil, Range
 
         for _, Model in next, GetChildren(Characters) do
             if Model ~= Character and Model.Name ~= LocalPlayer.Name then
                 local Record = PlayerData[Model.Name]
 
-                if not (Record and Record.Whitelist) then
+                if not (Record and Record.Whitelist) and not (SkipDowned and IsDowned(Model.Name)) then
                     local TargetRoot = FindFirstChild(Model, "HumanoidRootPart")
                     local Humanoid = FindFirstChild(Model, "Humanoid")
 
@@ -21699,7 +21924,6 @@ end
             end
         end
 
-        -- pick up selections made before this deferred loader finished
         local TypeFlag = Flags["Custom Model Type"]
         if TypeFlag and TypeFlag.Value and TypeFlag.Value ~= currentCMType then
             currentCMType = TypeFlag.Value
@@ -21814,7 +22038,7 @@ do
         SetThreadIdentity(7)
 
         Library:Notify({
-            Text = Format("LWV3.net Loaded in: %.3f seconds.", FinishTick - StartTick),
+            Text = Format("Luckyware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
             Time = 5
         })
 
