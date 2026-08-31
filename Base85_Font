@@ -248,10 +248,10 @@ pcall(aw)
 
 
 
-
-
-
 --[[
+
+
+
 
 
 
@@ -7493,11 +7493,15 @@ end
                     -- Colorpicker Functions
                     do
                         function Colorpicker.Get()
-                            return { Colorpicker.Hue, Colorpicker.Sat, Colorpicker.Vib, Colorpicker.Transparency }
+                            return { Colorpicker.Hue, Colorpicker.Sat, Colorpicker.Vib, Colorpicker.Transparency, Colorpicker.Rainbow == true }
                         end
 
                         function Colorpicker.Set(Value, Fire)
                             Colorpicker.Hue, Colorpicker.Sat, Colorpicker.Vib, Colorpicker.Transparency = Value[1], Value[2], Value[3], Value[4] or Transparency
+                            Colorpicker.Rainbow = Value[5] == true
+                            Colorpicker.RainbowSat = Clamp(Colorpicker.Sat or 1, 0, 1)
+                            Colorpicker.RainbowVib = Clamp(Colorpicker.Vib or 1, 0, 1)
+                            Menu.RainbowPickers[Colorpicker] = Colorpicker.Rainbow or nil
 
                             Colorpicker.Refresh(Fire)
                         end
@@ -9171,7 +9175,7 @@ RenderStepped:Connect(function()
         if Picker and Picker.Set then
             local Saturation = Clamp(Picker.RainbowSat or 1, 0, 1)
             local Value = Clamp(Picker.RainbowVib or 1, 0, 1)
-            Picker.Set({ Hue, Saturation, Value, Picker.Transparency })
+            Picker.Set({ Hue, Saturation, Value, Picker.Transparency, true })
         end
     end
 end)
@@ -9663,6 +9667,7 @@ end
         local RageTimers = { Tick = 0, LastShot = 0, LastReload = 0 }
         local ScanState = { LastScan = 0, Round = 0 }
         local ValidPair, LockedPath = nil, nil
+        local RageHealthWatchers = {}
 
         local RayParams = NewRayParams()
         RayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -9705,6 +9710,39 @@ end
             Sound.PlayOnRemove = true
             Sound.Parent = CurrentCamera
             Destroy(Sound)
+        end
+
+        function WatchRageHit(Target, Bone)
+            local NotificationFlag = Flags["Notifications"]
+            if not NotificationFlag or not NotificationFlag.Value or RageHealthWatchers[Target] then return end
+
+            local Humanoid = Target.Character and FindFirstChildWhichIsA(Target.Character, "Humanoid")
+            if not Humanoid or Humanoid.Health <= 0 then return end
+
+            local PreviousHealth = Humanoid.Health
+            local Connection
+
+            Connection = Humanoid.HealthChanged:Connect(function(CurrentHealth)
+                if CurrentHealth >= PreviousHealth then return end
+
+                RageHealthWatchers[Target] = nil
+                Connection:Disconnect()
+
+                if NotificationFlag.Value then
+                    Library:Notify({
+                        Text = Format("Hit %s in the %s for %s damage (%s health remaining)", Target.Name, Bone.Name, Round(PreviousHealth - CurrentHealth), Round(CurrentHealth)),
+                        Time = 3
+                    })
+                end
+            end)
+
+            RageHealthWatchers[Target] = Connection
+            Delay(1, function()
+                if RageHealthWatchers[Target] == Connection then
+                    RageHealthWatchers[Target] = nil
+                    Connection:Disconnect()
+                end
+            end)
         end
 
         function Reloading(Tool)
@@ -9913,7 +9951,7 @@ if RageConfig.RapidFire then
 else
    
     local delayFlag = Flags["Rage Fire Rate Delay"]
-    WaitTime = delayFlag and delayFlag.Value or 0.1
+    WaitTime = delayFlag and tonumber(delayFlag.Value) or 0.1
 end
 
             if RageTimers.Tick - RageTimers.LastShot < WaitTime then return end
@@ -9935,6 +9973,7 @@ end
                 FireTracer(ValidPair.Origin, ValidPair.Hit, Visuals.Cache.LocalBeam)
             end
 
+            WatchRageHit(ValidPair.Target, Bone)
             HitRemote:FireServer("\240\159\167\136", Tool, Key, 1, Bone, ValidPair.Hit, Direction)
             HitSoundpl()
 
@@ -10018,24 +10057,96 @@ Section:TextBox({
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
 
+Spinner = { Enabled = false, Speed = 50 }
+Spinning = nil
 
+PoseOverride = {
+    Enabled = false,
+    Instant = true,
+    LocalReplicate = true,
+    UseC0Pose = true,
+    ArmPitchDeg = 0,
+    ArmRayLength = 12,
+    ShoulderZSignR = -1,
+    ShoulderZSignL = 1,
+    NeckPitchDeg = 0,
+    Mode = "Up",
+    CustomArmEnabled = false,
+    CustomNeckEnabled = false,
+    OscSpeed = 0.8,
+    OscPhase = 0,
+    ArmPitchMin = -90,
+    ArmPitchMax = 90,
+    NeckPitchMin = -57,
+    NeckPitchMax = 90,
+    FirstPersonDist = 1.6,
+}
 
-local Spinner = { Enabled = false, Speed = 50 }
-local Spinning = nil
+local PosePreset = {
+    Up = { arm = 90, neck = 90 },
+    Down = { arm = -90, neck = -57 },
+}
+
+PoseLp = game:GetService("Players").LocalPlayer
+PoseBindKey = "LWV3_MOVZREP_POSE_BIND"
+PoseRenderPriority = 1000000
+PoseBound = false
+PoseCharConn = nil
+PoseDiedConn = nil
+PoseCamChangedConn = nil
+PoseVmAddedConn = nil
+PoseVmRemovedConn = nil
+PoseJointsConn = nil
+PoseJNeck = nil
+PoseJRS = nil
+PoseJLS = nil
+PoseBaseC0 = { Neck = nil, RS = nil, LS = nil }
+PoseBaseC1 = { Neck = nil }
+PoseNeckNeutralC0 = nil
+PoseNeckNeutralC1 = nil
+PoseVmModel = nil
+PoseVmJoints = {}
+PoseVmBase = {}
+PoseLastActive = false
+PoseLastAutoVmBlock = false
+PoseAutoVmBlockActive = false
+PoseWsCharModel = nil
+PoseWsJNeck = nil
+PoseWsJRS = nil
+PoseWsJLS = nil
+PoseWsBaseC0 = { Neck = nil, RS = nil, LS = nil }
+PoseWsBaseC1 = { Neck = nil }
+PoseWsNeckNeutralC0 = nil
+PoseWsNeckNeutralC1 = nil
+PoseWsJointsConn = nil
+PoseWsCharactersConn = nil
+PoseWsToolJoints = {}
+PoseWsToolBase = {}
 
 function ToggleSpinbot(On)
     Spinner.Enabled = On
     if On and not Spinning then
         Spinning = Spawn(function()
             while Spinner.Enabled do
-                local StopOnFly = Flags["AA_spin_check_fly_lool"]
+                StopOnFly = Flags["AA FLY CHECK"]
                 if StopOnFly and StopOnFly.Value and Flags["Fly Enabled"] and Flags["Fly Enabled"].Value then
                     Wait()
                     continue
                 end
 
-                local Root = LocalPlayer.Character and FindFirstChild(LocalPlayer.Character, "HumanoidRootPart")
-                if Root then Root.CFrame = Root.CFrame * CFrame.Angles(0, math.rad(Spinner.Speed % 150), 0) end
+                local StopOnDowned = Flags["AA Spinbot Downed Check"]
+                local CharacterStats = FindFirstChild(ReplicatedStorage, "CharStats")
+                local LocalStats = CharacterStats and FindFirstChild(CharacterStats, LocalPlayer.Name)
+                local Downed = LocalStats and FindFirstChild(LocalStats, "Downed")
+                if StopOnDowned and StopOnDowned.Value and Downed and Downed.Value then
+                    Wait()
+                    continue
+                end
+
+                Root = LocalPlayer.Character and FindFirstChild(LocalPlayer.Character, "HumanoidRootPart")
+                if Root then
+                    Root.CFrame = Root.CFrame * CFrame.Angles(0, math.rad(Spinner.Speed % 150), 0)
+                end
                 Wait()
             end
             Spinning = nil
@@ -10046,18 +10157,865 @@ function ToggleSpinbot(On)
     end
 end
 
-Section:Toggle({ Name = "Spinbot", Flag = "AA Spinbot", Default = false, Unsafe = true, Callback = function(v) ToggleSpinbot(v) end }):Keybind({ Mode = "Toggle", Flag = "AA Spinbot Keybind", Name = "Spinbot" })
-Section:Slider({ Name = "Spinbot Speed", Flag = "AA Spinbot Speed", Min = 1, Max = 150, Default = 50, Decimals = 1, Callback = function(v) Spinner.Speed = v end })
-Section:Toggle({ Name = "FlySpin check", Flag = "AA_spin_check_fly_lool", Default = true })
+AntiAim = { Enabled = false, Mode = "Headless", activesss = "Headless", Vector = NewVector3(0,0,0) }
+HeadVector = { Front = NewVector3(0,0,1), Up = NewVector3(0,1,0), Down = NewVector3(0,-1,0), Left = NewVector3(1,0,0), Right = NewVector3(-1,0,0), Normal = NewVector3(0,0,0), Headless = NewVector3(0,2,0) }
+Meta = getrawmetatable(game)
+Original = Meta and Meta.__namecall
+Hooked = false
+Unhita = nil
+
+function PoseClamp(x, a, b)
+    return math.max(a, math.min(b, x))
+end
+
+function PoseMapOsc(minv, maxv, s)
+    c = (minv + maxv) / 2
+    a = (maxv - minv) / 2
+    return c + a * s
+end
+
+function PosePitchToLook(p)
+    r = math.rad(p or 0)
+    v = Vector3.new(0, math.sin(r), -math.cos(r))
+    return v.Magnitude > 0 and v.Unit or Vector3.new(0, 0, -1)
+end
+
+function PoseMakeArmDeltaZ(p, len)
+    r = math.rad(p or 0)
+    d = Vector3.new(0, math.sin(r), -math.cos(r)).Unit
+    return d * (len or 10)
+end
+
+function PoseSetMode(m)
+    PoseOverride.Mode = m
+    if m == "Random" then
+        PoseOverride.OscPhase = math.random()
+    end
+end
+
+function PoseComputeDesired()
+    local armPitch
+    local neckPit
+    if PoseOverride.Mode == "Random" and not PoseOverride.CustomArmEnabled and not PoseOverride.CustomNeckEnabled then
+        s = math.cos(2 * math.pi * PoseOverride.OscSpeed * os.clock() + 2 * math.pi * PoseOverride.OscPhase)
+        armPitch = PoseMapOsc(PoseOverride.ArmPitchMin, PoseOverride.ArmPitchMax, s)
+        neckPit = PoseMapOsc(PoseOverride.NeckPitchMin, PoseOverride.NeckPitchMax, s)
+    else
+        armPitch = PoseOverride.CustomArmEnabled and PoseOverride.ArmPitchDeg or (PosePreset[PoseOverride.Mode] and PosePreset[PoseOverride.Mode].arm or 0)
+        neckPit = PoseOverride.CustomNeckEnabled and PoseOverride.NeckPitchDeg or (PosePreset[PoseOverride.Mode] and PosePreset[PoseOverride.Mode].neck or 0)
+    end
+    return PoseClamp(armPitch, -90, 90), PoseClamp(neckPit, -90, 90)
+end
+
+function PoseGetCamera()
+    return workspace.CurrentCamera or workspace.Camera
+end
+
+function PoseGetHead(char)
+    return char and char:FindFirstChild("Head")
+end
+
+function PoseIsFirstPerson()
+    cam = PoseGetCamera()
+    char = PoseLp and PoseLp.Character
+    if not cam or not char then
+        return false
+    end
+    if PoseLp.CameraMode == Enum.CameraMode.LockFirstPerson then
+        return true
+    end
+    local head = PoseGetHead(char)
+    if not head then
+        return false
+    end
+    local dist = (cam.CFrame.Position - head.Position).Magnitude
+    return dist <= PoseOverride.FirstPersonDist
+end
+
+function PoseIsPacket(arg1)
+    if type(arg1) ~= "table" then
+        return false
+    end
+    local bm = arg1[1]
+    if type(bm) ~= "table" then
+        return false
+    end
+    local mOrigin = bm[2]
+    return typeof(mOrigin) == "Vector3"
+end
+
+function PoseStoreBases()
+    PoseBaseC0.Neck = PoseJNeck and PoseJNeck.C0 or nil
+    PoseBaseC0.RS = PoseJRS and PoseJRS.C0 or nil
+    PoseBaseC0.LS = PoseJLS and PoseJLS.C0 or nil
+    PoseBaseC1.Neck = PoseJNeck and PoseJNeck.C1 or nil
+end
+
+function PoseRestoreBases()
+    if PoseJNeck and PoseBaseC0.Neck then
+        PoseJNeck.C0 = PoseBaseC0.Neck
+    end
+    if PoseJNeck and PoseBaseC1.Neck then
+        PoseJNeck.C1 = PoseBaseC1.Neck
+    end
+    if PoseJRS and PoseBaseC0.RS then
+        PoseJRS.C0 = PoseBaseC0.RS
+    end
+    if PoseJLS and PoseBaseC0.LS then
+        PoseJLS.C0 = PoseBaseC0.LS
+    end
+end
+
+function PoseClearTransforms()
+    pcall(function()
+        if PoseJNeck then
+            PoseJNeck.Transform = CFrame.new()
+        end
+    end)
+    pcall(function()
+        if PoseJRS then
+            PoseJRS.Transform = CFrame.new()
+        end
+    end)
+    pcall(function()
+        if PoseJLS then
+            PoseJLS.Transform = CFrame.new()
+        end
+    end)
+end
+
+function PoseComputeNeckNeutral()
+    PoseNeckNeutralC0 = nil
+    PoseNeckNeutralC1 = nil
+    if not PoseJNeck then
+        return
+    end
+    p0 = PoseJNeck.Part0
+    p1 = PoseJNeck.Part1
+    a0 = p0 and (p0:FindFirstChild("NeckRigAttachment") or p0:FindFirstChild("NeckAttachment"))
+    a1 = p1 and (p1:FindFirstChild("NeckRigAttachment") or p1:FindFirstChild("NeckAttachment"))
+    if a0 and a0:IsA("Attachment") and a1 and a1:IsA("Attachment") then
+        PoseNeckNeutralC0 = a0.CFrame
+        PoseNeckNeutralC1 = a1.CFrame
+    else
+        PoseNeckNeutralC0 = CFrame.new(PoseJNeck.C0.Position)
+        PoseNeckNeutralC1 = CFrame.new(PoseJNeck.C1.Position)
+    end
+end
+
+function PoseFindJoints(char)
+    PoseJNeck = nil
+    PoseJRS = nil
+    PoseJLS = nil
+    for _, inst in ipairs(char:GetDescendants()) do
+        if inst:IsA("Motor6D") then
+            local p1 = inst.Part1
+            if p1 then
+                local n = p1.Name
+                if n == "Head" then
+                    PoseJNeck = inst
+                elseif n == "RightUpperArm" or n == "Right Arm" then
+                    PoseJRS = inst
+                elseif n == "LeftUpperArm" or n == "Left Arm" then
+                    PoseJLS = inst
+                end
+            end
+        end
+    end
+    PoseStoreBases()
+    PoseComputeNeckNeutral()
+end
+
+function PoseShoulderRotationsFromPitch(p)
+    local a = math.rad(-p)
+    return CFrame.Angles(0, 0, PoseOverride.ShoulderZSignR * a), CFrame.Angles(0, 0, PoseOverride.ShoulderZSignL * a)
+end
+
+function PoseIsTrackedJointPart1(name)
+    return name == "Head" or name == "RightUpperArm" or name == "Right Arm" or name == "LeftUpperArm" or name == "Left Arm"
+end
+
+function PoseOnCharDescendantAdded(inst)
+    if not inst:IsA("Motor6D") then
+        return
+    end
+    task.defer(function()
+        local p1 = inst.Part1
+        local char = PoseLp.Character
+        if p1 and char and PoseIsTrackedJointPart1(p1.Name) then
+            PoseFindJoints(char)
+        end
+    end)
+end
+
+function PoseGetWsCharacterModel()
+    local chars = Workspace:FindFirstChild("Characters")
+    return chars and chars:FindFirstChild(PoseLp.Name)
+end
+
+function PoseStoreWsBases()
+    PoseWsBaseC0.Neck = PoseWsJNeck and PoseWsJNeck.C0 or nil
+    PoseWsBaseC0.RS = PoseWsJRS and PoseWsJRS.C0 or nil
+    PoseWsBaseC0.LS = PoseWsJLS and PoseWsJLS.C0 or nil
+    PoseWsBaseC1.Neck = PoseWsJNeck and PoseWsJNeck.C1 or nil
+end
+
+function PoseRestoreWsBases()
+    if PoseWsJNeck and PoseWsBaseC0.Neck then
+        PoseWsJNeck.C0 = PoseWsBaseC0.Neck
+    end
+    if PoseWsJNeck and PoseWsBaseC1.Neck then
+        PoseWsJNeck.C1 = PoseWsBaseC1.Neck
+    end
+    if PoseWsJRS and PoseWsBaseC0.RS then
+        PoseWsJRS.C0 = PoseWsBaseC0.RS
+    end
+    if PoseWsJLS and PoseWsBaseC0.LS then
+        PoseWsJLS.C0 = PoseWsBaseC0.LS
+    end
+end
+
+function PoseClearWsTransforms()
+    pcall(function()
+        if PoseWsJNeck then
+            PoseWsJNeck.Transform = CFrame.new()
+        end
+    end)
+    pcall(function()
+        if PoseWsJRS then
+            PoseWsJRS.Transform = CFrame.new()
+        end
+    end)
+    pcall(function()
+        if PoseWsJLS then
+            PoseWsJLS.Transform = CFrame.new()
+        end
+    end)
+    
+    for _, j in ipairs(PoseWsToolJoints) do
+        if j.Transform then
+            pcall(function() j.Transform = CFrame.new() end)
+        end
+    end
+end
+
+function PoseComputeWsNeckNeutral()
+    PoseWsNeckNeutralC0 = nil
+    PoseWsNeckNeutralC1 = nil
+    if not PoseWsJNeck then
+        return
+    end
+    local p0 = PoseWsJNeck.Part0
+    local p1 = PoseWsJNeck.Part1
+    local a0 = p0 and (p0:FindFirstChild("NeckRigAttachment") or p0:FindFirstChild("NeckAttachment"))
+    local a1 = p1 and (p1:FindFirstChild("NeckRigAttachment") or p1:FindFirstChild("NeckAttachment"))
+    if a0 and a0:IsA("Attachment") and a1 and a1:IsA("Attachment") then
+        PoseWsNeckNeutralC0 = a0.CFrame
+        PoseWsNeckNeutralC1 = a1.CFrame
+    else
+        PoseWsNeckNeutralC0 = CFrame.new(PoseWsJNeck.C0.Position)
+        PoseWsNeckNeutralC1 = CFrame.new(PoseWsJNeck.C1.Position)
+    end
+end
+
+function PoseFindWsToolJoints()
+    PoseWsToolJoints = {}
+    PoseWsToolBase = {}
+    if not PoseWsCharModel then return end
+
+    local armParts = {}
+    local function collectArmParts(part)
+        if not part then return end
+        for _, child in ipairs(part:GetChildren()) do
+            if child:IsA("BasePart") then
+                armParts[child] = true
+                collectArmParts(child)
+            end
+        end
+    end
+
+    if PoseWsJRS and PoseWsJRS.Part1 then collectArmParts(PoseWsJRS.Part1) end
+    if PoseWsJLS and PoseWsJLS.Part1 then collectArmParts(PoseWsJLS.Part1) end
+
+    for _, inst in ipairs(PoseWsCharModel:GetDescendants()) do
+        if (inst:IsA("Motor6D") or inst:IsA("Weld")) and inst.Part0 and inst.Part1 then
+            local parentChain = {}
+            local current = inst.Part0
+            while current do
+                parentChain[current] = true
+                current = current.Parent
+            end
+      
+            local isArmAncestor = false
+            for part in pairs(armParts) do
+                if parentChain[part] then
+                    isArmAncestor = true
+                    break
+                end
+            end
+            if isArmAncestor and not armParts[inst.Part1] then
+                table.insert(PoseWsToolJoints, inst)
+                PoseWsToolBase[inst] = {
+                    C0 = inst.C0,
+                    C1 = inst.C1 or CFrame.new(),
+                    Transform = inst.Transform or CFrame.new()
+                }
+            end
+        end
+    end
+end
+
+function PoseRestoreWsToolJoints()
+    for _, j in ipairs(PoseWsToolJoints) do
+        local b = PoseWsToolBase[j]
+        if b then
+            pcall(function() j.C0 = b.C0 end)
+            if j:IsA("Motor6D") then
+                pcall(function() j.C1 = b.C1 end)
+            end
+            if j.Transform then
+                pcall(function() j.Transform = b.Transform end)
+            end
+        end
+    end
+end
+
+function PoseFindWsJoints()
+    PoseWsCharModel = PoseGetWsCharacterModel()
+    PoseWsJNeck = nil
+    PoseWsJRS = nil
+    PoseWsJLS = nil
+    if not PoseWsCharModel then
+        return
+    end
+    for _, inst in ipairs(PoseWsCharModel:GetDescendants()) do
+        if inst:IsA("Motor6D") then
+            local p1 = inst.Part1
+            if p1 then
+                local n = p1.Name
+                if n == "Head" then
+                    PoseWsJNeck = inst
+                elseif n == "RightUpperArm" or n == "Right Arm" then
+                    PoseWsJRS = inst
+                elseif n == "LeftUpperArm" or n == "Left Arm" then
+                    PoseWsJLS = inst
+                end
+            end
+        end
+    end
+    PoseStoreWsBases()
+    PoseComputeWsNeckNeutral()
+
+    PoseFindWsToolJoints()
+end
+
+function PoseOnWsDescendantAdded(inst)
+    if not inst:IsA("Motor6D") and not inst:IsA("Weld") then
+        return
+    end
+    task.defer(function()
+        local p1 = inst.Part1
+        if p1 and PoseIsTrackedJointPart1(p1.Name) then
+            PoseFindWsJoints()
+        else
+            PoseFindWsToolJoints()
+        end
+    end)
+end
+
+function PoseRefreshWsJoints()
+    if PoseWsJointsConn then
+        PoseWsJointsConn:Disconnect()
+        PoseWsJointsConn = nil
+    end
+    PoseFindWsJoints()
+    if PoseWsCharModel then
+        PoseWsJointsConn = PoseWsCharModel.DescendantAdded:Connect(PoseOnWsDescendantAdded)
+    end
+end
+
+function PoseIsArmName(n)
+    return n == "Right Arm" or n == "RightUpperArm" or n == "Left Arm" or n == "LeftUpperArm"
+end
+
+function PoseTrackViewModel()
+    PoseVmModel = nil
+    PoseVmJoints = {}
+    PoseVmBase = {}
+    local cam = PoseGetCamera()
+    if not cam then
+        return
+    end
+    local vm = cam:FindFirstChild("ViewModel")
+    if not vm then
+        return
+    end
+    PoseVmModel = vm
+    for _, inst in ipairs(vm:GetDescendants()) do
+        if (inst:IsA("Motor6D") or inst:IsA("Weld")) and inst.Part1 and PoseIsArmName(inst.Part1.Name) then
+            table.insert(PoseVmJoints, inst)
+            PoseVmBase[inst] = { C0 = inst.C0, C1 = inst.C1 or CFrame.new() }
+        end
+    end
+end
+
+function PoseRestoreViewModel()
+    if not PoseVmModel then
+        return
+    end
+    for _, j in ipairs(PoseVmJoints) do
+        local b = PoseVmBase[j]
+        if b then
+            pcall(function()
+                j.C0 = b.C0
+            end)
+            if j:IsA("Motor6D") then
+                pcall(function()
+                    j.C1 = b.C1
+                end)
+            end
+            if j.Transform then
+                pcall(function()
+                    j.Transform = CFrame.new()
+                end)
+            end
+        end
+    end
+end
 
 
+function PoseApplyViewModel(armPitch)
+    if not PoseVmModel then
+        return
+    end
+    local r, l = PoseShoulderRotationsFromPitch(armPitch)
+    for _, j in ipairs(PoseVmJoints) do
+        local b = PoseVmBase[j]
+        if not b then
+            continue
+        end
+        local p1 = j.Part1
+        if not p1 then
+            continue
+        end
+        local rot = nil
+        if PoseIsArmName(p1.Name) then
+            if p1.Name == "Right Arm" or p1.Name == "RightUpperArm" then
+                rot = r
+            elseif p1.Name == "Left Arm" or p1.Name == "LeftUpperArm" then
+                rot = l
+            end
+        end
+        if rot then
+            if PoseOverride.UseC0Pose then
+                j.C0 = b.C0 * rot
+                if j:IsA("Motor6D") then
+                    j.C1 = b.C1 or CFrame.new()
+                end
+                if j.Transform then
+                    j.Transform = CFrame.new()
+                end
+            else
+                if j.Transform then
+                    j.Transform = rot
+                end
+                j.C0 = b.C0
+                if j:IsA("Motor6D") then
+                    j.C1 = b.C1 or CFrame.new()
+                end
+            end
+        else
+        
+            j.C0 = b.C0
+            if j:IsA("Motor6D") then
+                j.C1 = b.C1 or CFrame.new()
+            end
+            if j.Transform then
+                j.Transform = CFrame.new()
+            end
+        end
+    end
+end
 
- AntiAim = { Enabled = false, Mode = "Headless", activesss = "Headless", Vector = NewVector3(0,0,0) }
- HeadVector = { Front = NewVector3(0,0,1), Up = NewVector3(0,1,0), Down = NewVector3(0,-1,0), Left = NewVector3(1,0,0), Right = NewVector3(-1,0,0), Normal = NewVector3(0,0,0), Headless = NewVector3(0,2,0) }
- Meta = getrawmetatable(game)                                                         
- Original = Meta and Meta.__namecall
- Hooked = false
- Unhita = nil
+function PoseApplyWsToolJoints(armPitch)
+    if not PoseWsCharModel then return end
+    local r, l = PoseShoulderRotationsFromPitch(armPitch)
+    for _, j in ipairs(PoseWsToolJoints) do
+        local b = PoseWsToolBase[j]
+        if not b then continue end
+        local isRight = false
+        local parent = j.Part0
+        while parent do
+            if parent == PoseWsJRS.Part1 then
+                isRight = true
+                break
+            end
+            if parent == PoseWsJLS.Part1 then
+                isRight = false
+                break
+            end
+            parent = parent.Parent
+        end
+        local rot = isRight and r or l
+        if PoseOverride.UseC0Pose then
+            j.C0 = b.C0 * rot
+            if j:IsA("Motor6D") then
+                j.C1 = b.C1 or CFrame.new()
+            end
+            if j.Transform then
+                j.Transform = CFrame.new()
+            end
+        else
+            if j.Transform then
+                j.Transform = rot
+            end
+            j.C0 = b.C0
+            if j:IsA("Motor6D") then
+                j.C1 = b.C1 or CFrame.new()
+            end
+        end
+    end
+end
+
+function PoseOnRenderStep()
+    PoseAutoVmBlockActive = PoseIsFirstPerson()
+    local poseActive = PoseOverride.Enabled and PoseOverride.LocalReplicate 
+
+    if (not poseActive) and PoseLastActive then
+        PoseClearTransforms()
+        PoseRestoreBases()
+        PoseClearWsTransforms()
+        PoseRestoreWsBases()
+        PoseRestoreWsToolJoints()
+        PoseRestoreViewModel()
+    end
+
+    if poseActive then
+        local armPitch, neckPit = PoseComputeDesired()
+
+        if PoseJNeck and PoseNeckNeutralC0 and PoseNeckNeutralC1 then
+            local neckRot = CFrame.Angles(math.rad(neckPit), 0, 0)
+            if PoseOverride.UseC0Pose then
+                PoseJNeck.C0 = PoseNeckNeutralC0 * neckRot
+                PoseJNeck.C1 = PoseNeckNeutralC1
+                PoseJNeck.Transform = CFrame.new()
+            else
+                PoseJNeck.Transform = neckRot
+                PoseJNeck.C0 = PoseNeckNeutralC0
+                PoseJNeck.C1 = PoseNeckNeutralC1
+            end
+        end
+
+        local r, l = PoseShoulderRotationsFromPitch(armPitch)
+        if PoseJRS then
+            if PoseOverride.UseC0Pose then
+                if PoseBaseC0.RS then
+                    PoseJRS.C0 = PoseBaseC0.RS * r
+                end
+                PoseJRS.Transform = CFrame.new()
+            else
+                PoseJRS.Transform = r
+                if PoseBaseC0.RS then
+                    PoseJRS.C0 = PoseBaseC0.RS
+                end
+            end
+        end
+        if PoseJLS then
+            if PoseOverride.UseC0Pose then
+                if PoseBaseC0.LS then
+                    PoseJLS.C0 = PoseBaseC0.LS * l
+                end
+                PoseJLS.Transform = CFrame.new()
+            else
+                PoseJLS.Transform = l
+                if PoseBaseC0.LS then
+                    PoseJLS.C0 = PoseBaseC0.LS
+                end
+            end
+        end
+
+        if PoseWsJNeck and PoseWsNeckNeutralC0 and PoseWsNeckNeutralC1 then
+            local wsNeckRot = CFrame.Angles(math.rad(neckPit), 0, 0)
+            if PoseOverride.UseC0Pose then
+                PoseWsJNeck.C0 = PoseWsNeckNeutralC0 * wsNeckRot
+                PoseWsJNeck.C1 = PoseWsNeckNeutralC1
+                PoseWsJNeck.Transform = CFrame.new()
+            else
+                PoseWsJNeck.Transform = wsNeckRot
+                PoseWsJNeck.C0 = PoseWsNeckNeutralC0
+                PoseWsJNeck.C1 = PoseWsNeckNeutralC1
+            end
+        end
+
+        if PoseWsJRS then
+            if PoseOverride.UseC0Pose then
+                if PoseWsBaseC0.RS then
+                    PoseWsJRS.C0 = PoseWsBaseC0.RS * r
+                end
+                PoseWsJRS.Transform = CFrame.new()
+            else
+                PoseWsJRS.Transform = r
+                if PoseWsBaseC0.RS then
+                    PoseWsJRS.C0 = PoseWsBaseC0.RS
+                end
+            end
+        end
+        if PoseWsJLS then
+            if PoseOverride.UseC0Pose then
+                if PoseWsBaseC0.LS then
+                    PoseWsJLS.C0 = PoseWsBaseC0.LS * l
+                end
+                PoseWsJLS.Transform = CFrame.new()
+            else
+                PoseWsJLS.Transform = l
+                if PoseWsBaseC0.LS then
+                    PoseWsJLS.C0 = PoseWsBaseC0.LS
+                end
+            end
+        end
+
+        
+        PoseApplyWsToolJoints(armPitch)
+
+      
+        PoseApplyViewModel(armPitch)
+    else
+        PoseRestoreViewModel()
+        PoseRestoreWsToolJoints()
+    end
+
+    PoseLastActive = poseActive
+    PoseLastAutoVmBlock = PoseAutoVmBlockActive
+end
+
+function PoseBindRender()
+    if PoseBound then
+        return
+    end
+    RunService:BindToRenderStep(PoseBindKey, PoseRenderPriority, PoseOnRenderStep)
+    PoseBound = true
+end
+
+function PoseUnbindRender()
+    if not PoseBound then
+        return
+    end
+    pcall(function()
+        RunService:UnbindFromRenderStep(PoseBindKey)
+    end)
+    PoseBound = false
+end
+
+function PoseStartLocalFeatures()
+    local char = PoseLp.Character
+    if not char then
+        return
+    end
+
+    PoseFindJoints(char)
+
+    if PoseJointsConn then
+        PoseJointsConn:Disconnect()
+        PoseJointsConn = nil
+    end
+    PoseJointsConn = char.DescendantAdded:Connect(PoseOnCharDescendantAdded)
+
+    PoseRefreshWsJoints()
+
+    if PoseWsCharactersConn then
+        PoseWsCharactersConn:Disconnect()
+        PoseWsCharactersConn = nil
+    end
+    local wsChars = Workspace:FindFirstChild("Characters")
+    if wsChars then
+        PoseWsCharactersConn = wsChars.ChildAdded:Connect(function(child)
+            if child.Name == PoseLp.Name then
+                PoseRefreshWsJoints()
+            end
+        end)
+    end
+
+    if PoseDiedConn then
+        PoseDiedConn:Disconnect()
+        PoseDiedConn = nil
+    end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        PoseDiedConn = hum.Died:Connect(function()
+            PoseClearTransforms()
+            PoseRestoreBases()
+            PoseUnbindRender()
+        end)
+    end
+
+    PoseSetMode(PoseOverride.Mode)
+
+    if PoseCamChangedConn then
+        PoseCamChangedConn:Disconnect()
+        PoseCamChangedConn = nil
+    end
+    PoseCamChangedConn = workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(PoseTrackViewModel)
+
+    local cam = PoseGetCamera()
+    if PoseVmAddedConn then
+        PoseVmAddedConn:Disconnect()
+        PoseVmAddedConn = nil
+    end
+    if PoseVmRemovedConn then
+        PoseVmRemovedConn:Disconnect()
+        PoseVmRemovedConn = nil
+    end
+    if cam then
+        PoseVmAddedConn = cam.ChildAdded:Connect(function(c)
+            if c.Name == "ViewModel" then
+                PoseTrackViewModel()
+            end
+        end)
+        PoseVmRemovedConn = cam.ChildRemoved:Connect(function(c)
+            if c.Name == "ViewModel" then
+                PoseVmModel = nil
+                PoseVmJoints = {}
+                PoseVmBase = {}
+            end
+        end)
+    end
+
+    PoseTrackViewModel()
+    PoseBindRender()
+end
+
+function PoseStopLocalFeatures()
+    PoseUnbindRender()
+    if PoseJointsConn then
+        PoseJointsConn:Disconnect()
+        PoseJointsConn = nil
+    end
+    if PoseWsJointsConn then
+        PoseWsJointsConn:Disconnect()
+        PoseWsJointsConn = nil
+    end
+    if PoseWsCharactersConn then
+        PoseWsCharactersConn:Disconnect()
+        PoseWsCharactersConn = nil
+    end
+    if PoseDiedConn then
+        PoseDiedConn:Disconnect()
+        PoseDiedConn = nil
+    end
+    if PoseCamChangedConn then
+        PoseCamChangedConn:Disconnect()
+        PoseCamChangedConn = nil
+    end
+    if PoseVmAddedConn then
+        PoseVmAddedConn:Disconnect()
+        PoseVmAddedConn = nil
+    end
+    if PoseVmRemovedConn then
+        PoseVmRemovedConn:Disconnect()
+        PoseVmRemovedConn = nil
+    end
+    PoseClearTransforms()
+    PoseRestoreBases()
+    PoseClearWsTransforms()
+    PoseRestoreWsBases()
+    PoseRestoreWsToolJoints()
+    PoseRestoreViewModel()
+    PoseLastActive = false
+    PoseLastAutoVmBlock = false
+end
+
+function PoseApplyPacket(args)
+    if not PoseOverride.Enabled or not PoseIsPacket(args[1]) then
+        return
+    end
+
+    local ok = pcall(function()
+        t = args[1]
+        bm = t[1]
+        mOrigin = bm[2]
+        local armPitch, neckPit = PoseComputeDesired()
+
+        if typeof(mOrigin) == "Vector3" then
+            bm[1] = mOrigin + PoseMakeArmDeltaZ(armPitch, PoseOverride.ArmRayLength)
+        end
+
+        bm[3] = PosePitchToLook(neckPit)
+        bm[4] = true
+        bm[5] = true
+        t[1] = bm
+        args[1] = t
+
+        if PoseOverride.Instant then
+            args[2] = true
+        end
+    end)
+
+    if not ok then
+        return
+    end
+end
+
+function SetHookState(on)
+    if on and not Hooked and Meta then
+        setreadonly(Meta, false)
+        Meta.__namecall = newcclosure(function(self, ...)
+            local M = getnamecallmethod()
+            if M == "FireServer" and typeof(self) == "Instance" and self.Name == "MOVZREP" then
+                local A = { ... }
+
+                PoseApplyPacket(A)
+
+                if AntiAim.Enabled and getgenv().NewLookVector and type(A[1]) == "table" and type(A[1][1]) == "table" and A[1][1][3] then
+                    A[1][1][3] = getgenv().NewLookVector
+                end
+
+                return Original(self, table.unpack(A))
+            end
+            return Original(self, ...)
+        end)
+        setreadonly(Meta, true)
+        Hooked = true
+    elseif (not on) and Hooked and Meta then
+        setreadonly(Meta, false)
+        Meta.__namecall = Original
+        setreadonly(Meta, true)
+        Hooked = false
+    end
+end
+
+function RefreshHookState()
+    SetHookState(AntiAim.Enabled or PoseOverride.Enabled)
+end
+
+function SetPoseOverride(on)
+    PoseOverride.Enabled = on and true or false
+    if PoseOverride.Enabled then
+        PoseStartLocalFeatures()
+    else
+        PoseStopLocalFeatures()
+    end
+    RefreshHookState()
+end
+
+function PoseOnChar(char)
+    if PoseOverride.Enabled then
+        PoseStartLocalFeatures()
+    end
+end
+
+if PoseLp and PoseLp.Character then
+    PoseOnChar(PoseLp.Character)
+end
+if PoseCharConn then
+    PoseCharConn:Disconnect()
+end
+PoseCharConn = PoseLp.CharacterAdded:Connect(function(char)
+    char:WaitForChild("Humanoid", 5)
+    char:WaitForChild("Head", 5)
+    char:WaitForChild("RightUpperArm", 3)
+    char:WaitForChild("LeftUpperArm", 3)
+    PoseOnChar(char)
+end)
 
 function ApplyPreset(Name)
     local V = HeadVector[Name]
@@ -10082,43 +11040,24 @@ function RunUnhittable()
 end
 
 function SetHook(On)
-    if On and not Hooked and Meta then
-        setreadonly(Meta, false)
-        Meta.__namecall = newcclosure(function(self, ...)
-            local M = getnamecallmethod()
-            if M == "FireServer" and AntiAim.Enabled and typeof(self) == "Instance" and self.Name == "MOVZREP" and getgenv().NewLookVector then
-                local A = {...}
-                if type(A[1]) == "table" and type(A[1][1]) == "table" and A[1][1][3] then
-                    A[1][1][3] = getgenv().NewLookVector
-                end
-                return Original(self, table.unpack(A))
-            end
-            return Original(self, ...)
-        end)
-        setreadonly(Meta, true)
-        Hooked = true
-    elseif not On and Hooked and Meta then
-        setreadonly(Meta, false)
-        Meta.__namecall = Original
-        setreadonly(Meta, true)
-        Hooked = false
-    end
+    SetHookState(On)
 end
 
 function SetAntiAim(On)
     AntiAim.Enabled = On
     if On then
-        SetHook(true)
+        RefreshHookState()
         if AntiAim.Mode == "Lerp" then RunUnhittable() else ApplyPreset(AntiAim.activesss or "Headless") end
     else
         if Unhita then pcall(task.cancel, Unhita); Unhita = nil end
-        SetHook(false)
+        RefreshHookState()
     end
 end
 
 function SetMode(Mode)
     AntiAim.Mode = Mode
-    if Mode == "Lerp" then RunUnhittable()
+    if Mode == "Lerp" then
+        RunUnhittable()
     else
         if Unhita then pcall(task.cancel, Unhita); Unhita = nil end
         ApplyPreset(Mode)
@@ -10131,17 +11070,31 @@ getgenv().MOVZREPHeadless = {
     SetMode = SetMode,
     GetVector = function() return getgenv().NewLookVector end,
     GetMode = function() return AntiAim.Mode end,
+    EnablePoseOverride = function() SetPoseOverride(true) end,
+    DisablePoseOverride = function() SetPoseOverride(false) end,
 }
 
 ApplyPreset("Headless")
-SetAntiAim(true)
+SetAntiAim(false)
+PoseSetMode(PoseOverride.Mode)
 
 Section:Toggle({ Name = "Enabled", Flag = "AA Enabled", Default = false, Callback = function(v) SetAntiAim(v) end })
 Section:Dropdown({ Name = "Mode", Flag = "AA Mode", Options = { "Headless", "Normal", "Lerp" }, Default = "Headless", Callback = function(v) SetMode(v) end })
 
+Section:Toggle({ Name = "Spinbot", Flag = "AA Spinbot", Default = false, Unsafe = true, Callback = function(v) ToggleSpinbot(v) end }):Keybind({ Mode = "Toggle", Flag = "AA Spinbot Keybind", Name = "Spinbot" })
+Section:Slider({ Name = "Spinbot Speed", Flag = "AA Spinbot Speed", Min = 1, Max = 150, Default = 50, Decimals = 1, Callback = function(v) Spinner.Speed = v end })
+Section:Toggle({ Name = "FlySpin check", Flag = "AA FLY CHECK", Default = true })
+Section:Toggle({ Name = "Downed check", Flag = "AA Spinbot Downed Check", Default = true })
+
+Section:Toggle({ Name = "Sex Poses", Flag = "AA Pose Override", Default = false, Callback = function(on) SetPoseOverride(on) end })
+
+Section:Dropdown({ Name = "Poses", Flag = "AA Pose Mode", Options = { "Up", "Down", "Random" }, Default = PoseOverride.Mode, Callback = function(opt) PoseSetMode(opt) end })
+Section:Toggle({ Name = "Client Rep", Flag = "AA Pose Local Replicate", Default = PoseOverride.LocalReplicate, Callback = function(on) PoseOverride.LocalReplicate = on if not on then PoseClearTransforms() PoseRestoreBases() PoseLastActive = false end end })
+
+Section:Slider({ Name = "Lerp Speed", Flag = "AA Pose Osc Speed", Min = 0.05, Max = 5, Default = PoseOverride.OscSpeed, Decimals = 0.01, Callback = function(v) PoseOverride.OscSpeed = math.max(0.05, math.min(5, math.floor(v * 100 + 0.5) / 100)) end })
+Section:Toggle({ Name = "Force Instant", Flag = "AA Pose Instant", Default = PoseOverride.Instant, Callback = function(on) PoseOverride.Instant = on end })
 
 
-        
     end
 end
 
@@ -10320,6 +11273,12 @@ end
                             Name = "Priority Only",
                             Category = "Player",
                             Flag = "Esp Priority Only"
+                        })
+
+                        Tree:Toggle({
+                            Name = "Whitelist Only",
+                            Category = "Player",
+                            Flag = "Esp Whitelist Only"
                         })
 
                         Tree:Dropdown({
@@ -11429,7 +12388,7 @@ end
                         Name = "Fly Enabled",
                         Flag = "Fly Enabled",
                         Callback = function(Value)
-                            if Value and Flags["AA_spin_check_fly_lool"] and Flags["AA_spin_check_fly_lool"].Value and Flags["AA Spinbot"] and Flags["AA Spinbot"].Value then
+                            if Value and Flags["AA FLY CHECK"] and Flags["AA FLY CHECK"].Value and Flags["AA Spinbot"] and Flags["AA Spinbot"].Value then
                                 local SpinFlag = Flags["AA Spinbot"]
 
                                 if SpinFlag and SpinFlag.Set then
@@ -11575,6 +12534,11 @@ end
             })
             do
 
+                Section:Toggle({
+                    Name = "Notifications",
+                    Flag = "Notifications",
+                    Default = false
+                })
 
                 Section:Toggle({
                     Name = "Use Disablers",
@@ -11999,6 +12963,7 @@ end
                     Callback = function(Value)
                         if ChosenInfo then
                             ChosenInfo.Whitelist = Value
+                            Info.SaveRelationship(ChosenInfo)
 
                             Flags["Player List"].EditValue(ChosenInfo.Name, {
                                 [2] = (ChosenInfo.Whitelist and '<font color="rgb(158, 225, 255)">Whitelist</font>') or (ChosenInfo.Priority and '<font color="rgb(255, 0, 0)">Priority</font>') or "Neutral"
@@ -12016,6 +12981,7 @@ end
                     Callback = function(Value)
                         if ChosenInfo then
                             ChosenInfo.Priority = Value
+                            Info.SaveRelationship(ChosenInfo)
 
                             Flags["Player List"].EditValue(ChosenInfo.Name, {
                                 [2] = (ChosenInfo.Whitelist and '<font color="rgb(158, 225, 255)">Whitelist</font>') or (ChosenInfo.Priority and '<font color="rgb(255, 0, 0)">Priority</font>') or "Neutral"
@@ -12135,6 +13101,7 @@ end
                         local InfoPlayers = Info.Players
 
                         local NewList = {}
+                        Info.Relationships = {}
 
                         for i = 1, #InfoPlayers do
                             local This = InfoPlayers[i]
@@ -12170,6 +13137,7 @@ end
                             local Name = This.Name
 
                             This.Whitelist = true
+                            Info.SaveRelationship(This)
 
                             NewList[#NewList + 1] = { Name, Name, (This.Whitelist and '<font color="rgb(158, 225, 255)">Whitelist</font>') or (This.Priority and '<font color="rgb(255, 0, 0)">Priority</font>') or "Neutral" }
                         end
@@ -13315,16 +14283,17 @@ do
     end
 end
 
+
 do
     local FrustumY
     local FrustumX
     Camera.NativeFov = Camera.NativeFov or CurrentCamera.FieldOfView
 
-    local function aimcheck(Tool)
+    function aimcheck(Tool)
         if not Tool then return nil end
 
-        local ValuesFolder = FindFirstChild(Tool, "Values")
-        local AimDown = ValuesFolder and FindFirstChild(ValuesFolder, "AimDown")
+         ValuesFolder = FindFirstChild(Tool, "Values")
+         AimDown = ValuesFolder and FindFirstChild(ValuesFolder, "AimDown")
 
         if AimDown and AimDown.Value ~= nil then
             local Value = AimDown.Value
@@ -13341,13 +14310,13 @@ do
         return nil
     end
 
-    local function isniggaiming()
-        local Character = LocalPlayer.Character
-        local WorkspaceCharacters = FindFirstChild(Workspace, "Characters")
-        local WorkspaceCharacter = WorkspaceCharacters and FindFirstChild(WorkspaceCharacters, LocalPlayer.Name)
+    function isniggaiming()
+         Character = LocalPlayer.Character
+         WorkspaceCharacters = FindFirstChild(Workspace, "Characters")
+         WorkspaceCharacter = WorkspaceCharacters and FindFirstChild(WorkspaceCharacters, LocalPlayer.Name)
 
-        local EquippedTool = Character and FindFirstChildWhichIsA(Character, "Tool")
-        local WorkspaceTool = nil
+         EquippedTool = Character and FindFirstChildWhichIsA(Character, "Tool")
+         WorkspaceTool = nil
 
         if WorkspaceCharacter then
             if EquippedTool then
@@ -13359,7 +14328,7 @@ do
             end
         end
 
-        local ToolAimDown = aimcheck(WorkspaceTool)
+         ToolAimDown = aimcheck(WorkspaceTool)
 
         if ToolAimDown == nil then
             ToolAimDown = aimcheck(EquippedTool)
@@ -13399,7 +14368,7 @@ do
                 end
             end
 
-            local ToolAttribute = Tool and Tool:GetAttribute(Name)
+             ToolAttribute = Tool and Tool:GetAttribute(Name)
             if ToolAttribute == true or ToolAttribute == 1 then
                 return true
             end
@@ -13408,7 +14377,7 @@ do
                 return false
             end
 
-            local WorkspaceToolAttribute = WorkspaceTool and WorkspaceTool:GetAttribute(Name)
+             WorkspaceToolAttribute = WorkspaceTool and WorkspaceTool:GetAttribute(Name)
             if WorkspaceToolAttribute == true or WorkspaceToolAttribute == 1 then
                 return true
             end
@@ -13417,7 +14386,7 @@ do
                 return false
             end
 
-            local CharAttribute = Character:GetAttribute(Name)
+             CharAttribute = Character:GetAttribute(Name)
             if CharAttribute == true or CharAttribute == 1 then
                 return true
             end
@@ -13432,8 +14401,8 @@ do
 
 
     Camera.UpdateFOV = LPH_NO_VIRTUALIZE(function()
-        local ZoomEnabled = Flags["Zoom"].Value
-        local CustomFovEnabled = Flags["Visuals Custom Fov"].Value
+         ZoomEnabled = Flags["Zoom"].Value
+         CustomFovEnabled = Flags["Visuals Custom Fov"].Value
 
         if not ZoomEnabled and not CustomFovEnabled then
             Camera.NativeFov = CurrentCamera.FieldOfView
@@ -13442,10 +14411,10 @@ do
         if ZoomEnabled then
             CurrentCamera.FieldOfView = (20 / Flags["Zoom Multiplier"].Value)
         elseif CustomFovEnabled then
-            local DisableOnAimFlag = Flags["Aimcheck_Fov"]
+             DisableOnAimFlag = Flags["Aimcheck_Fov"]
 
             if DisableOnAimFlag and DisableOnAimFlag.Value then
-                local AimDownState = isniggaiming()
+                 AimDownState = isniggaiming()
 
             
                 if AimDownState == true then
@@ -13470,22 +14439,22 @@ do
     end)
 
     Camera.WorldToViewportPoint = LPH_NO_VIRTUALIZE(function(Position : Vector3, ToEdges : Boolean, Offset : Number)
-        local ObjectSpace = PointToObjectSpace(CurrentCamera.CFrame, Position)
+         ObjectSpace = PointToObjectSpace(CurrentCamera.CFrame, Position)
 
-        local NegativeZ = -ObjectSpace.Z
-        local DoubleZ = 2 * NegativeZ
+         NegativeZ = -ObjectSpace.Z
+         DoubleZ = 2 * NegativeZ
 
-        local PositionX = ScreenX * (0.5 + ObjectSpace.X / (DoubleZ * FrustumX))
-        local PositionY = ScreenY * (0.5 - ObjectSpace.Y / (DoubleZ * FrustumY))
+         PositionX = ScreenX * (0.5 + ObjectSpace.X / (DoubleZ * FrustumX))
+         PositionY = ScreenY * (0.5 - ObjectSpace.Y / (DoubleZ * FrustumY))
 
-        local OnScreen = NegativeZ > 0 and PositionX >= 0 and PositionX <= ScreenX and PositionY >= 0 and PositionY <= ScreenY
+         OnScreen = NegativeZ > 0 and PositionX >= 0 and PositionX <= ScreenX and PositionY >= 0 and PositionY <= ScreenY
 
         if not ToEdges or OnScreen then
             return NewVector3(PositionX, PositionY, NegativeZ), OnScreen
         end
 
-        local HalfOffset = Offset / 2
-        local MaxY = ScreenY - HalfOffset
+         HalfOffset = Offset / 2
+         MaxY = ScreenY - HalfOffset
 
         if NegativeZ < 0 then
             PositionX = ScreenX - PositionX
@@ -15008,6 +15977,7 @@ end
 do
     Info.Players = {}
     Info.PlayerData = {}
+    Info.Relationships = {}
 
     function StatusText(This)
         return (This.Whitelist and '<font color="rgb(158, 225, 255)">Whitelist</font>')
@@ -15017,6 +15987,13 @@ do
 
     Info.FindByName = function(Name)
         return Info.PlayerData[Name]
+    end
+
+    Info.SaveRelationship = function(This)
+        Info.Relationships[This.Player.UserId] = {
+            Whitelist = This.Whitelist,
+            Priority = This.Priority
+        }
     end
 
     Info.Refresh = function(Name)
@@ -15037,11 +16014,12 @@ do
             FriendsWith = LocalPlayer:IsFriendsWith(Player.UserId)
         end)
 
+        local Relationship = Info.Relationships[Player.UserId] or {}
         local This = {
             Player = Player,
             Name = Player.Name,
-            Whitelist = false,
-            Priority = false,
+            Whitelist = Relationship.Whitelist == true,
+            Priority = Relationship.Priority == true,
             DisableEsp = false,
             Friends = tostring(FriendsWith),
             Staff = "false"
@@ -16586,9 +17564,13 @@ do
                     local BoxPosition, BoxSize = Esp.GetBoundingBox(This, RootPosition, BoundingType)
 
                     local InfoThis = Info.PlayerData[This.Name]
+                    local PriorityOnly = Section["Esp Priority Only"].Value
+                    local WhitelistOnly = Section["Esp Whitelist Only"].Value
                     local ShouldRender = EspEnabled
                         and not (InfoThis and InfoThis.DisableEsp)
-                        and (not Section["Esp Priority Only"].Value or (InfoThis and InfoThis.Priority))
+                        and (not PriorityOnly and not WhitelistOnly
+                            or (PriorityOnly and InfoThis and InfoThis.Priority)
+                            or (WhitelistOnly and InfoThis and InfoThis.Whitelist))
 
                     if BoxPosition then
                         if ShouldRender then
@@ -16808,7 +17790,7 @@ do
         local PriorityMap = { Head = "Head", Body = "Torso" }
         local ValidParts = { Head = true, Torso = true, ["Right Arm"] = true, ["Left Arm"] = true, ["Right Leg"] = true, ["Left Leg"] = true }
 
-        local function IsPlayerDownedByName(PlayerName)
+        function IsPlayerDownedByName(PlayerName)
             local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
             local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
             local Downed = Stats and FindFirstChild(Stats, "Downed")
@@ -17486,7 +18468,7 @@ do
             return NewVector2(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
         end
 
-        local function IsPlayerDownedByName(PlayerName)
+        function IsPlayerDownedByName(PlayerName)
             local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
             local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
             local Downed = Stats and FindFirstChild(Stats, "Downed")
@@ -21802,7 +22784,6 @@ function checkCMWeapon()
         if currentTime - cmMareLastCheckTime < CM_MARE_CHECK_INTERVAL then return end
         cmMareLastCheckTime = currentTime
         
-        -- Обновляем текущий скин Mare в зависимости от выбранного типа
         if currentCMType == "Mare:TrickShot" then
             currentMareSkin = "TrickShot"
         elseif currentCMType == "Mare:White" then
