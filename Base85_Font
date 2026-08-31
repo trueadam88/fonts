@@ -1,7 +1,6 @@
 
 
 
-
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -248,17 +247,17 @@ pcall(aw)
 
 
 
+
+
+
+
+
+
+
+
+
+
 --[[
-
-
-
-
-
-
-
-
-
-
 
  RunService = game:GetService("RunService")
  Players = game:GetService("Players")
@@ -1475,6 +1474,10 @@ do
             end
 
             function Menu.Lua(Action : String, Name : String, Modules : Table)
+                if Action ~= "List" and Name and not StringFind(Name, "%.lua$") and not StringFind(Name, "%.luau$") then
+                    Name ..= ".lua"
+                end
+
                 if Action == "List" then
                     local List = {}
                     local Scripts = ListFiles(Menu.Folders.Luas)
@@ -1486,11 +1489,7 @@ do
                         local IsLuau = StringFind(Script, "%.luau$")
 
                         if IsLua or IsLuau then
-                            local This = Match(Script, "([^/\\]+).lua")
-
-                            if Name then
-                                This = Format("%s%s", This, IsLua and ".lua" or ".luau")
-                            end
+                            local This = Match(Script, "([^/\\]+)$")
 
                             List[#List + 1] = This
                         end
@@ -1508,29 +1507,63 @@ do
                         end)
 
                         if not Success then
-                            warn(Format("[%s]: An error occured whilst loading this Lua.", Name))
+                            local Message = Format("[%s]: %s", Name, Module)
+
+                            warn(Message)
+                            if Menu.Library then
+                                Menu.Library:Notify({ Text = Message, Time = 6 })
+                            end
 
                             return
                         end
 
                         if not Module then
-                            warn(Format("[%s]: No valid module for this lua was found, skipping.", Name))
+                            local Message = Format("[%s]: No valid module for this lua was found, skipping.", Name)
+
+                            warn(Message)
+                            if Menu.Library then
+                                Menu.Library:Notify({ Text = Message, Time = 6 })
+                            end
 
                             return
                         end
 
                         if not Module.Load then
-                            warn(Format("[%s]: Function: 'Load' was not found, skipping.", Name))
+                            local Message = Format("[%s]: Function: 'Load' was not found, skipping.", Name)
+
+                            warn(Message)
+                            if Menu.Library then
+                                Menu.Library:Notify({ Text = Message, Time = 6 })
+                            end
 
                             return
                         end
 
-                        local Success2 = xpcall(Module.Load, function(Message)
-                            Spawn(error, Format("[%s]: %s", Name, Message))
+                        if typeof(setfenv) == "function" then
+                            local Environment = setmetatable({}, { __index = getfenv() })
+
+                            for Key, Value in next, Modules or {} do
+                                Environment[Key] = Value
+                            end
+
+                            pcall(setfenv, Module.Load, Environment)
+
+                            if typeof(Module.Unload) == "function" then
+                                pcall(setfenv, Module.Unload, Environment)
+                            end
+                        end
+
+                        local Success2, Message = xpcall(Module.Load, function(Error)
+                            return Format("[%s]: %s", Name, Error)
                         end, Modules)
 
                         if Success2 then
                             Menu.LoadedLuas[Name] = Module
+                        else
+                            warn(Message)
+                            if Menu.Library then
+                                Menu.Library:Notify({ Text = Message, Time = 6 })
+                            end
                         end
                     end
                 elseif Action == "Unload" then
@@ -1548,7 +1581,7 @@ do
                 elseif Action == "Save" then
                     local Path = Format("%s/%s", Menu.Folders.Luas, Name)
 
-                    if IsFile(Path) then
+                    if Modules then
                         WriteFile(Path, Modules)
                     end
                 elseif Action == "IsLoaded" then
@@ -1906,7 +1939,7 @@ do
 
                     local Gradient = Menu.Draw("UIGradient", { Parent = Holder, Color = NewColorSequence(Theme.Contrast.A, Theme.Contrast.B), Rotation = 90 })
 
-                    Menu.Draw("UIListLayout", { Parent = Background, Padding = NewUDim(0, 2) })
+                    local ListLayout = Menu.Draw("UIListLayout", { Parent = Background, Padding = NewUDim(0, 2) })
 
                     Menu.Draw("UIDragDetector", { Parent = Outline, BoundingUI = Menu.Overlays[1] })
 
@@ -1941,6 +1974,39 @@ do
 
                     Menu["Notifications Frame"] = Outline
                     Menu["Notifications Holder"] = Background
+                    Menu["Notifications List"] = ListLayout
+
+                    Menu.NotificationPosition = "Left"
+
+                    function Menu.UpdateNotificationPosition(Value)
+                        Menu.NotificationPosition = Value
+
+                        if Value == "Center" then
+                            Outline.AnchorPoint = NewVector2(0.5, 0)
+                            Outline.Position = NewUDim2(0.5, 0, 0, 82)
+
+                            Background.AnchorPoint = NewVector2(0.5, 0)
+                            Background.Position = NewUDim2(0.5, 0, 0, 22)
+
+                            ListLayout.HorizontalAlignment = "Center"
+                        elseif Value == "Right" then
+                            Outline.AnchorPoint = NewVector2(1, 0)
+                            Outline.Position = NewUDim2(1, -23, 0, 82)
+
+                            Background.AnchorPoint = NewVector2(1, 0)
+                            Background.Position = NewUDim2(1, 0, 0, 22)
+
+                            ListLayout.HorizontalAlignment = "Right"
+                        else
+                            Outline.AnchorPoint = NewVector2(0, 0)
+                            Outline.Position = NewUDim2(0, 23, 0, 82)
+
+                            Background.AnchorPoint = NewVector2(0, 0)
+                            Background.Position = NewUDim2(0, 0, 0, 22)
+
+                            ListLayout.HorizontalAlignment = "Left"
+                        end
+                    end
                 end
 
 
@@ -2373,6 +2439,7 @@ end
                     return Card
                 end
 
+                
                 function Library:Notify(Parameters)
                     Parameters = Parameters or {}
 
@@ -2390,6 +2457,26 @@ end
                         local Card = Library:Card({ Parent = Menu["Notifications Holder"], Text = Text, Size = NewUDim2(0, SizeX, 0, 17), Invisible = true })
 
                         local Frame = Card["Frame"]
+
+                        -- Directional slide-in start position, based on where the
+                        -- notification panel currently sits on screen (Left/Center/Right)
+                        do
+                            local RestPosition = Frame.Position
+                            local Mode = Menu.NotificationPosition or "Left"
+                            local StartPosition = RestPosition
+
+                            if Mode == "Right" then
+                                StartPosition = RestPosition + NewUDim2(0, SizeX + 40, 0, 0)
+                            elseif Mode == "Center" then
+                                StartPosition = RestPosition - NewUDim2(0, 0, 0, 30)
+                            else
+                                StartPosition = RestPosition - NewUDim2(0, SizeX + 40, 0, 0)
+                            end
+
+                            Frame.Position = StartPosition
+
+                            Notification["RestPosition"] = RestPosition
+                        end
 
                         local Tab = Menu.Draw("Frame", { Parent = Frame, Position = NewUDim2(0, 0, 1, -2), Size = NewUDim2(Floor(SizeX / 10.36) / SizeX, 0, 0, 1), BackgroundColor3 = Theme.Accent.A, BackgroundTransparency = 1, BorderSizePixel = 0 })
 
@@ -2410,6 +2497,8 @@ end
 
                     -- Animations
                     do
+                        Menu.Tween(Frame, NewTweenInfo(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = Notification["RestPosition"] })
+
                         Menu.Tween(Tab, NewTweenInfo(Time, Enum.EasingStyle.Linear), { Position = NewUDim2(1, -Tab.AbsoluteSize.X, 1, -2) })
 
                         local Descendants = Menu.GetDescendants(Frame)
@@ -2696,6 +2785,16 @@ end
 
                         Cache = {},
                         Tabs = {},
+
+                        Find = function(Self, TabName)
+                            for Index = 1, #Self.Tabs do
+                                local Tab = Self.Tabs[Index]
+
+                                if Tab.Name == TabName then
+                                    return Tab, Index
+                                end
+                            end
+                        end,
 
                         Callbacks = {
                             {
@@ -6376,7 +6475,7 @@ end
 
                     local Window = Self.Window
 
-                    local Default = Parameters.Default or "-- // Welcome to Luckyware.Net V3 bitch."
+                    local Default = Parameters.Default or "-- //you're not welcome."
                     local Hidden = Parameters.Hidden or false
                     local Size = Parameters.Size or 334
                     local Flag = Parameters.Flag
@@ -9234,32 +9333,12 @@ do
         Section:Slider({ Name = "Aim Speed", Min = 1, Max = 100, Default = 50, Flag = "AimAssist Speed", Callback = function(v) AimAssist.Speed = v end })
         Section:Slider({ Name = "Accuracy", Min = 1, Max = 100, Default = 60, Prefix = "%", Flag = "AimAssist Accuracy", Callback = function(v) AimAssist.Accuracy = v end })
         Section:Toggle({ Name = "Skip Downed", Default = false, Flag = "AimAssist Skip Downed", Callback = function(v) AimAssist.SkipDowned = v end })
+        Section:Toggle({ Name = "[exp] No Jumptrack", Default = false, Flag = "AimAssist No Jump Track", Callback = function(v) AimAssist.NoJumpTrack = v end })
+        Section:Slider({ Name = "Jump tracksmooth test", Min = 1, Max = 100, Default = 15, Flag = "AimAssist Jump Smoothness", Callback = function(v) AimAssist.JumpSmoothness = v end })
         Section:Toggle({ Name = "Visualize FOV", Default = false, Flag = "AimAssist VisualizeFov", Callback = function(v) AimAssist.VisualizeFov = v end }):Colorpicker({ Color = NewRGB(181, 179, 253), Flag = "AimAssist FOV Color", Callback = function(Color) AimAssist.FovColor = Color end })
         Section:Slider({ Name = "FOV", Min = 1, Max = 35, Default = 10, Decimals = 0.1, Prefix = "°", Flag = "AimAssist Fov", Callback = function(v) AimAssist.Fov = v end })
     
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -9463,12 +9542,13 @@ end
                             Flag = "Instant Aim",
                             Unsafe = true
                         })
-
+                        --[[
                         Section:Toggle({
                             Name = "Instant Equip",
                             Flag = "Instant Equip",
                             Unsafe = true
                         })
+                        ]]
                 end
 
                 Section = MultiSection[2]
@@ -10057,6 +10137,8 @@ Section:TextBox({
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
 
+
+-- 这太糟糕了，以后我得从头开始  \ AI 洗肤膏——我对这段代码不承担任何责任。
 Spinner = { Enabled = false, Speed = 50 }
 Spinning = nil
 
@@ -12530,7 +12612,7 @@ end
             Section = Tab:Section({
                 Name = "Other",
                 Side = "Right",
-                Size = 260
+                Size = 269
             })
             do
 
@@ -12556,7 +12638,7 @@ end
             end
 
             Section = Tab:Section({
-                Name = "Skins",
+                Name = "Sins",
                 Side = "Right",
                 Size = 269
             })
@@ -12652,6 +12734,17 @@ end
                     Default = { "Date", "FPS", "Ping" },
                     Options = { "Date", "UID", "FPS", "Ping" },
                     Min = 0
+                })
+
+                Section:Dropdown({
+                    Name = "Notification Position",
+                    Flag = "Notification Position",
+                    Options = { "Left", "Center", "Right" },
+                    Default = "Left",
+                    Callback = function(Value)
+                        local Fn = Menu.UpdateNotificationPosition
+                        if Fn then Fn(Value) end
+                    end
                 })
 
                 Section:Button({
@@ -13832,7 +13925,7 @@ end
                 ButtonsSide = "Center",
                 Buttons = {
                     {
-                        Options[1] or "File",
+                        Options[1] or "new.lua",
                         function(Value)
                             local Path = Format("%s/%s", Menu.Folders.Luas, Value)
 
@@ -13851,6 +13944,8 @@ end
                             local String = Bar.Buttons[1].GetChosen()
 
                             if String then
+                                Menu.Lua("Save", String, CodeBox.GetText())
+
                                 Menu.Lua("Load", String, {
                                     ["Menu"] = Menu,
 
@@ -13940,7 +14035,7 @@ end
                                 if First then
                                     Button.SetValue(First)
                                 else
-                                    Button.SetValue("File")
+                                    Button.SetValue("new.lua")
                                 end
                             else
                                 Button.SetValue(Choice)
@@ -14214,7 +14309,9 @@ end
         local StatsHeartbeat = StatsService.Workspace["Heartbeat"]
 
         RenderStepped:Connect(function()
-            if not Watermark.IsVisible then return end
+            if not Watermark.IsVisible then 
+                return 
+            end
 
             local Text = "Luckyware.Net"
 
@@ -15987,6 +16084,58 @@ do
 
     Info.FindByName = function(Name)
         return Info.PlayerData[Name]
+    end
+
+    Info.GetPriority = function(Player)
+        local This = Player and Info.PlayerData[Player.Name]
+
+        if not This then
+            return Player and {
+                Player = Player,
+                Whitelist = false,
+                Priority = false,
+                DisableEsp = false
+            } or nil
+        end
+
+        return {
+            Player = This.Player,
+            Whitelist = This.Whitelist,
+            Priority = This.Priority,
+            DisableEsp = This.DisableEsp
+        }
+    end
+
+    Info.GetPriorityList = function()
+        local List = {}
+
+        for Index = 1, #Info.Players do
+            List[Index] = Info.GetPriority(Info.Players[Index].Player)
+        end
+
+        return List
+    end
+
+    Info.SetPriority = function(Player, Priority, Value)
+        local This = Player and Info.PlayerData[Player.Name]
+
+        if not This then return end
+
+        if Priority == "None" then
+            This.Whitelist = false
+            This.Priority = false
+        elseif Priority == "Whitelist" then
+            This.Whitelist = Value and true or false
+        elseif Priority == "Priority" then
+            This.Priority = Value and true or false
+        elseif Priority == "DisableEsp" then
+            This.DisableEsp = Value and true or false
+        else
+            return
+        end
+
+        Info.SaveRelationship(This)
+        Info.Refresh(This.Name)
     end
 
     Info.SaveRelationship = function(This)
@@ -17764,7 +17913,9 @@ do
             FovColor = NewRGB(181, 179, 253),
             PriorityOnly = false,
             SkipDowned = false
-        } do
+        } 
+        
+        do
             if AimAssist[Index] == nil then
                 AimAssist[Index] = Value
             end
@@ -17780,17 +17931,20 @@ do
             MagnetPriority = "Closest",
             PriorityOnly = false,
             SkipDowned = false
-        } do
+        } 
+        
+        do
             if TriggerBot[Index] == nil then
                 TriggerBot[Index] = Value
             end
         end
 
+
         local PointMap = { Head = { "Head" }, Body = { "Torso" }, Arms = { "Right Arm", "Left Arm" }, Legs = { "Right Leg", "Left Leg" } }
         local PriorityMap = { Head = "Head", Body = "Torso" }
         local ValidParts = { Head = true, Torso = true, ["Right Arm"] = true, ["Left Arm"] = true, ["Right Leg"] = true, ["Left Leg"] = true }
 
-        function IsPlayerDownedByName(PlayerName)
+        function IsHeDowned(PlayerName)
             local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
             local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
             local Downed = Stats and FindFirstChild(Stats, "Downed")
@@ -17812,6 +17966,7 @@ do
             return Result
         end
 
+
         local LocalData = { Character = nil, Humanoid = nil, RootPart = nil, Weapon = nil, WeaponVelocity = nil, WeaponAcceleration = nil }
 
         function SetupLocal(Character)
@@ -17820,11 +17975,21 @@ do
             LocalData.RootPart = WaitForChild(Character, "HumanoidRootPart", Infinite)
 
             Character.ChildAdded:Connect(function(Child)
-                if Child.ClassName ~= "Tool" then return end
+
+                if Child.ClassName ~= "Tool" then 
+                    return 
+                end
+
                 local Config = FindFirstChild(Child, "Config")
-                if not Config then return end
+                if not Config then 
+                    return 
+                end
+
                 local Ok, Cfg = pcall(Require, Config)
-                if not Ok or not Cfg or not Cfg.BulletSettings then return end
+                if not Ok or not Cfg or not Cfg.BulletSettings then 
+                    return 
+                end
+
                 LocalData.Weapon = Child
                 LocalData.WeaponVelocity = Cfg.BulletSettings.Velocity * 1.5
                 LocalData.WeaponAcceleration = Cfg.BulletSettings.Acceleration
@@ -17846,7 +18011,9 @@ do
         local EnemyCount = 0
 
         function AddEnemy(Player)
-            if Player == LocalPlayer or Enemies[Player] then return end
+            if Player == LocalPlayer or Enemies[Player] then
+                return 
+            end
 
             local Data = {
                 Player = Player,
@@ -17937,6 +18104,7 @@ do
         RayParams.FilterType = Enum.RaycastFilterType.Include
 
         function CheckWall(Origin, Goal)
+
             local Direction = Goal - Origin
             local Unit = Direction.Unit
             local Remaining = Direction.Magnitude
@@ -17953,7 +18121,7 @@ do
             return false
         end
 
-        function SolveBulletDrop(Origin, Acceleration, Goal, Velocity)
+        function ResolverDrop(Origin, Acceleration, Goal, Velocity)
             local Direction = Goal - Origin
             local Time = Direction.Magnitude / Velocity
             local HalfAccel = Acceleration / 2
@@ -17977,17 +18145,20 @@ do
         local CurrentTarget = nil
         local PrevTargetData = nil
         local PrevTargetTick = 0
+        local SmoothedAimSpeed = nil
 
         function Proaimassist(Delta)
             local Weapon = LocalData.Weapon
             if not Weapon or not LocalData.WeaponVelocity then
                 CurrentTarget = nil
+                SmoothedAimSpeed = nil
                 return
             end
 
             local MagnetActive = TriggerBot.Magnet and TriggerBot.Enabled
             if not MagnetActive and not AimAssist.Enabled then
                 CurrentTarget = nil
+                SmoothedAimSpeed = nil
                 return
             end
 
@@ -17999,8 +18170,13 @@ do
                 local Part = CurrentTarget.Part
                 local Data = CurrentTarget.Data
                 local Info = Info.PlayerData[Data.Name]
+                local Humanoid = Data.Humanoid
+                local HumanoidState = Humanoid and Humanoid:GetState()
+                local IsAirborne = HumanoidState == Enum.HumanoidStateType.Jumping or
+                    HumanoidState == Enum.HumanoidStateType.Freefall or
+                    HumanoidState == Enum.HumanoidStateType.Flying
 
-                if Part and Part.Parent and Data.RootPosition and not (Info and Info.Whitelist) and not (AimAssist.SkipDowned and IsPlayerDownedByName(Data.Name)) and (Data == PrevTargetData or Tick() - PrevTargetTick > AimAssist.SwitchDelay / 1000) then
+                if Part and Part.Parent and Data.RootPosition and not (Info and Info.Whitelist) and not (AimAssist.SkipDowned and IsHeDowned(Data.Name)) and (Data == PrevTargetData or Tick() - PrevTargetTick > AimAssist.SwitchDelay / 1000) then
                     local AimPos = Part.Position
 
                     if MagnetActive or AimAssist.WallCheck then
@@ -18015,24 +18191,30 @@ do
                     end
 
                     if AimAssist.AdjustBulletDrop then
-                        AimPos = SolveBulletDrop(CamPos, LocalData.WeaponAcceleration, AimPos, LocalData.WeaponVelocity)
+                        AimPos = ResolverDrop(CamPos, LocalData.WeaponAcceleration, AimPos, LocalData.WeaponVelocity)
                     end
 
                     PrevTargetData = Data
                     PrevTargetTick = Tick()
 
                     local Speed = MagnetActive and TriggerBot.MagnetSpeed or AimAssist.Speed
+                    local TargetSpeed = (not MagnetActive and AimAssist.NoJumpTrack and IsAirborne) and AimAssist.JumpSmoothness or Speed
+
+                    SmoothedAimSpeed = SmoothedAimSpeed or Speed
+                    SmoothedAimSpeed += (TargetSpeed - SmoothedAimSpeed) * (1 - math.exp(-8 * Delta))
+
                     local Smooth
                     if AimAssist.Smoothing == "linear" then
-                        Smooth = Speed / 10 * Delta
+                        Smooth = SmoothedAimSpeed / 10 * Delta
                     else
-                        Smooth = 1 - math.exp(-Speed / 2 * Delta * CurrentTarget.Angle)
+                        Smooth = 1 - math.exp(-SmoothedAimSpeed / 2 * Delta * CurrentTarget.Angle)
                     end
 
                     CurrentCamera.CFrame = Cam:Lerp(NewCFrame(CamPos, AimPos), Smooth)
                     return
                 end
                 CurrentTarget = nil
+                SmoothedAimSpeed = nil
                 return
             end
 
@@ -18047,7 +18229,7 @@ do
                 local Data = Enemies[i]
                 local RootPos = Data.RootPosition
                 if not RootPos or Data.IsForceField then continue end
-                if AimAssist.SkipDowned and IsPlayerDownedByName(Data.Name) then continue end
+                if AimAssist.SkipDowned and IsHeDowned(Data.Name) then continue end
 
                 local Info = Info.PlayerData[Data.Name]
                 if Info and Info.Whitelist then continue end
@@ -18068,7 +18250,9 @@ do
                 end
             end
 
-            if Count == 0 then return end
+            if Count == 0 then 
+                return 
+            end
 
             local Priority = PriorityMap[MagnetActive and TriggerBot.MagnetPriority or AimAssist.HitscanPriority]
             local Accuracy = MagnetActive and TriggerBot.MagnetAccuracy or AimAssist.Accuracy
@@ -18103,7 +18287,7 @@ do
         TriggerParams.FilterType = Enum.RaycastFilterType.Include
         TriggerParams.RespectCanCollide = false
 
-        function TriggerRaycast(Origin, Goal)
+        function TriggerRay(Origin, Goal)
             local Direction = Goal - Origin
             local Unit = Direction.Unit
             local Remaining = Direction.Magnitude
@@ -18121,18 +18305,31 @@ do
         end
 
         function Protrigger()
-            if not TriggerBot.Enabled or TriggerBot.Magnet then return end
+            if not TriggerBot.Enabled or TriggerBot.Magnet then 
+                return 
+            end
 
             local HitPoints = TranslateHitboxPoints(TriggerBot.Hitboxes)
+
             local Parts, Count = {}, 0
 
             for i = 1, EnemyCount do
                 local Data = Enemies[i]
-                if not Data.RootPosition or Data.IsForceField then continue end
-                if TriggerBot.SkipDowned and IsPlayerDownedByName(Data.Name) then continue end
+                if not Data.RootPosition or Data.IsForceField then 
+                    continue 
+                end
+                if TriggerBot.SkipDowned and IsHeDowned(Data.Name) then 
+                    continue 
+                end
+
                 local Info = Info.PlayerData[Data.Name]
-                if Info and Info.Whitelist then continue end
-                if TriggerBot.PriorityOnly and not (Info and Info.Priority) then continue end
+                if Info and Info.Whitelist then 
+                    continue 
+                end
+
+                if TriggerBot.PriorityOnly and not (Info and Info.Priority) then 
+                    continue 
+                end
 
                 for k = 1, #HitPoints do
                     local Part = Data.BodyParts[HitPoints[k]]
@@ -18143,15 +18340,22 @@ do
                 end
             end
 
-            if Count == 0 then return end
+            if Count == 0 then 
+                return 
+            end
 
             local Cam = CurrentCamera.CFrame
             local CamPos = Cam.Position
             TriggerParams.FilterDescendantsInstances = Parts
 
-            local Hit, Result = TriggerRaycast(CamPos, CamPos + Cam.LookVector * 750)
-            if not Hit then return end
-            if CheckWall(CamPos, Result.Instance.Position) then return end
+            local Hit, Result = TriggerRay(CamPos, CamPos + Cam.LookVector * 750)
+            if not Hit then 
+                return 
+            end
+
+            if CheckWall(CamPos, Result.Instance.Position) then 
+                return 
+            end
 
             Spawn(function()
                 if mouse1press and mouse1release then
@@ -18218,8 +18422,6 @@ end
 
 
 
-
-
 do
     InfinitySound = {
         Sound = nil,
@@ -18227,7 +18429,7 @@ do
         Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/syntax"
     }
 
-    function ResolveAsset()
+    function getsoundy()
         if InfinitySound.AssetPath then
             return InfinitySound.AssetPath
         end
@@ -18283,7 +18485,7 @@ do
     function InfinitySound.Start()
         InfinitySound.Stop()
 
-        local Asset = ResolveAsset()
+        local Asset = getsoundy()
 
         if not Asset then
             return
@@ -18305,6 +18507,8 @@ do
         Sound.MaxDistance = 100000
         Sound.EmitterSize = 1000
         Sound.SoundId = Asset
+
+
 --[[
         local Chorus = NewInstance("ChorusSoundEffect")
         Chorus.Depth = 0.95
@@ -18324,6 +18528,7 @@ do
         Equalizer.LowGain = 10
         Equalizer.Parent = Sound
     ]]
+        
         Sound.Parent = Workspace
         InfinitySound.Sound = Sound
 
@@ -18341,6 +18546,7 @@ do
     end
 
     local PartyPreset = {
+
         { "Ambience", true },
         { "Colorshift", true },
         { "Exposure", true },
@@ -18357,6 +18563,7 @@ do
         { "Aspect Vertical", 100 },
         { "Visuals Custom Fov", true },
         { "Visuals Custom Fov Factor", 120 }
+
     }
 
     local PartySaved
@@ -18468,23 +18675,31 @@ do
             return NewVector2(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
         end
 
-        function IsPlayerDownedByName(PlayerName)
+        function IsHeDowned(PlayerName)
             local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
             local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
             local Downed = Stats and FindFirstChild(Stats, "Downed")
-
             return Downed and Downed.Value or false
         end
 
         VisualizeEvent.Event:Connect(function(_, Key, _, Gun, _, StartPos, BulletsPerShot)
-            if not Flags["Silent Aim Enabled"].Value then return end
-            if math.random(1, 100) > Flags["Silent Aim Hit Chance"].Value then return end
+            if not Flags["Silent Aim Enabled"].Value then 
+                return 
+            end
+            if math.random(1, 100) > Flags["Silent Aim Hit Chance"].Value then 
+                return 
+            end
 
             local Character = LocalPlayer.Character
             local MyTool = Character and Character:FindFirstChildOfClass("Tool")
-            if not MyTool or Gun ~= MyTool then return end
 
-            if typeof(StartPos) ~= "Vector3" or typeof(BulletsPerShot) ~= "table" then return end
+            if not MyTool or Gun ~= MyTool then 
+                return 
+            end
+
+            if typeof(StartPos) ~= "Vector3" or typeof(BulletsPerShot) ~= "table" then 
+                return 
+            end
 
             local PartName = GetTargetPart()
             local Center = GetCenter()
@@ -18497,7 +18712,7 @@ do
                 if Player ~= LocalPlayer and Player.Character then
                     local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
 
-                    if not (Data and Data.Whitelist) and not (SkipDowned and IsPlayerDownedByName(Player.Name)) then
+                    if not (Data and Data.Whitelist) and not (SkipDowned and IsHeDowned(Player.Name)) then
                         local TargetChar = Player.Character
                         local Humanoid = TargetChar:FindFirstChildOfClass("Humanoid")
                         local Part = TargetChar:FindFirstChild(PartName)
@@ -18528,10 +18743,14 @@ do
                 end
             end
 
-            if not Target or not Target.Character then return end
+            if not Target or not Target.Character then 
+                return 
+            end
 
             local HitPart = FindFirstChild(Target.Character, PartName)
-            if not HitPart then return end
+            if not HitPart then 
+                return 
+            end
 
             local HitPos = HitPart.Position
             local LookVec = (HitPos - StartPos).Unit
@@ -18547,8 +18766,14 @@ do
         end)
 
         Heartbeat:Connect(function(Delta)
-            if not Flags["Silent Aim Enabled"].Value then return end
-            if Flags["Silent Aim Target Part"].Value ~= "Random" then return end
+
+            if not Flags["Silent Aim Enabled"].Value then 
+                return 
+            end
+
+            if Flags["Silent Aim Target Part"].Value ~= "Random" then 
+                return 
+            end
 
             RandomTimer = RandomTimer + Delta
 
@@ -18575,14 +18800,23 @@ do
             FovCircle.Radius = Flags["Silent Aim FOV"].Value
             FovCircle.Color = Flags["Silent Aim FOV Color"].Color
             FovCircle.Visible = true
+
         end)
     end)
 end
 
+
+
+
+
+
+
+
+
 do
     AutoStomp = {
         Busy = false,
-        LastCycle = 0,
+        Cool = 0,
         Emote = "\240\159\141\158"
     }
 
@@ -18590,12 +18824,11 @@ do
         local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
         local Stats = CharStats and FindFirstChild(CharStats, Name)
         local Downed = Stats and FindFirstChild(Stats, "Downed")
-
         return Downed ~= nil and Downed.Value == true
     end
 
    
-    function GetEquippedMelee()
+    function CheckFists()
         local Character = LocalPlayer.Character
         local Equipped = Character and FindFirstChildWhichIsA(Character, "Tool")
 
@@ -18606,7 +18839,7 @@ do
         return nil
     end
 
-    function GetClosestDowned(Position, Range)
+    function NearestNigga(Position, Range)
         local Characters = FindFirstChild(Workspace, "Characters")
         local Best, BestPlayer, BestDistance = nil, nil, Range
 
@@ -18632,14 +18865,14 @@ do
         return Best, BestPlayer
     end
 
-    function StompCycle(Target, TargetPlayer)
+    function DoStomp(Target, TargetPlayer)
         local Events = FindFirstChild(ReplicatedStorage, "Events")
         local Swing = Events and FindFirstChild(Events, "XMHH.2")
         local Hit = Events and FindFirstChild(Events, "XMHH2.2")
 
         if not Swing or not Hit then return end
 
-        local Tool = GetEquippedMelee()
+        local Tool = CheckFists()
 
         if not Tool then return end
 
@@ -18657,8 +18890,13 @@ do
         for Index = 1, 6 do
             local Enabled = Flags["Auto Stomp"]
 
-            if not Enabled or not Enabled.Value then return end
-            if not IsDowned(TargetPlayer.Name) then return end
+            if not Enabled or not Enabled.Value then 
+                return 
+            end
+
+            if not IsDowned(TargetPlayer.Name) then 
+                return 
+            end
 
             local Character = LocalPlayer.Character
             local Leg = Character and FindFirstChild(Character, "Right Leg")
@@ -18667,7 +18905,9 @@ do
                 or FindFirstChild(Target, "Head")
                 or FindFirstChild(Target, "HumanoidRootPart")
 
-            if not Leg or not Limb then return end
+            if not Leg or not Limb then 
+                return 
+            end
 
             pcall(function()
                 Hit:FireServer(
@@ -18690,30 +18930,43 @@ do
     end
 
     Heartbeat:Connect(function()
+
         local Enabled = Flags["Auto Stomp"]
 
-        if not Enabled or not Enabled.Value or AutoStomp.Busy then return end
-        if Clock() - AutoStomp.LastCycle < 0.15 then return end
-        if IsDowned(LocalPlayer.Name) then return end
+        if not Enabled or not Enabled.Value or AutoStomp.Busy then 
+            return 
+        end
+        if Clock() - AutoStomp.Cool < 0.15 then 
+            return 
+        end
+        if IsDowned(LocalPlayer.Name) then 
+            return 
+        end
 
         local Character = LocalPlayer.Character
         local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
 
-        if not Root then return end
-        if not GetEquippedMelee() then return end
+        if not Root then 
+            return 
+        end
+        if not CheckFists() then 
+            return 
+        end
 
         local RangeFlag = Flags["Auto Stomp Range"]
         local Range = (RangeFlag and RangeFlag.Value) or 15
-        local Target, TargetPlayer = GetClosestDowned(Root.Position, Range)
+        local Target, TargetPlayer = NearestNigga(Root.Position, Range)
 
-        if not Target or not TargetPlayer then return end
+        if not Target or not TargetPlayer then 
+            return 
+        end
 
         AutoStomp.Busy = true
-        AutoStomp.LastCycle = Clock()
+        AutoStomp.Cool = Clock()
 
         Spawn(function()
-            pcall(StompCycle, Target, TargetPlayer)
-            AutoStomp.LastCycle = Clock()
+            pcall(DoStomp, Target, TargetPlayer)
+            AutoStomp.Cool = Clock()
             AutoStomp.Busy = false
         end)
     end)
@@ -19194,167 +19447,14 @@ end
 
 
 do
-    InstantEquip = {
-        Originals = {},
-        Pending = setmetatable({}, { __mode = "k" }),
-        LastState = false,
-        LastCheck = 0,
-    }
-
-    function RestartClient(Tool)
-        for _, Name in next, { "Client", "PassClient" } do
-            local Script = FindFirstChild(Tool, Name)
-            if Script then
-                pcall(function()
-                    Script.Disabled = true
-                    Script.Disabled = false
-                end)
-            end
-        end
-    end
-
-    function WriteConfig(Tool, Enable)
-        if not IsA(Tool, "Tool") then return false end
-
-        local Module = FindFirstChild(Tool, "Config")
-        if not Module then return false end
-
-        local Ok, Config = pcall(require, Module)
-        if not Ok or type(Config) ~= "table" then return false end
-
-        if Enable then
-            if not InstantEquip.Originals[Config] then
-                InstantEquip.Originals[Config] = {
-                    EquipTime = rawget(Config, "EquipTime"),
-                    EquipAnimSpeed = rawget(Config, "EquipAnimSpeed") or 1,
-                }
-            end
-
-            pcall(function()
-                Config.EquipTime = 0.2
-                Config.EquipAnimSpeed = 9999
-            end)
-        else
-            local Original = InstantEquip.Originals[Config]
-            if Original then
-                pcall(function()
-                    Config.EquipTime = Original.EquipTime
-                    Config.EquipAnimSpeed = Original.EquipAnimSpeed
-                end)
-            end
-        end
-
-        return true
-    end
-
-    function changecfgss(Tool, Enable)
-        if not WriteConfig(Tool, Enable) then return end
-
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-
-        if Backpack and Tool.Parent == Backpack then
-            InstantEquip.Pending[Tool] = nil
-            RestartClient(Tool)
-        else
-            InstantEquip.Pending[Tool] = true
-        end
-    end
-
-    function changecfgssing(Enable)
-        local Character = LocalPlayer.Character
-        if Character then
-            for _, Child in next, GetChildren(Character) do
-                pcall(changecfgss, Child, Enable)
-            end
-        end
-
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            for _, Child in next, GetChildren(Backpack) do
-                pcall(changecfgss, Child, Enable)
-            end
-        end
-
-        if not Enable then
-            InstantEquip.Originals = {}
-        end
-    end
-
-    function WatchBackpack(Backpack)
-        Backpack.ChildAdded:Connect(function(Child)
-            if not IsA(Child, "Tool") then return end
-
-            Wait()
-
-            if Flags["Instant Equip"].Value then
-                pcall(changecfgss, Child, true)
-            elseif InstantEquip.Pending[Child] then
-                InstantEquip.Pending[Child] = nil
-                pcall(RestartClient, Child)
-            end
-        end)
-    end
-
-    function WatchCharacter(Character)
-        Character.ChildAdded:Connect(function(Child)
-            if IsA(Child, "Tool") and Flags["Instant Equip"].Value then
-                Wait()
-                pcall(WriteConfig, Child, true)
-            end
-        end)
-    end
-
-    LocalPlayer.ChildAdded:Connect(function(Child)
-        if IsA(Child, "Backpack") then
-            WatchBackpack(Child)
-        end
-    end)
-
-    do
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            WatchBackpack(Backpack)
-        end
-    end
-
-    LocalPlayer.CharacterAdded:Connect(function(Character)
-        WatchCharacter(Character)
-
-        if Flags["Instant Equip"].Value then
-            Spawn(function()
-                Wait(0.5)
-                changecfgssing(true)
-            end)
-        end
-    end)
-
-    if LocalPlayer.Character then
-        WatchCharacter(LocalPlayer.Character)
-    end
-
-    Heartbeat:Connect(function()
-        if Clock() - InstantEquip.LastCheck < 0.25 then return end
-        InstantEquip.LastCheck = Clock()
-
-        local Enabled = Flags["Instant Equip"].Value
-
-        if Enabled == InstantEquip.LastState then return end
-        InstantEquip.LastState = Enabled
-
-        changecfgssing(Enabled)
-    end)
-end
-
-
-do
-    AutoMelee = {
+    MeleeAura = {
         Busy = false,
-        LastCycle = 0,
+        Cooly = 0,
         LastCheck = 0,
         Emote = "\240\159\141\158",
     }
 
-    function GetMeleeSpec(Tool)
+    function GetConfeg(Tool)
         local Module = FindFirstChild(Tool, "Config")
         if not Module then return end
 
@@ -19371,7 +19471,7 @@ do
         end
     end
 
-    function GetHitter(Entry, Character, Tool)
+    function GetWep(Entry, Character, Tool)
         if type(Entry) ~= "table" then return end
 
         if Entry[1] == "Tool" then
@@ -19383,7 +19483,8 @@ do
         end
     end
 
-    function GetClosestTarget(Character, Range)
+    function IsClose(Character, Range)
+
         local Root = FindFirstChild(Character, "HumanoidRootPart")
         if not Root then return end
 
@@ -19395,10 +19496,12 @@ do
         local Best, BestDistance = nil, Range
 
         for _, Model in next, GetChildren(Characters) do
+
             if Model ~= Character and Model.Name ~= LocalPlayer.Name then
                 local Record = PlayerData[Model.Name]
 
                 if not (Record and Record.Whitelist) and not (SkipDowned and IsDowned(Model.Name)) then
+
                     local TargetRoot = FindFirstChild(Model, "HumanoidRootPart")
                     local Humanoid = FindFirstChild(Model, "Humanoid")
 
@@ -19409,6 +19512,7 @@ do
                             Best = Model
                             BestDistance = Distance
                         end
+
                     end
                 end
             end
@@ -19417,14 +19521,16 @@ do
         return Best
     end
 
-function MeleeCycle(Character, Tool, Target)
-    AutoMelee.Busy = true
+function IsAura(Character, Tool, Target)
+
+    MeleeAura.Busy = true
 
     pcall(function()
-        local Spec = GetMeleeSpec(Tool)
+
+        local Spec = GetConfeg(Tool)
         if not Spec then return end
 
-        local Hitter = GetHitter(Spec.Hitter, Character, Tool)
+        local Hitter = GetWep(Spec.Hitter, Character, Tool)
         if not Hitter then return end
 
         local Events = FindFirstChild(ReplicatedStorage, "Events")
@@ -19434,7 +19540,8 @@ function MeleeCycle(Character, Tool, Target)
         local Hit = FindFirstChild(Events, "XMHH2.2")
         if not (Swing and Hit) then return end
 
-        local Seed = Swing:InvokeServer(AutoMelee.Emote, tick(), Tool, "43TRFWX", "Normal", 0, true)
+        local Seed = Swing:InvokeServer(MeleeAura.Emote, tick(), Tool, "43TRFWX", "Normal", 0, true)
+
         if Seed == nil then
             Wait(0.4)
             return
@@ -19444,57 +19551,121 @@ function MeleeCycle(Character, Tool, Target)
 
         local PartFlag = Flags["Auto Melee Part"]
         local PartName = PartFlag and PartFlag.Value or "Torso"
-
-        local hitDelay = Flags["Auto Melee Hit Delay"] and Flags["Auto Melee Hit Delay"].Value or 0.1
+        local MeleeDelay = Flags["Auto Melee Hit Delay"] and Flags["Auto Melee Hit Delay"].Value or 0.1
 
         for _ = 1, 4 do
+
             if not Flags["Auto Melee"].Value then break end
+
             if not (Target and Target.Parent) then break end
 
             local Humanoid = FindFirstChild(Target, "Humanoid")
+
             if not Humanoid or Humanoid.Health <= 0 then break end
 
             local HitPart = FindFirstChild(Target, PartName)
                 or FindFirstChild(Target, "HumanoidRootPart")
                 or FindFirstChild(Target, "Head")
+
             if not HitPart then break end
 
-            Hit:FireServer(AutoMelee.Emote, tick(), Tool, "2389ZFX34", Seed, false, Hitter, HitPart, Target, NewVector3(0, 0, 0), NewVector3(0, 1, 0))
+            Hit:FireServer(MeleeAura.Emote, tick(), Tool, "2389ZFX34", Seed, false, Hitter, HitPart, Target, NewVector3(0, 0, 0), NewVector3(0, 1, 0))
 
-            Wait(hitDelay)   
+            Wait(MeleeDelay)   
         end
     end)
 
-    AutoMelee.Busy = false
+    MeleeAura.Busy = false
 end
+
+
 
     Heartbeat:Connect(function()
-        if Clock() - AutoMelee.LastCheck < 0.1 then return end
-        AutoMelee.LastCheck = Clock()
+        if Clock() - MeleeAura.LastCheck < 0.1 then 
+            return 
+        end
+
+        MeleeAura.LastCheck = Clock()
 
         local EnabledFlag = Flags["Auto Melee"]
-        if not (EnabledFlag and EnabledFlag.Value) then return end
-        if AutoMelee.Busy then return end
-        if Clock() - AutoMelee.LastCycle < 0.15 then return end
+
+        if not (EnabledFlag and EnabledFlag.Value) then 
+            return 
+        end
+
+        if MeleeAura.Busy then 
+            return 
+        end
+
+        if Clock() - MeleeAura.Cooly < 0.15 then 
+            return 
+        end
 
         local Character = LocalPlayer.Character
-        if not Character then return end
+
+        if not Character then 
+            return 
+        end
 
         local Tool = FindFirstChildWhichIsA(Character, "Tool")
-        if not Tool or FindFirstChild(Tool, "IsGun") then return end
+        if not Tool or FindFirstChild(Tool, "IsGun") then 
+            return 
+        end
 
         local RangeFlag = Flags["Auto Melee Distance"]
+
         local Range = RangeFlag and RangeFlag.Value or 15
 
-        local Target = GetClosestTarget(Character, Range)
-        if not Target then return end
+        local Target = IsClose(Character, Range)
+        if not Target then 
+            return 
+        end
 
-        AutoMelee.LastCycle = Clock()
-        Spawn(MeleeCycle, Character, Tool, Target)
+        MeleeAura.Cooly = Clock()
+
+        Spawn(IsAura, Character, Tool, Target)
+
     end)
+
 end
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- AI 洗肤膏——我对这段代码不承担任何责任。
 do
     local LP = LocalPlayer
 
@@ -22965,7 +23136,9 @@ do
         local Map = WaitForChild(Workspace, "Map", 30)
         local Security = Map and WaitForChild(Map, "Security", 30)
         local Alarms = Security and WaitForChild(Security, "Alarms", 30)
-        if not Alarms then return end
+        if not Alarms then 
+            return 
+        end
 
         MuteAlarms.Folder = Alarms
 
@@ -23019,7 +23192,7 @@ do
         SetThreadIdentity(7)
 
         Library:Notify({
-            Text = Format("Luckyware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
+            Text = Format("imgui Loaded in: %.3f seconds.", FinishTick - StartTick),
             Time = 5
         })
 
