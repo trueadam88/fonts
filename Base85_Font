@@ -7,7 +7,6 @@
 
     
 
-
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -253,11 +252,12 @@ pcall(aw)
 
 
 
-
-
-
-
 --[[
+
+
+
+
+
 
 
 
@@ -504,7 +504,6 @@ local ListFiles = listfiles
 local ReadFile = readfile
 local WriteFile = writefile
 local LoadFile = loadfile
-local LoadString = loadstring
 local DelFile = delfile
 
 local IsFolder = isfolder
@@ -948,6 +947,8 @@ do
                 Configs = Format("%s/Configs", BasePath),
                 Luas = Format("%s/Luas", BasePath),
                 Themes = Format("%s/Themes", BasePath),
+                Skyboxes = Format("%s/Skyboxes", BasePath),
+                HitSounds = Format("%s/HitSounds", BasePath),
                 Sounds = {
                     Path = Format("%s/Sounds", BasePath),
                     SubFolders = { "Hitsounds", "Killsounds" }
@@ -1350,17 +1351,36 @@ do
                 elseif Action == "Get" then
                     local List = {}
 
+                    local function Store(Section, Name, Value)
+                        if not pcall(JSONEncode, HttpService, { Value = Value }) then
+                            return
+                        end
+
+                        if Name then
+                            List[Section] = List[Section] or {}
+                            List[Section][Name] = Value
+                        else
+                            List[Section] = Value
+                        end
+                    end
+
                     for Section, Values in next, Flags do
                         if typeof(Values.Get) == "function" then
                             if not Values.Exclude then
-                                List[Section] = Values.Get()
+                                local Success, Value = pcall(Values.Get)
+
+                                if Success then
+                                    Store(Section, nil, Value)
+                                end
                             end
                         else
-                            List[Section] = {}
-
                             for Name, Value in next, Values do
                                 if typeof(Value) == "table" and typeof(Value.Get) == "function" and not Value.Exclude then
-                                    List[Section][Name] = Value.Get()
+                                    local Success, Result = pcall(Value.Get)
+
+                                    if Success then
+                                        Store(Section, Name, Result)
+                                    end
                                 end
                             end
                         end
@@ -2113,6 +2133,34 @@ do
                 else
                     if not IsFolder(Path) then
                         MakeFolder(Path)
+                    end
+                end
+            end
+        end
+
+
+        -- Custom Skyboxes
+        do
+            local SkyboxPath = Menu.Folders.Skyboxes
+
+            if IsFolder(SkyboxPath) then
+                local Files = ListFiles(SkyboxPath)
+
+                for i = 1, #Files do
+                    local File = Files[i]
+
+                    if StringFind(File, "%.luau?$") then
+                        local Success, Result = pcall(function()
+                            return LoadFile(File)()
+                        end)
+
+                        if Success and typeof(Result) == "table" then
+                            for Name, Data in next, Result do
+                                if typeof(Data) == "table" and not SkyBoxes[Name] then
+                                    SkyBoxes[Name] = Data
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -6527,7 +6575,7 @@ end
 
                     local Window = Self.Window
 
-                    local Default = Parameters.Default or "-- // Welcome to Luckyware.Net V3 bitch."
+                    local Default = Parameters.Default or "-- // Welcome Bitch"
                     local Hidden = Parameters.Hidden or false
                     local Size = Parameters.Size or 334
                     local Fill = Parameters.Fill or false
@@ -9316,58 +9364,6 @@ end
 local Library = Menu.Library
 local Flags = Menu.Flags
 
-local SkyboxOptions = {}
-
-do
-    local SkyboxFolder = Format("%s/skyboxes", Menu.BasePath)
-    local RequiredProperties = { "SkyboxLf", "SkyboxBk", "SkyboxDn", "SkyboxFt", "SkyboxRt", "SkyboxUp" }
-
-    Menu.Folders.Skyboxes = SkyboxFolder
-
-    if not IsFolder(SkyboxFolder) then
-        MakeFolder(SkyboxFolder)
-    end
-
-    local Files = {}
-
-    pcall(function()
-        Files = ListFiles(SkyboxFolder)
-    end)
-
-    for _, FilePath in next, Files do
-        if IsFile(FilePath) and string.sub(FilePath, -4) == ".lua" then
-            local Compiled, Chunk = pcall(LoadString, ReadFile(FilePath))
-
-            if Compiled and type(Chunk) == "function" then
-                local Loaded, CustomSkyboxes = pcall(Chunk)
-
-                if Loaded and type(CustomSkyboxes) == "table" then
-                    for Name, Properties in next, CustomSkyboxes do
-                        local Valid = type(Name) == "string" and type(Properties) == "table"
-
-                        for i = 1, #RequiredProperties do
-                            if type(Properties[RequiredProperties[i]]) ~= "string" then
-                                Valid = false
-                                break
-                            end
-                        end
-
-                        if Valid then
-                            SkyBoxes[Name] = Properties
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    for Name in next, SkyBoxes do
-        SkyboxOptions[#SkyboxOptions + 1] = Name
-    end
-
-    Sort(SkyboxOptions)
-end
-
 RenderStepped:Connect(function()
     local Pickers = Menu.RainbowPickers
 
@@ -9454,28 +9450,13 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             Section = Tab:Section({
                 Name = "Trigger Bot",
                 Size = 229
             })
             do
+
+              
                 Section:Toggle({
                     Name = "Enabled",
                     Flag = "TriggerBot Enabled",
@@ -9545,6 +9526,8 @@ end
                     Flag = "TriggerBot MagnetFov",
                     Callback = function(v) TriggerBot.MagnetFov = v end
                 })
+
+              
             end
 
             Section = Tab:Section({
@@ -9553,6 +9536,8 @@ end
                 Side = "Right"
             })
             do
+           
+           
                 Section:Toggle({
                     Name = "Enabled",
                     Unsafe = true,
@@ -9624,6 +9609,7 @@ end
 
                 Section = MultiSection[1]
                 do
+                    
                         Section:Toggle({
                             Name = "No Recoil",
                             Flag = "Gun No Recoil",
@@ -9669,26 +9655,30 @@ end
                             Flag = "Instant Aim",
                             Unsafe = true
                         })
---[[
-                        Section:Toggle({
-                            Name = "Instant Equip",
-                            Flag = "Instant Equip",
-                            Unsafe = true
-                        })
-                            ]]
+
+
+                       
                 end
 
                 Section = MultiSection[2]
                 do
+
                         Section:Toggle({
                             Name = "Auto Melee",
                             Flag = "Auto Melee",
-                            Unsafe = true
+                            Unsafe = true,
+                            Callback = function(Value)
+                                local SetEnabled = MeleeAura and MeleeAura.SetEnabled
+                                if SetEnabled then
+                                    SetEnabled(Value)
+                                end
+                            end
                         }):Keybind({
                             Mode = "Toggle",
                             Flag = "Auto Melee Keybind",
                             Name = "Auto Melee"
                         })
+
 
                         Section:Slider({
                           Name = "hit delay",
@@ -9716,13 +9706,13 @@ end
                             Flag = "Auto Melee Skip Downed",
                             Default = false
                         })
+
                 end
 
                 Section = MultiSection[3]
-
-                
                 do
 
+                    -- Skin Changer and Custom Model implementation remain intentionally disabled.
                     --[[
                         Section:Toggle({
                             Name = "Skin Changer",
@@ -9808,6 +9798,10 @@ end
                             end
                         })
                     ]]
+
+
+
+
                 end
             end
         end
@@ -9822,8 +9816,6 @@ end
         RapidFire = false,
         DownCheck = true,
         TargetMode = "Normal",
-        Hitbox = 1,
-        HitboxNames = { "Head", "Right Arm", "Right Leg", "Left Arm", "Left Leg", "Torso" },
         Fov = 120,
         FovColor = NewRGB(255, 255, 255),
         OriginRadius = 18.5,
@@ -9869,6 +9861,7 @@ end
     }
 
     Spawn(function()
+
         local CharacterStats = WaitForChild(ReplicatedStorage, "CharStats", 30)
         local Events = WaitForChild(ReplicatedStorage, "Events", 30)
 
@@ -9912,37 +9905,118 @@ end
         end
 
 
+        function GetSoundUri(Id)
+            if typeof(Id) ~= "string" then return "" end
+            if StringFind(Id, "://") then
+                return Id
+            end
+            return "rbxassetid://" .. Id
+        end
+
         function HitSoundpl()
             local HitsoundEnabled = Flags["Hitsound Enabled"]
             if HitsoundEnabled and not HitsoundEnabled.Value then return end
 
             local Id = RageConfig.SoundList[RageConfig.HitsoundKey]
             if not Id or Id == "" then return end
+            local Sound = NewInstance("Sound")
+            Sound.Volume = RageConfig.HitVolumes
+            Sound.SoundId = GetSoundUri(Id)
+            Sound.PlayOnRemove = true
+            Sound.Parent = CurrentCamera
+            Destroy(Sound)
+        end
 
-            local PlayerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+        local HitmarkerConns = {}
+
+        function DisconnectHitmarkerConns()
+            for Key, Conn in next, HitmarkerConns do
+                if Conn and Conn.Connected then
+                    Conn:Disconnect()
+                end
+                HitmarkerConns[Key] = nil
+            end
+        end
+
+        function EnsureHitmarkerSound()
+            local PlayerGui = FindFirstChildWhichIsA(LocalPlayer, "PlayerGui") or WaitForChild(LocalPlayer, "PlayerGui")
             if not PlayerGui then return end
 
-            local CoreGui = PlayerGui:FindFirstChild("CoreGUI")
-            if not CoreGui then
-                CoreGui = NewInstance("ScreenGui")
-                CoreGui.Name = "CoreGUI"
-                CoreGui.ResetOnSpawn = false
-                CoreGui.Parent = PlayerGui
+            local Core = FindFirstChild(PlayerGui, "CoreGUI")
+
+            if not Core then
+                Core = NewInstance("ScreenGui")
+                Core.Name = "CoreGUI"
+                Core.ResetOnSpawn = false
+                Core.Parent = PlayerGui
             end
 
-            local Sound = CoreGui:FindFirstChild("HitmarkerSound")
-            if not Sound then
-                Sound = NewInstance("Sound")
-                Sound.Name = "HitmarkerSound"
-                Sound.Looped = false
-                Sound.PlayOnRemove = false
-                Sound.Parent = CoreGui
+            local HitmarkerSound = FindFirstChild(Core, "HitmarkerSound")
+
+            if not HitmarkerSound then
+                HitmarkerSound = NewInstance("Sound")
+                HitmarkerSound.Name = "HitmarkerSound"
+                HitmarkerSound.Looped = false
+                HitmarkerSound.Parent = Core
             end
 
-            Sound.Volume = RageConfig.HitVolumes
-            Sound.SoundId = "rbxassetid://" .. Id
-            Sound:Play()
+            return HitmarkerSound
         end
+
+        function ApplyHitSoundProps(HitmarkerSound)
+            if not HitmarkerSound then return end
+
+            local Enabled = Flags["Hitsound Enabled"]
+
+            if Enabled and not Enabled.Value then
+                HitmarkerSound.Volume = 0
+                return
+            end
+
+            local Id = RageConfig.SoundList[RageConfig.HitsoundKey]
+
+            if Id and Id ~= "" then
+                HitmarkerSound.SoundId = GetSoundUri(Id)
+            end
+
+            HitmarkerSound.Volume = RageConfig.HitVolumes or 0.8
+        end
+
+        function SetupHitSoundEnforcer(HitmarkerSound)
+            DisconnectHitmarkerConns()
+
+            if not HitmarkerSound then return end
+
+            HitmarkerConns.Volume = HitmarkerSound:GetPropertyChangedSignal("Volume"):Connect(function()
+                ApplyHitSoundProps(HitmarkerSound)
+            end)
+
+            HitmarkerConns.SoundId = HitmarkerSound:GetPropertyChangedSignal("SoundId"):Connect(function()
+                ApplyHitSoundProps(HitmarkerSound)
+            end)
+
+            HitmarkerConns.Ancestry = HitmarkerSound.AncestryChanged:Connect(function(_, Parent)
+                if not Parent then
+                    task.defer(function()
+                        if ApplyHitmarkerSettings then
+                            ApplyHitmarkerSettings()
+                        end
+                    end)
+                end
+            end)
+        end
+
+        function ApplyHitmarkerSettings()
+            local HitmarkerSound = EnsureHitmarkerSound()
+            ApplyHitSoundProps(HitmarkerSound)
+            SetupHitSoundEnforcer(HitmarkerSound)
+        end
+
+        ApplyHitmarkerSettings()
+
+        LocalPlayer.CharacterAdded:Connect(function()
+            task.defer(ApplyHitmarkerSettings)
+        end)
 
         function WatchRageHit(Target, Bone)
             local NotificationFlag = Flags["Notifications"]
@@ -10104,14 +10178,10 @@ end
             local Character = LocalPlayer.Character
             local MyRoot = Character and FindFirstChild(Character, "HumanoidRootPart")
             local TargetRoot = FindFirstChild(Target.Character, "HumanoidRootPart")
-            local HitboxName = RageConfig.HitboxNames[RageConfig.Hitbox] or "Head"
-            local TargetBone = FindFirstChild(Target.Character, HitboxName) or TargetRoot
-            if not MyRoot or not TargetRoot or not TargetBone then return end
+            if not MyRoot or not TargetRoot then return end
 
             local MyPos = MyRoot.Position
-            local TargetPos = TargetBone.Position
-
-            if LockedPath and LockedPath.Hitbox ~= RageConfig.Hitbox then LockedPath = nil end
+            local TargetPos = TargetRoot.Position
 
             if LockedPath then
                 local MovedOrigin = (MyPos - LockedPath.MyPos).Magnitude
@@ -10121,7 +10191,7 @@ end
 
                 if MovedOrigin <= RageConfig.CacheThreshold and MovedHit <= RageConfig.CacheThreshold and InRange then
                     if CheckWallbang(LockedPath.AbsO, LockedPath.AbsH) then
-                        ValidPair = { Origin = LockedPath.AbsO, Hit = LockedPath.AbsH, Target = Target, Bone = TargetBone }
+                        ValidPair = { Origin = LockedPath.AbsO, Hit = LockedPath.AbsH, Target = Target }
                         return
                     end
                 end
@@ -10150,8 +10220,8 @@ end
             for OriginIndex, Origin in next, NewOrigins do
                 for HitIndex, Hit in next, NewHits do
                     if CheckWallbang(Origin, Hit) then
-                        LockedPath = { AbsO = Origin, AbsH = Hit, Target = Target, MyPos = MyPos, TPos = TargetPos, Hitbox = RageConfig.Hitbox }
-                        ValidPair = { Origin = Origin, Hit = Hit, Target = Target, Bone = TargetBone }
+                        LockedPath = { AbsO = Origin, AbsH = Hit, Target = Target, MyPos = MyPos, TPos = TargetPos }
+                        ValidPair = { Origin = Origin, Hit = Hit, Target = Target }
                         return
                     end
                 end
@@ -10196,7 +10266,7 @@ end
             local ServerAmmo = Values and FindFirstChild(Values, "SERVER_Ammo")
             if not ServerAmmo or ServerAmmo.Value <= 0 then return end
 
-            local Bone = ValidPair.Bone or FindFirstChild(ValidPair.Target.Character, RageConfig.HitboxNames[RageConfig.Hitbox] or "Head")
+            local Bone = FindFirstChild(ValidPair.Target.Character, "Head")
                 or FindFirstChild(ValidPair.Target.Character, "HumanoidRootPart")
             if not Bone then return end
 
@@ -10262,7 +10332,6 @@ end
         Section:Toggle({ Name = "ignore downed", Default = false, Flag = "Rage Skip Downed", Callback = function(Value) RageConfig.DownCheck = Value end })
 
         Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(Value) RageConfig.TargetMode = Value end })
-        Section:Dropdown({ Name = "Hitbox", Flag = "Rage Hitbox", Options = RageConfig.HitboxNames, Default = "Head", Callback = function(Value) RageConfig.Hitbox = Find(RageConfig.HitboxNames, Value) or 1 end })
 
         Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(Value) RageConfig.Fov = Value end })
 Section:TextBox({
@@ -10293,7 +10362,7 @@ Section:TextBox({
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
---[[
+
 Spinner = { Enabled = false, Speed = 50 }
 Spinning = nil
 
@@ -11331,7 +11400,7 @@ Section:Toggle({ Name = "Client Rep", Flag = "AA Pose Local Replicate", Default 
 Section:Slider({ Name = "Lerp Speed", Flag = "AA Pose Osc Speed", Min = 0.05, Max = 5, Default = PoseOverride.OscSpeed, Decimals = 0.01, Callback = function(v) PoseOverride.OscSpeed = math.max(0.05, math.min(5, math.floor(v * 100 + 0.5) / 100)) end })
 Section:Toggle({ Name = "Force Instant", Flag = "AA Pose Instant", Default = PoseOverride.Instant, Callback = function(on) PoseOverride.Instant = on end })
 
-]]
+
     end
 end
 
@@ -11352,7 +11421,20 @@ end
                         Flag = "Esp Enabled",
                         Category = "Player",
                         Opened = true,
-                        Size = 331
+                        Size = 331,
+                        Callback = function(Value)
+                            if Value then return end
+                            if not Esp.Players then return end
+
+                            for _, This in next, Esp.Players do
+                                local Renders = This.Renders
+
+                                Renders.RenderFrame.Visible = false
+
+                                Esp.HideSkeleton(Renders.Skeleton)
+                                Esp.Parent(Renders)
+                            end
+                        end
                     })
                     do
                         Tree:Keybind({
@@ -11548,10 +11630,11 @@ end
                             Category = "Player",
                             Flag = "Esp Refresh Rate",
                             Prefix = "hz",
-                            Min = 0, Max = 265, Default = 45
+                            Min = 10, Max = 265, Default = 60
                         })
                     end
 
+                    --[[
                     Tree = Section:ExpandableToggle({
                         Name = "Out of View",
                         Flag = "Esp Oov",
@@ -11614,6 +11697,7 @@ end
                             Min = 10, Max = 50, Default = 13
                         })
                     end
+                    ]]
 
                     Tree = Section:ExpandableToggle({
                         Name = "Chams",
@@ -11707,9 +11791,34 @@ end
                     Flag = "Hitsound Enabled",
                     Default = false,
                     Size = 52,
-                    Opened = true
+                    Opened = true,
+                    Callback = function()
+                        if ApplyHitmarkerSettings then
+                            ApplyHitmarkerSettings()
+                        end
+                    end
                 })
                 do
+                    do
+                        local HitSoundsPath = Menu.Folders.HitSounds
+
+                        if IsFolder(HitSoundsPath) then
+                            local Files = ListFiles(HitSoundsPath)
+
+                            for i = 1, #Files do
+                                local Name = Match(Files[i], "([^/\\]+)%.%w+$")
+
+                                if Name and not RageConfig.SoundList[Name] then
+                                    local Ok, Asset = pcall(GetCustomAsset, Files[i])
+
+                                    if Ok and Asset then
+                                        RageConfig.SoundList[Name] = Asset
+                                    end
+                                end
+                            end
+                        end
+                    end
+
                     local HitsoundOptions = {}
 
                     for SoundName in next, RageConfig.SoundList do
@@ -11727,6 +11836,10 @@ end
                         Callback = function(Value, Config)
                             RageConfig.HitsoundKey = Value
 
+                            if ApplyHitmarkerSettings then
+                                ApplyHitmarkerSettings()
+                            end
+
                             if not Config and HitSoundpl then
                                 HitSoundpl()
                             end
@@ -11740,6 +11853,10 @@ end
                         Decimals = 0.01,
                         Callback = function(Value)
                             RageConfig.HitVolumes = Value
+
+                            if ApplyHitmarkerSettings then
+                                ApplyHitmarkerSettings()
+                            end
                         end
                     })
                 end
@@ -11984,6 +12101,34 @@ end
                 })
 
                 Section:Toggle({
+                    Name = "Color Correction",
+                    Flag = "Color Correction",
+                    Callback = function()
+                        Visuals.World()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Saturation",
+                    Flag = "Color Correction Saturation",
+                    Min = -1, Max = 1, Default = 0,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.World()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Contrast",
+                    Flag = "Color Correction Contrast",
+                    Min = -1, Max = 1, Default = 0,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.World()
+                    end
+                })
+
+                Section:Toggle({
                     Name = "Custom Time",
                     Flag = "Time",
                     Callback = function()
@@ -12077,16 +12222,29 @@ end
                     end
                 })
 
-                Section:Dropdown({
-                    Name = "Skybox",
-                    Flag = "Custom Skybox",
-                    Options = SkyboxOptions,
-                    Default = "Default",
-                    Size = 125,
-                    Callback = function()
-                        Visuals.Sky()
+                do
+                    local SkyboxOptions = {}
+
+                    for Name in next, SkyBoxes do
+                        if Name ~= "Default" then
+                            SkyboxOptions[#SkyboxOptions + 1] = Name
+                        end
                     end
-                })
+
+                    Sort(SkyboxOptions)
+                    Insert(SkyboxOptions, 1, "Default")
+
+                    Section:Dropdown({
+                        Name = "Skybox",
+                        Flag = "Custom Skybox",
+                        Options = SkyboxOptions,
+                        Default = "Default",
+                        Size = 125,
+                        Callback = function()
+                            Visuals.Sky()
+                        end
+                    })
+                end
             end
 
             MultiSection = Tab:MultiSection({
@@ -12178,8 +12336,6 @@ end
                             Default = 0
                         })
                     end
-
-
 
                     Tree = Section:ExpandableToggle({
                         Name = "ViewModel Offset",
@@ -12481,12 +12637,12 @@ end
                             local LocalBeam = Cache and Cache.LocalBeam
 
                             if LocalBeam then
-                                LocalBeam.Color = NewColorSequence(NewColor, Flags["Local Tracer Gradient"].Color)
+                                LocalBeam.Color = NewColorSequence(NewColor, Flags["Local Tracer Color 2"].Color)
                             end
                         end
                     }):Colorpicker({
-                        Color = NewRGB(255, 255, 255),
-                        Flag = "Local Tracer Gradient",
+                        Color = NewRGB(155, 255, 88),
+                        Flag = "Local Tracer Color 2",
                         Callback = function(NewColor)
                             local Cache = Visuals.Cache
                             local LocalBeam = Cache and Cache.LocalBeam
@@ -12508,12 +12664,12 @@ end
                             local EnemyBeam = Cache and Cache.EnemyBeam
 
                             if EnemyBeam then
-                                EnemyBeam.Color = NewColorSequence(NewColor, Flags["Enemy Tracer Gradient"].Color)
+                                EnemyBeam.Color = NewColorSequence(NewColor, Flags["Enemy Tracer Color 2"].Color)
                             end
                         end
                     }):Colorpicker({
-                        Color = NewRGB(255, 255, 255),
-                        Flag = "Enemy Tracer Gradient",
+                        Color = NewRGB(68, 131, 211),
+                        Flag = "Enemy Tracer Color 2",
                         Callback = function(NewColor)
                             local Cache = Visuals.Cache
                             local EnemyBeam = Cache and Cache.EnemyBeam
@@ -12566,6 +12722,8 @@ end
             do
                 Section = MultiSection[1]
                 do
+
+                  
                     Section:Toggle({
                         Name = "Walk Speed",
                         Flag = "Walk Speed",
@@ -12629,18 +12787,7 @@ end
                         Flag = "Infinite Jump"
                     })
 
-                    Section:Toggle({
-                        Name = "Infinite Stamina",
-                        Flag = "Infinite Stamina",
-                        Callback = function(Value)
-                            _G.InfiniteStaminaEnabled = Value
-                            local EnableInfiniteStamina = Movement.EnableInfiniteStamina
-
-                            if Value and EnableInfiniteStamina then
-                                EnableInfiniteStamina()
-                            end
-                        end
-                    })
+                   
 
                     Section:Toggle({
                         Name = "Hidden Body",
@@ -12657,6 +12804,8 @@ end
                         Flag = "Hidden Body Keybind",
                         Name = "Hidden Body"
                     })
+
+                    
 
                     Section:Toggle({
                         Name = "Fly Enabled",
@@ -12706,6 +12855,7 @@ end
                         Default = "Velocity"
                     })
 
+
                   
                 end
 
@@ -12728,13 +12878,21 @@ end
 
                 Section:Toggle({
                     Name = "No Clip",
-                    Flag = "No Clip"
+                    Flag = "No Clip",
+                        Callback = function(Value)
+                            local SetEnabled = Movement.SetNoclip
+
+                            if SetEnabled then
+                                SetEnabled(Value)
+                            end
+                        end
                 }):Keybind({
                     Mode = "Toggle",
                     Flag = "No Clip Keybind",
                     Name = "No Clip"
                 })
 
+ 
                 Section:Toggle({
                     Name = "Show Chat",
                     Flag = "Chat Visible",
@@ -12756,49 +12914,38 @@ end
                     end
                 })
 
+
+           
+
                 Section:Toggle({
                     Name = "Mute Alarms",
                     Flag = "Mute Alarms",
                     Default = true
                 })
 
-                Section:Toggle({
-                    Name = "chill Friend!, take a destroyer pill.",
-                    Flag = "Infinity Sound",
-                    Callback = function(Value)
-                        local Module = InfinitySound
-                        local Fn = Module and Module.Set
+       
 
-                        if Fn then
-                            Fn(Value)
-                        end
-                    end
-                })
+
+
 
                 Section:Toggle({
                     Name = "Auto Stomp",
                     Flag = "Auto Stomp",
-                    Unsafe = true
+                    Unsafe = true,
+                    Callback = function(Value)
+                        local SetEnabled = AutoStomp and AutoStomp.SetEnabled
+
+                        if SetEnabled then
+                            SetEnabled(Value)
+                        end
+                    end
                 })
 
                 Section:Slider({
                     Name = "Auto Stomp Range",
                     Flag = "Auto Stomp Range",
                     Min = 5, Max = 50, Default = 15
-                })
-
-
-
-
-
-
-
-
-
-
-
-
-
+                 })
             end
 
             Section = Tab:Section({
@@ -12814,6 +12961,7 @@ end
                     Default = false
                 })
 
+               
                 Section:Toggle({
                     Name = "Use Disablers",
                     Flag = "Disablers Enabled"
@@ -12827,6 +12975,7 @@ end
                     Min = 0,
                     Size = 125
                 })
+                    
             end
 
             Section = Tab:Section({
@@ -13343,23 +13492,9 @@ end
                     Name = "Teleport To Player"
                 })
 
-                Section:Toggle({
-                    Name = "Spectate",
-                    Callback = function(Value)
-                        Info.Spectating = Value
+                local SpectateConnection
 
-                        if not Value then
-                            local Character = LocalPlayer.Character
-                            local Humanoid = Character and FindFirstChildWhichIsA(Character, "Humanoid")
-
-                            if Humanoid then
-                                CurrentCamera.CameraSubject = Humanoid
-                            end
-                        end
-                    end
-                })
-
-                Heartbeat:Connect(function()
+                local function UpdateSpectate()
                     if not Info.Spectating then return end
 
                     local Target = ChosenInfo and ChosenInfo.Player
@@ -13381,7 +13516,32 @@ end
                     if Subject and CurrentCamera.CameraSubject ~= Subject then
                         CurrentCamera.CameraSubject = Subject
                     end
-                end)
+                end
+
+                Section:Toggle({
+                    Name = "Spectate",
+                    Callback = function(Value)
+                        Info.Spectating = Value
+
+                        if SpectateConnection then
+                            SpectateConnection:Disconnect()
+                            SpectateConnection = nil
+                        end
+
+                        if Value then
+                            SpectateConnection = Heartbeat:Connect(UpdateSpectate)
+                            UpdateSpectate()
+                            return
+                        end
+
+                        local Character = LocalPlayer.Character
+                        local Humanoid = Character and FindFirstChildWhichIsA(Character, "Humanoid")
+
+                        if Humanoid then
+                            CurrentCamera.CameraSubject = Humanoid
+                        end
+                    end
+                })
 
                 Section:Button({
                     Name = "Reset All",
@@ -14511,15 +14671,9 @@ end
     })
     do
         local StatsHeartbeat = StatsService.Workspace["Heartbeat"]
-        local LastUpdate = 0
 
         RenderStepped:Connect(function()
             if not Watermark.IsVisible then return end
-
-            local Now = Clock()
-            if (Now - LastUpdate) < 0.1 then return end
-
-            LastUpdate = Now
 
             local Text = "Luckyware.Net"
 
@@ -14592,13 +14746,14 @@ end
 do
     local FrustumY
     local FrustumX
+    local CachedCameraCFrame = CurrentCamera.CFrame
     Camera.NativeFov = Camera.NativeFov or CurrentCamera.FieldOfView
 
     function aimcheck(Tool)
         if not Tool then return nil end
 
-         ValuesFolder = FindFirstChild(Tool, "Values")
-         AimDown = ValuesFolder and FindFirstChild(ValuesFolder, "AimDown")
+        local ValuesFolder = FindFirstChild(Tool, "Values")
+        local AimDown = ValuesFolder and FindFirstChild(ValuesFolder, "AimDown")
 
         if AimDown and AimDown.Value ~= nil then
             local Value = AimDown.Value
@@ -14616,12 +14771,12 @@ do
     end
 
     function isniggaiming()
-         Character = LocalPlayer.Character
-         WorkspaceCharacters = FindFirstChild(Workspace, "Characters")
-         WorkspaceCharacter = WorkspaceCharacters and FindFirstChild(WorkspaceCharacters, LocalPlayer.Name)
+        local Character = LocalPlayer.Character
+        local WorkspaceCharacters = FindFirstChild(Workspace, "Characters")
+        local WorkspaceCharacter = WorkspaceCharacters and FindFirstChild(WorkspaceCharacters, LocalPlayer.Name)
 
-         EquippedTool = Character and FindFirstChildWhichIsA(Character, "Tool")
-         WorkspaceTool = nil
+        local EquippedTool = Character and FindFirstChildWhichIsA(Character, "Tool")
+        local WorkspaceTool = nil
 
         if WorkspaceCharacter then
             if EquippedTool then
@@ -14633,7 +14788,7 @@ do
             end
         end
 
-         ToolAimDown = aimcheck(WorkspaceTool)
+        local ToolAimDown = aimcheck(WorkspaceTool)
 
         if ToolAimDown == nil then
             ToolAimDown = aimcheck(EquippedTool)
@@ -14673,7 +14828,7 @@ do
                 end
             end
 
-             ToolAttribute = Tool and Tool:GetAttribute(Name)
+            local ToolAttribute = Tool and Tool:GetAttribute(Name)
             if ToolAttribute == true or ToolAttribute == 1 then
                 return true
             end
@@ -14682,7 +14837,7 @@ do
                 return false
             end
 
-             WorkspaceToolAttribute = WorkspaceTool and WorkspaceTool:GetAttribute(Name)
+            local WorkspaceToolAttribute = WorkspaceTool and WorkspaceTool:GetAttribute(Name)
             if WorkspaceToolAttribute == true or WorkspaceToolAttribute == 1 then
                 return true
             end
@@ -14691,7 +14846,7 @@ do
                 return false
             end
 
-             CharAttribute = Character:GetAttribute(Name)
+            local CharAttribute = Character:GetAttribute(Name)
             if CharAttribute == true or CharAttribute == 1 then
                 return true
             end
@@ -14706,8 +14861,8 @@ do
 
 
     Camera.UpdateFOV = LPH_NO_VIRTUALIZE(function()
-         ZoomEnabled = Flags["Zoom"].Value
-         CustomFovEnabled = Flags["Visuals Custom Fov"].Value
+        local ZoomEnabled = Flags["Zoom"].Value
+        local CustomFovEnabled = Flags["Visuals Custom Fov"].Value
 
         if not ZoomEnabled and not CustomFovEnabled then
             Camera.NativeFov = CurrentCamera.FieldOfView
@@ -14716,10 +14871,10 @@ do
         if ZoomEnabled then
             CurrentCamera.FieldOfView = (20 / Flags["Zoom Multiplier"].Value)
         elseif CustomFovEnabled then
-             DisableOnAimFlag = Flags["Aimcheck_Fov"]
+            local DisableOnAimFlag = Flags["Aimcheck_Fov"]
 
             if DisableOnAimFlag and DisableOnAimFlag.Value then
-                 AimDownState = isniggaiming()
+                local AimDownState = isniggaiming()
 
             
                 if AimDownState == true then
@@ -14744,22 +14899,22 @@ do
     end)
 
     Camera.WorldToViewportPoint = LPH_NO_VIRTUALIZE(function(Position : Vector3, ToEdges : Boolean, Offset : Number)
-         ObjectSpace = PointToObjectSpace(CurrentCamera.CFrame, Position)
+        local ObjectSpace = PointToObjectSpace(CachedCameraCFrame, Position)
 
-         NegativeZ = -ObjectSpace.Z
-         DoubleZ = 2 * NegativeZ
+        local NegativeZ = -ObjectSpace.Z
+        local DoubleZ = 2 * NegativeZ
 
-         PositionX = ScreenX * (0.5 + ObjectSpace.X / (DoubleZ * FrustumX))
-         PositionY = ScreenY * (0.5 - ObjectSpace.Y / (DoubleZ * FrustumY))
+        local PositionX = ScreenX * (0.5 + ObjectSpace.X / (DoubleZ * FrustumX))
+        local PositionY = ScreenY * (0.5 - ObjectSpace.Y / (DoubleZ * FrustumY))
 
-         OnScreen = NegativeZ > 0 and PositionX >= 0 and PositionX <= ScreenX and PositionY >= 0 and PositionY <= ScreenY
+        local OnScreen = NegativeZ > 0 and PositionX >= 0 and PositionX <= ScreenX and PositionY >= 0 and PositionY <= ScreenY
 
         if not ToEdges or OnScreen then
             return NewVector3(PositionX, PositionY, NegativeZ), OnScreen
         end
 
-         HalfOffset = Offset / 2
-         MaxY = ScreenY - HalfOffset
+        local HalfOffset = Offset / 2
+        local MaxY = ScreenY - HalfOffset
 
         if NegativeZ < 0 then
             PositionX = ScreenX - PositionX
@@ -14779,6 +14934,8 @@ do
         CurrentCamera:GetPropertyChangedSignal("FieldOfView"):Connect(Camera.UpdateFOV)
         CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(Camera.UpdateSize)
         RenderStepped:Connect(function()
+            CachedCameraCFrame = CurrentCamera.CFrame
+
             if Flags["Visuals Custom Fov"].Value and Flags["Aimcheck_Fov"].Value then
                 Camera.UpdateFOV()
             end
@@ -14858,6 +15015,7 @@ do
     Visuals.Skybox = FindFirstChildWhichIsA(Lighting, "Sky", true)
     Visuals.AtmosphereObject = FindFirstChildWhichIsA(Lighting, "Atmosphere", true)
     Visuals.Bloom = FindFirstChildWhichIsA(Lighting, "BloomEffect", true)
+    Visuals.ColorCorrection = FindFirstChild(Lighting, "LuckywareColorCorrection")
 
     Visuals.World = LPH_NO_VIRTUALIZE(function()
 
@@ -14944,11 +15102,37 @@ do
                 Bloom.Enabled = false
             end
         end
+
+        local ColorCorrection = Visuals.ColorCorrection
+
+        if not ColorCorrection or not ColorCorrection.Parent then
+            ColorCorrection = NewInstance("ColorCorrectionEffect", Lighting)
+            ColorCorrection.Name = "LuckywareColorCorrection"
+            Visuals.ColorCorrection = ColorCorrection
+        end
+
+        if not Visuals.Cache.ColorCorrection then
+            Visuals.Cache.ColorCorrection = {
+                Enabled = ColorCorrection.Enabled,
+                Saturation = ColorCorrection.Saturation,
+                Contrast = ColorCorrection.Contrast
+            }
+        end
+
+        if Flags["Color Correction"].Value then
+            ColorCorrection.Enabled = true
+            ColorCorrection.Saturation = Flags["Color Correction Saturation"].Value
+            ColorCorrection.Contrast = Flags["Color Correction Contrast"].Value
+        else
+            local ColorCorrectionCache = Visuals.Cache.ColorCorrection
+            ColorCorrection.Enabled = ColorCorrectionCache.Enabled
+            ColorCorrection.Saturation = ColorCorrectionCache.Saturation
+            ColorCorrection.Contrast = ColorCorrectionCache.Contrast
+        end
     end)
 
     Visuals.Sky = LPH_NO_VIRTUALIZE(function()
-
-
+        Visuals.UpdatingSky = true
         local Sky = Visuals.Skybox
 
         if not Sky or not Sky.Parent then
@@ -14965,7 +15149,26 @@ do
         for Index, Value in next, SkyBoxes[Flags["Custom Skybox"].Value] do
             Sky[Index] = Value
         end
+
+        Visuals.UpdatingSky = false
     end)
+
+    Visuals.BindSky = function()
+        local Sky = Visuals.Skybox
+
+        if Visuals.SkyConnection then
+            Visuals.SkyConnection:Disconnect()
+            Visuals.SkyConnection = nil
+        end
+
+        if Sky then
+            Visuals.SkyConnection = Sky.Changed:Connect(function()
+                if not Visuals.UpdatingSky then
+                    Visuals.Sky()
+                end
+            end)
+        end
+    end
 
     Visuals.AtmosphereDisablerSettings = {
         Density = 0,
@@ -15011,6 +15214,7 @@ do
         Atmosphere.Haze = Settings.Haze
     end)
 
+
     Visuals.Clouds = LPH_JIT_MAX(function()
         local Clouds = FindFirstChildWhichIsA(Terrain, "Clouds", true)
 
@@ -15049,53 +15253,70 @@ do
         Cache.FogStart = Lighting.FogStart
         Cache.FogEnd = Lighting.FogEnd
 
-        if not getgenv().visualsWorldHook then
+        local ColorCorrection = Visuals.ColorCorrection
+        if ColorCorrection then
+            Cache.ColorCorrection = {
+                Enabled = ColorCorrection.Enabled,
+                Saturation = ColorCorrection.Saturation,
+                Contrast = ColorCorrection.Contrast
+            }
+        end
+
+        if not getgenv().timehook then
             local OldNewIndex
 
             OldNewIndex = hookmetamethod(game, "__newindex", function(Self, Index, Value)
-                if not CheckCaller() then
-                    if Self == Lighting then
-                        if Flags["Ambience"].Value and Index == "Ambient" then
-                            return OldNewIndex(Self, Index, Flags["Ambience Color 1"].Color)
-                        elseif Flags["Ambience"].Value and Index == "OutdoorAmbient" then
-                            return OldNewIndex(Self, Index, Flags["Ambience Color 2"].Color)
-                        elseif Flags["Brightness"].Value and Index == "Brightness" then
-                            return OldNewIndex(Self, Index, Flags["Brightness Amount"].Value)
-                        elseif Flags["Time"].Value and (Index == "ClockTime" or Index == "TimeOfDay") then
-                            return OldNewIndex(Self, "ClockTime", Flags["Time Factor"].Value)
-                        end
-                    elseif Self == Visuals.Bloom and Flags["Bloom"].Value then
-                        if Index == "Intensity" then
-                            return OldNewIndex(Self, Index, Flags["Bloom Intensity"].Value * 0.01)
-                        elseif Index == "Size" then
-                            return OldNewIndex(Self, Index, Flags["Bloom Size"].Value * 0.56)
-                        elseif Index == "Threshold" then
-                            return OldNewIndex(Self, Index, Flags["Bloom Threshold"].Value * 0.0025)
-                        elseif Index == "Enabled" then
-                            return OldNewIndex(Self, Index, true)
-                        end
-                    end
+                if Self == Lighting and Flags["Time"].Value and (Index == "ClockTime" or Index == "TimeOfDay") then
+                    return OldNewIndex(Self, "ClockTime", Flags["Time Factor"].Value)
                 end
 
                 return OldNewIndex(Self, Index, Value)
             end)
 
-            getgenv().visualsWorldHook = true
+            getgenv().timehook = true
         end
 
         Lighting.GlobalShadows = Flags["Shadows"].Value
 
-       Visuals.World()
+        Visuals.World()
         Visuals.Sky()
+        Visuals.BindSky()
         Visuals.Atmosphere()
-       Visuals.Clouds()
+        Visuals.Clouds()
 
-        RenderStepped:Connect(function()
-           Visuals.World()
-            Visuals.Sky()
+        local WorldProperties = {
+            Ambient = "Ambience",
+            OutdoorAmbient = "Ambience",
+            Brightness = "Brightness",
+            ExposureCompensation = "Exposure",
+            ColorShift_Top = "Colorshift",
+            ColorShift_Bottom = "Colorshift",
+            FogColor = "Fog",
+            FogStart = "Fog",
+            FogEnd = "Fog",
+            ClockTime = "Time",
+            GlobalShadows = "Shadows"
+        }
+
+        for Property, FlagName in next, WorldProperties do
+            Lighting:GetPropertyChangedSignal(Property):Connect(function()
+                if Flags[FlagName].Value then
+                    Visuals.World()
+                end
+            end)
+        end
+
+        Lighting.ChildAdded:Connect(function(Child)
+            if Child:IsA("Sky") then
+                Visuals.Skybox = Child
+                Visuals.Sky()
+                Visuals.BindSky()
+            end
         end)
+
     end
 end
+
 
 
 do
@@ -15104,43 +15325,8 @@ do
 
     ViewModel.BaselineByTool = setmetatable({}, { __mode = "k" })
     ViewModel.ToolStash = setmetatable({}, { __mode = "k" })
-    ViewModel.ToolParts = setmetatable({}, { __mode = "k" })
-    ViewModel.WatchedTools = setmetatable({}, { __mode = "k" })
 
     ViewModel.StoredShirt = nil
-    ViewModel.LastUpdate = 0
-
-    ViewModel.GetToolParts = function(Tool)
-        local Parts = ViewModel.ToolParts[Tool]
-
-        if Parts then return Parts end
-
-        Parts = {}
-
-        for _, Descendant in next, Tool:GetDescendants() do
-            if Descendant:IsA("BasePart") then
-                Parts[#Parts + 1] = Descendant
-            end
-        end
-
-        ViewModel.ToolParts[Tool] = Parts
-
-        return Parts
-    end
-
-    ViewModel.WatchToolParts = function(Tool)
-        if ViewModel.WatchedTools[Tool] then return end
-
-        ViewModel.WatchedTools[Tool] = true
-
-        Tool.DescendantAdded:Connect(function()
-            ViewModel.ToolParts[Tool] = nil
-        end)
-
-        Tool.DescendantRemoving:Connect(function()
-            ViewModel.ToolParts[Tool] = nil
-        end)
-    end
 
     function FindOffset(Tool)
         if not Tool or not Tool.Parent then return nil end
@@ -15225,8 +15411,6 @@ do
 
     function HookOffsetTool(Tool)
         if not Tool:IsA("Tool") then return end
-
-        ViewModel.WatchToolParts(Tool)
 
         if FindOffset(Tool) then
             EnsureBaseline(Tool)
@@ -15449,20 +15633,18 @@ do
 
         ViewModel.CleanWeaponTool(Tool)
 
-        local Parts = ViewModel.GetToolParts(Tool)
-
-        for i = 1, #Parts do
-            local Part = Parts[i]
-
-            ApplyPartChams(Part, Color, Material, Transparency, Reflectance, Animation)
+        for _, Part in next, Tool:GetDescendants() do
+            if Part:IsA("BasePart") then
+                ApplyPartChams(Part, Color, Material, Transparency, Reflectance, Animation)
+            end
         end
     end
 
     function RestoreTool(Tool)
-        local Parts = ViewModel.GetToolParts(Tool)
-
-        for i = 1, #Parts do
-            RestoreOriginal(Parts[i])
+        for _, Part in next, Tool:GetDescendants() do
+            if Part:IsA("BasePart") then
+                RestoreOriginal(Part)
+            end
         end
 
         ViewModel.RestoreWeaponTool(Tool)
@@ -15527,8 +15709,6 @@ do
     function HookVMTool(VM, Tool)
         if not Tool:IsA("Tool") then return end
 
-        ViewModel.WatchToolParts(Tool)
-
         Tool.Equipped:Connect(function()
             if Flags["Weapon Chams"].Value and IsFirstPerson() then
                 ViewModel.ApplyWeapon(Tool)
@@ -15560,8 +15740,8 @@ do
                 local Name = Lower(Child.Name)
 
                 if Child.Name ~= "HumanoidRootPart" and not StringFind(Name, "armholder") then
-                    
                     local ColorFlag = Flags["ViewModel Arms Color"]
+
                     local Color = ColorFlag.Color
                     local Transparency = ColorFlag.Transparency
                     local Material = Enum.Material[Flags["ViewModel Arms Material"].Value]
@@ -15575,9 +15755,7 @@ do
     end
 
     ViewModel.Update = LPH_JIT_MAX(function()
-
         local ArmsEnabled = Flags["ViewModel Arms"].Value
-
         local WeaponEnabled = Flags["Weapon Chams"].Value
 
         if not ArmsEnabled and not WeaponEnabled then
@@ -15590,13 +15768,6 @@ do
             return
         end
 
-        local Now = Clock()
-
-        local RefreshRate = 1 / Flags["ViewModel Refresh Rate"].Value
-
-        if (Now - ViewModel.LastUpdate) < RefreshRate then return end
-
-        ViewModel.LastUpdate = Now
         ViewModel.WasActive = true
 
         local FirstPerson = IsFirstPerson()
@@ -15694,6 +15865,8 @@ do
 end
 
 
+
+
 do
     Movement.Connections = {}
 
@@ -15704,7 +15877,18 @@ do
 
             if not Humanoid then return end
 
-            Humanoid.WalkSpeed = Flags["Walk Speed"].Value and Flags["Walk Speed Amount"].Value or 16
+            local Enabled = Flags["Walk Speed"].Value
+
+            if not Enabled then
+                if Movement.Connections.WalkSpeed then
+                    Movement.Connections.WalkSpeed:Disconnect()
+                    Movement.Connections.WalkSpeed = nil
+                end
+
+                return
+            end
+
+            Humanoid.WalkSpeed = Flags["Walk Speed Amount"].Value
 
             if not Movement.Connections.WalkSpeed then
                 Movement.Connections.WalkSpeed = Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
@@ -15721,7 +15905,18 @@ do
 
             if not Humanoid then return end
 
-            Humanoid.JumpPower = Flags["Jump Power"].Value and Flags["Jump Power Amount"].Value or 50
+            local Enabled = Flags["Jump Power"].Value
+
+            if not Enabled then
+                if Movement.Connections.JumpPower then
+                    Movement.Connections.JumpPower:Disconnect()
+                    Movement.Connections.JumpPower = nil
+                end
+
+                return
+            end
+
+            Humanoid.JumpPower = Flags["Jump Power Amount"].Value
 
             if not Movement.Connections.JumpPower then
                 Movement.Connections.JumpPower = Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
@@ -15729,23 +15924,6 @@ do
                         Humanoid.JumpPower = Flags["Jump Power Amount"].Value
                     end
                 end)
-            end
-        end
-
-        Movement.EnableInfiniteStamina = function()
-            if Movement.OriginalStaminaFunction then return end
-
-            for _, Data in next, getgc(true) do
-                if typeof(Data) == "function" and debug.getinfo(Data).name == "S_Get" then
-                    Movement.OriginalStaminaFunction = hookfunction(Data, function(...)
-                        if _G.InfiniteStaminaEnabled then
-                            return 100, 100
-                        end
-
-                        return Movement.OriginalStaminaFunction(...)
-                    end)
-                    break
-                end
             end
         end
 
@@ -15761,8 +15939,8 @@ do
                 Movement.Connections.JumpPower = nil
             end
 
-            Movement.WalkSpeeding()
-            Movement.Jumpowering()
+            if Flags["Walk Speed"].Value then Movement.WalkSpeeding() end
+            if Flags["Jump Power"].Value then Movement.Jumpowering() end
         end
     end
 
@@ -15878,10 +16056,23 @@ do
             Fly.Humanoid.AutoRotate = false
 
             Fly.Active = true
+
+            Movement.Connections.FlyUpdate = RenderStepped:Connect(Movement.UpdateFly)
+            Movement.Connections.FlyBypass = Heartbeat:Connect(Movement.FlyBypass)
         end
 
         Movement.DisableFly = function()
             Fly.Active = false
+
+            if Movement.Connections.FlyUpdate then
+                Movement.Connections.FlyUpdate:Disconnect()
+                Movement.Connections.FlyUpdate = nil
+            end
+
+            if Movement.Connections.FlyBypass then
+                Movement.Connections.FlyBypass:Disconnect()
+                Movement.Connections.FlyBypass = nil
+            end
 
             if Fly.VelocityM then
                 Fly.VelocityM.VectorVelocity = EmptyVector3
@@ -16017,8 +16208,7 @@ do
             savejump = nil,
             ifanchor = false,
             platfourm = nil,
-            rotationsing = nil,
-            LastEnforce = 0
+            rotationsing = nil
         }
 
         Movement.Freecam = Freecam
@@ -16051,11 +16241,11 @@ do
         end
 
         function wwwwwweewwwwweeeeeewwwweeee(Humanoid, Root)
-            if Humanoid.WalkSpeed ~= 0 then Humanoid.WalkSpeed = 0 end
-            if Humanoid.JumpPower ~= 0 then Humanoid.JumpPower = 0 end
-            if not Humanoid.PlatformStand then Humanoid.PlatformStand = true end
-            if Humanoid.AutoRotate then Humanoid.AutoRotate = false end
-            if not Root.Anchored then Root.Anchored = true end
+            Humanoid.WalkSpeed = 0
+            Humanoid.JumpPower = 0
+            Humanoid.PlatformStand = true
+            Humanoid.AutoRotate = false
+            Root.Anchored = true
         end
 
         function DisableCharacterMovement()
@@ -16079,11 +16269,6 @@ do
 
             Movement.Connections.FreecamEnforce = Heartbeat:Connect(function()
                 if not Freecam.Active or not Humanoid.Parent or not Root.Parent then return end
-
-                local Now = Clock()
-                if (Now - Freecam.LastEnforce) < 0.05 then return end
-
-                Freecam.LastEnforce = Now
 
                 wwwwwweewwwwweeeeeewwwweeee(Humanoid, Root)
             end)
@@ -16208,13 +16393,10 @@ do
 
         end
 
-        RenderStepped:Connect(Movement.UpdateFly)
-
-        Heartbeat:Connect(Movement.FlyBypass)
-
         RenderStepped:Connect(Movement.StepFreecam)
     end
 end
+
 
 
 do
@@ -16231,7 +16413,6 @@ do
     end)
 
 end
-
 
 
 do
@@ -16371,6 +16552,7 @@ do
         HiddenBody.SetUp(LocalPlayer.Character)
     end
 end
+
 
 do
     Info.Players = {}
@@ -16519,35 +16701,68 @@ do
     Players.PlayerRemoving:Connect(Info.RemovePlayer)
 end
 
+
 do
+    Movement.Noclip = {
+        Connection = nil,
+        Originals = setmetatable({}, { __mode = "k" }),
+    }
+
     function ApplyNoclip(Character)
         for _, Part in next, GetDescendants(Character) do
             if IsA(Part, "BasePart") then
+                if Movement.Noclip.Originals[Part] == nil then
+                    Movement.Noclip.Originals[Part] = Part.CanCollide
+                end
                 Part.CanCollide = false
             end
         end
     end
 
-    RenderStepped:Connect(function()
-        if not Flags["No Clip"].Value then return end
+    function RestoreNoclip()
+        for Part, CanCollide in next, Movement.Noclip.Originals do
+            if Part and Part.Parent then
+                Part.CanCollide = CanCollide
+            end
+        end
+
+        Movement.Noclip.Originals = setmetatable({}, { __mode = "k" })
+    end
+
+    Movement.SetNoclip = function(Enabled)
+        local Noclip = Movement.Noclip
+
+        if Noclip.Connection then
+            Noclip.Connection:Disconnect()
+            Noclip.Connection = nil
+        end
+
+        if not Enabled then
+            RestoreNoclip()
+            return
+        end
 
         local Character = LocalPlayer.Character
 
         if Character then
             ApplyNoclip(Character)
+
+            Noclip.Connection = Character.DescendantAdded:Connect(function(NewInst)
+                if IsA(NewInst, "BasePart") then
+                    Noclip.Originals[NewInst] = NewInst.CanCollide
+                    NewInst.CanCollide = false
+                end
+            end)
+        end
+    end
+
+    LocalPlayer.CharacterAdded:Connect(function(Character)
+        if Flags["No Clip"].Value then
+            Movement.SetNoclip(true)
         end
     end)
 
-    Workspace.DescendantAdded:Connect(function(NewInst)
-        if not Flags["No Clip"].Value then return end
-        if not IsA(NewInst, "BasePart") then return end
-
-        local Character = LocalPlayer.Character
-
-        if Character and IsDescendantOf(NewInst, Character) then
-            NewInst.CanCollide = false
-        end
-    end)
+    Movement.SetNoclip(Flags["No Clip"] and Flags["No Clip"].Value)
 end
 
 do
@@ -16559,6 +16774,7 @@ do
         end
     end)
 end
+
 
 do
     local OldNamecall
@@ -16599,21 +16815,22 @@ do
     end)
 end
 
+
 do
-    function NewBeamTemplate(StartColor, EndColor)
+    function NewBeamTemplate(Color1, Color2)
         local Beam = NewInstance("Beam")
 
         for Index, Value in next, TracerProperties[Flags["Tracer Texture"].Value] do
             Beam[Index] = Value
         end
 
-        Beam.Color = NewColorSequence(StartColor, EndColor or StartColor)
+        Beam.Color = NewColorSequence(Color1, Color2 or Color1)
 
         return Beam
     end
 
-    Visuals.Cache.LocalBeam = NewBeamTemplate(Flags["Local Tracer Color"].Color, Flags["Local Tracer Gradient"].Color)
-    Visuals.Cache.EnemyBeam = NewBeamTemplate(Flags["Enemy Tracer Color"].Color, Flags["Enemy Tracer Gradient"].Color)
+    Visuals.Cache.LocalBeam = NewBeamTemplate(Flags["Local Tracer Color"].Color, Flags["Local Tracer Color 2"].Color)
+    Visuals.Cache.EnemyBeam = NewBeamTemplate(Flags["Enemy Tracer Color"].Color, Flags["Enemy Tracer Color 2"].Color)
 
     function FireTracer(MuzzlePosition, HitPosition, Template)
         local StartAttachment = NewInstance("Attachment", Terrain)
@@ -16739,6 +16956,9 @@ do
         end)
     end)
 end
+
+
+
 
 do
     local Fonts = Menu.Fonts
@@ -17067,9 +17287,6 @@ do
             This.HealthGradient = Esp.Render("UIGradient", { Enabled = true, Rotation = 90 })
             This.HealthText = Esp.Render("TextLabel", { ZIndex = 5, Visible = false, AnchorPoint = NewVector2(0.5, 0), Position = NewUDim2(0.5, 0, 0, 2), Text = "115", TextTransparency = 0, TextStrokeTransparency = 0, BackgroundTransparency = 1 })
 
-            This.Arrow = Esp.Render("Quad", { Visible = false, ZIndex = 3 }, true)
-            This.ArrowOutline = Esp.Render("Triangle", { Visible = false, ZIndex = 2, Thickness = 4, Filled = false }, true)
-
             return This
         end)
 
@@ -17152,9 +17369,6 @@ do
 
     do
         Esp.RenderPlayerOnScreen = LPH_NO_VIRTUALIZE(function(This : Table, Renders : Table, BoxPosition : UDim2, BoxSize : UDim2)
-            Renders.Arrow.Visible = false
-            Renders.ArrowOutline.Visible = false
-
             local WeaponObject = This.Weapon
             local BodyParts = This.BodyParts
 
@@ -17599,280 +17813,12 @@ do
             end
         end)
 
-        Esp.RenderPlayerOffScreen = LPH_NO_VIRTUALIZE(function(This : Table, Renders : Table, Skeleton : Table, Position : Vector3)
+        Esp.RenderPlayerOffScreen = LPH_NO_VIRTUALIZE(function(_, Renders : Table, Skeleton : Table)
             Renders.RenderFrame.Visible = false
 
             Esp.HideSkeleton(Skeleton)
 
             Esp.Parent(Renders)
-
-            local Arrow = Renders.Arrow
-            local ArrowOutline = Renders.ArrowOutline
-
-            local ShadowName = Renders.ShadowName
-            local OutlineName = Renders.OutlineName
-
-            local Weapon = Renders.Weapon
-
-            local HealthInline = Renders.Health
-            local HealthOutline = Renders.HealthBack
-
-            local DistanceRender = Renders.Distance
-
-            if Flags["Esp Oov"].Value then
-                local Section = Flags["Player"]
-                local Flag = Flags["Esp Oov Color"]
-
-                local Blinking = Flags["Esp Oov Blink"].Value
-
-                local Transparency = Blinking and (Sin(Tick() * (4 + Flags["Esp Oov Blink Speed"].Value)) + 1) / 2 or Flag.Transparency
-                local PriorityColor
-                local InfoThis = Info.PlayerData[This.Name]
-
-                if InfoThis then
-                    if InfoThis.Priority and Flags["Priority Color Enabled"].Value then
-                        PriorityColor = Flags["Priority Color"].Color
-                    elseif InfoThis.Whitelist and Flags["Whitelist Color Enabled"].Value then
-                        PriorityColor = Flags["Whitelist Color"].Color
-                    end
-                end
-
-                local Overlay = Esp.Overlay
-
-                local WeaponObject = This.Weapon
-
-                local HealthGradient = Renders.HealthGradient
-                local HealthText = Renders.HealthText
-
-                local Relative = PointToObjectSpace(CurrentCamera.CFrame, Position)
-                local Angle = Atan2(-Relative.Y, Relative.X)
-
-                local Radius
-                local Size
-
-                local Direction = NewVector2(Cos(Angle), Sin(Angle))
-
-                do
-                    local Distance = Min((Position - CurrentCamera.CFrame.Position).Magnitude, 150)
-
-                    if Flags["Esp Oov Dynamic Distance"].Value then
-                        Radius = Clamp(10 + (Max(0, Distance) / 150) * 85, 10, 95) / 400
-                    else
-                        Radius = Flags["Esp Oov Distance"].Value / 400
-                    end
-
-                    if Flags["Esp Oov Dynamic Size"].Value then
-                        Size = 40 - Clamp(10 + (Max(0, Distance) / 150) * 20, 10, 30)
-                    else
-                        Size = Flags["Esp Oov Size"].Value
-                    end
-                end
-
-                local PointA = (Direction * ScreenX * Radius) + (ScreenSize / 2)
-                local PointB
-                local PointC
-
-                do
-                    Arrow.PointA = PointA
-
-                    if Flags["Esp Oov Style"].Value == "Concave" then
-                        PointB = PointA - Esp.Rotate(Direction, 0.45) * Size
-                        PointC = PointA - Esp.Rotate(Direction, -0.45) * Size
-
-                        local PointD = PointA - Esp.Rotate(Direction, 0) * (Size / 1.6)
-
-                        Arrow.PointB = PointB
-                        Arrow.PointC = PointD
-                        Arrow.PointD = PointC
-
-                        ArrowOutline.Visible = false
-                    else
-                        PointB = PointA - Esp.Rotate(Direction, 0.5) * Size
-                        PointC = PointA - Esp.Rotate(Direction, -0.5) * Size
-
-                        Arrow.PointB = PointB
-                        Arrow.PointC = PointB
-                        Arrow.PointD = PointC
-
-                        ArrowOutline.Color = Esp.MultiplyColor(PriorityColor or Flag.Color, 0.6)
-                        ArrowOutline.Transparency = 1 - Transparency
-
-                        ArrowOutline.PointA = PointA
-                        ArrowOutline.PointB = PointB
-                        ArrowOutline.PointC = PointC
-
-                        ArrowOutline.Visible = true
-                    end
-
-                    Arrow.Color = PriorityColor or Flag.Color
-                    Arrow.Transparency = 1 - Transparency
-
-                    Arrow.Visible = true
-                end
-
-                do
-                    local BoxPosition = (NewVector2((PointA.X + PointB.X + PointC.X) / 3, (PointA.Y + PointB.Y + PointC.Y) / 3)) - NewVector2(Size / 2, Size / 2)
-
-                    local Elements = Flags["Esp Oov Elements"].Value
-
-                    local CenterX = BoxPosition.X + Size / 2
-                    local BottomY = BoxPosition.Y + Size
-
-                    local OffsetY = 6
-
-                    if Find(Elements, "Name") then
-                        local Font = Section["Esp Name Font"].Value
-
-                        local Player = This.Player
-                        local Text = Font == "Small" and Upper(This.Name) or This.Name
-
-                        if Font == "Bold" then
-                            OutlineName.Visible = false
-
-                            ShadowName.Parent = Overlay
-
-                            ShadowName.Position = NewUDim2(0, CenterX, 0, BoxPosition.Y - 12)
-
-                            ShadowName.Text = Text
-
-                            ShadowName.TextColor3 = PriorityColor or Section["Esp Name Color"].Color
-                            ShadowName.TextTransparency = Transparency
-
-                            ShadowName.Visible = true
-                        else
-                            local OutlineFont = Fonts[Font == "Regular" and "Sevasto" or "Tiny5"]
-
-                            ShadowName.Visible = false
-
-                            OutlineName.Parent = Overlay
-
-                            OutlineName.FontFace = OutlineFont[1]
-                            OutlineName.TextSize = OutlineFont[2]
-
-                            OutlineName.Position = NewUDim2(0, CenterX, 0, BoxPosition.Y - (Font == "Small" and 14 or 12))
-
-                            OutlineName.Text = Text
-
-                            OutlineName.TextColor3 = PriorityColor or Section["Esp Name Color"].Color
-                            OutlineName.TextTransparency = Transparency
-
-                            OutlineName.Visible = true
-                        end
-                    end
-
-                    if Find(Elements, "Health Bar") then
-                        local Health = Ceil(This.Health)
-
-                        local Percent = Health / This.MaxHealth
-                        local SizeY = Esp.Lerp(HealthInline.Size.Y.Scale, Percent, 0.1)
-
-                        HealthInline.Parent = HealthOutline
-                        HealthOutline.Parent = Overlay
-
-                        HealthInline.Position = NewUDim2(0, 0, 1 - SizeY, 0)
-                        HealthOutline.Position = NewUDim2(0, BoxPosition.X - 7, 0, BoxPosition.Y - 1)
-
-                        HealthInline.Size = NewUDim2(0, 2, SizeY, 0)
-                        HealthOutline.Size = NewUDim2(0, 2, 0, Size)
-
-                        HealthInline.BackgroundTransparency = Transparency
-                        HealthOutline.BackgroundTransparency = Transparency
-
-                        if PriorityColor then
-                            HealthGradient.Enabled = false
-
-                            HealthInline.BackgroundColor3 = PriorityColor
-                        else
-                            local HealthColor1 = Section["Esp Health Color 1"].Color
-                            local HealthColor2 = Section["Esp Health Color 2"].Color
-
-                            local HealthType = Section["Esp Health Bar Type"].Value
-
-                            if HealthType == "Static" then
-                                HealthGradient.Enabled = false
-                                HealthGradient.Parent = nil
-
-                                HealthInline.BackgroundColor3 = HealthColor1
-                            elseif HealthType == "Dynamic" then
-                                HealthGradient.Enabled = false
-                                HealthGradient.Parent = nil
-
-                                if HealthColor1 == HealthColor2 then
-                                    HealthInline.BackgroundColor3 = HealthColor1
-                                else
-                                    HealthInline.BackgroundColor3 = Esp.LerpColor(HealthColor2, HealthColor1, Percent)
-                                end
-                            else
-                                HealthGradient.Parent = HealthInline
-                                HealthGradient.Enabled = true
-
-                                HealthInline.BackgroundColor3 = NewRGB(255, 255, 255)
-
-                                if HealthColor1 == HealthColor2 then
-                                    HealthGradient.Color = NewColorSequence(HealthColor1, HealthColor1)
-                                else
-                                    HealthGradient.Color = NewColorSequence(Esp.LerpColor(HealthColor2, HealthColor1, Percent), HealthColor2)
-                                end
-                            end
-                        end
-
-                        if Percent < 1 then
-                            HealthText.Parent = HealthInline
-
-                            HealthText.Text = Health
-
-                            HealthText.TextColor3 = PriorityColor or Section["Esp Health Color 3"].Color
-                            HealthText.TextTransparency = Transparency
-
-                            HealthText.Visible = true
-                        else
-                            HealthText.Visible = false
-                        end
-
-                        HealthInline.Visible = true
-                        HealthOutline.Visible = true
-                    end
-
-                    if Find(Elements, "Weapon") and WeaponObject then
-                        Weapon.Parent = Overlay
-                        Weapon.Position = NewUDim2(0, CenterX, 0, BottomY + OffsetY)
-
-                        Weapon.Text = Upper(WeaponObject.Name)
-
-                        Weapon.TextColor3 = PriorityColor or Section["Esp Weapon Color"].Color
-                        Weapon.TextTransparency = Transparency
-
-                        Weapon.Visible = true
-
-                        OffsetY += 8
-                    end
-
-                    if Find(Elements, "Distance") then
-                        DistanceRender.Parent = Overlay
-                        DistanceRender.Position = NewUDim2(0, CenterX, 0, BottomY + OffsetY)
-
-                        DistanceRender.Text = Ceil(This.Distance) .. "M"
-
-                        DistanceRender.TextColor3 = PriorityColor or Section["Esp Distance Color"].Color
-                        DistanceRender.TextTransparency = Transparency
-
-                        DistanceRender.Visible = true
-                    end
-                end
-            else
-                Arrow.Visible = false
-                ArrowOutline.Visible = false
-
-                ShadowName.Visible = false
-                OutlineName.Visible = false
-
-                Weapon.Visible = false
-
-                HealthInline.Visible = false
-                HealthOutline.Visible = false
-
-                DistanceRender.Visible = false
-            end
         end)
 
         Esp.RenderChams = LPH_JIT_MAX(function(This : Table)
@@ -17950,45 +17896,21 @@ do
         end)
 
         Esp.Step = LPH_JIT_MAX(function()
+            local Section = Flags["Player"]
+            local EspEnabled = Section["Esp Enabled"].Value
+
+            if not EspEnabled then return end
+
             local RenderInfo = {}
 
+
             do
-                local Section = Flags["Player"]
-
-                local EspEnabled = Section["Esp Enabled"].Value
-                local ChamsEnabled = Flags["Chams Enabled"].Value
-
-                if not EspEnabled then
-                    if ChamsEnabled then
-                        for _, This in next, Esp.Players do
-                            if This.ChamsDirty then
-                                Esp.RenderChams(This)
-                                This.ChamsDirty = false
-                            end
-                        end
-                    elseif not Esp.AllHidden then
-                        Esp.AllHidden = true
-
-                        for _, This in next, Esp.Players do
-                            local Renders = This.Renders
-
-                            Renders.RenderFrame.Visible = false
-                            Renders.Arrow.Visible = false
-                            Renders.ArrowOutline.Visible = false
-
-                            Esp.HideSkeleton(Renders.Skeleton)
-                            Esp.Parent(Renders)
-                        end
-                    end
-
-                    return
-                end
-
-                Esp.AllHidden = false
                 local MaxDistance = Section["Esp Max Distance"].Value
 
                 local RefreshRate = 1 / Section["Esp Refresh Rate"].Value
                 local BoundingType = Section["Esp Bounding Type"].Value
+                local PriorityOnly = Section["Esp Priority Only"].Value
+                local WhitelistOnly = Section["Esp Whitelist Only"].Value
 
                 local CameraPosition = CurrentCamera.CFrame.Position
 
@@ -18008,19 +17930,19 @@ do
                     local Humanoid = This.Humanoid
                     local RootPart = This.RootPart
 
-                    if This.ChamsDirty then
-                        Esp.RenderChams(This)
-                        This.ChamsDirty = false
-                    end
-
                     if Character and Humanoid and RootPart then
-                        This.Alive = Humanoid.Health > 0
-                        This.Health = Humanoid.Health
+                        local Health = Humanoid.Health
+                        local RootPosition = RootPart.Position
+
+                        This.Alive = Health > 0
+                        This.Health = Health
                         This.MaxHealth = Humanoid.MaxHealth
-                        This.Distance = (RootPart.Position - CameraPosition).Magnitude
-                        This.Weapon = FindFirstChildWhichIsA(Character, "Tool")
+                        This.Distance = (RootPosition - CameraPosition).Magnitude
+
+                        This.RootPosition = RootPosition
                     else
                         This.Alive = false
+                        This.RootPosition = nil
                     end
 
                     if
@@ -18030,9 +17952,6 @@ do
                     then
                         Renders.RenderFrame.Visible = false
 
-                        Renders.Arrow.Visible = false
-                        Renders.ArrowOutline.Visible = false
-
                         Esp.HideSkeleton(Skeleton)
 
                         Esp.Parent(Renders)
@@ -18040,45 +17959,33 @@ do
                         continue
                     end
 
-                    local RootPosition = RootPart.Position
-
-                    local BoxPosition, BoxSize = Esp.GetBoundingBox(This, RootPosition, BoundingType)
-
                     local InfoThis = Info.PlayerData[This.Name]
-                    local PriorityOnly = Section["Esp Priority Only"].Value
-                    local WhitelistOnly = Section["Esp Whitelist Only"].Value
-                    local ShouldRender = EspEnabled
-                        and not (InfoThis and InfoThis.DisableEsp)
+                    local ShouldRender = not (InfoThis and InfoThis.DisableEsp)
                         and (not PriorityOnly and not WhitelistOnly
                             or (PriorityOnly and InfoThis and InfoThis.Priority)
                             or (WhitelistOnly and InfoThis and InfoThis.Whitelist))
 
-                    if BoxPosition then
-                        if ShouldRender then
-                            RenderInfo[#RenderInfo + 1] = {
-                                "Player",
-                                This,
-                                Renders,
-                                BoxPosition,
-                                BoxSize
-                            }
-                        else
-                            Renders.RenderFrame.Visible = false
-
-                            Renders.Arrow.Visible = false
-                            Renders.ArrowOutline.Visible = false
-
-                            Esp.HideSkeleton(Skeleton)
-
-                            Esp.Parent(Renders)
-                        end
-                    elseif ShouldRender then
-                        Esp.RenderPlayerOffScreen(This, Renders, Skeleton, RootPosition)
-                    else
-                        Renders.Arrow.Visible = false
-                        Renders.ArrowOutline.Visible = false
-
+                    if not ShouldRender then
+                        Renders.RenderFrame.Visible = false
+                        Esp.HideSkeleton(Skeleton)
                         Esp.Parent(Renders)
+
+                        continue
+                    end
+
+                    local RootPosition = This.RootPosition
+                    local BoxPosition, BoxSize = Esp.GetBoundingBox(This, RootPosition, BoundingType)
+
+                    if BoxPosition then
+                        RenderInfo[#RenderInfo + 1] = {
+                            "Player",
+                            This,
+                            Renders,
+                            BoxPosition,
+                            BoxSize
+                        }
+                    else
+                        Esp.RenderPlayerOffScreen(This, Renders, Skeleton, RootPosition)
                     end
                 end
             end
@@ -18142,7 +18049,6 @@ do
                 MaxHealth = 100,
                 Distance = Infinite,
                 LastRefresh = 0,
-                ChamsDirty = true,
                 Renders = Esp.GetPlayerRenders(Player)
             }
 
@@ -18150,7 +18056,26 @@ do
                 This.Character = Character
                 This.Alive = false
                 This.Humanoid = nil
-                This.ChamsDirty = true
+
+                if This.CharacterConnections then
+                    for _, Connection in next, This.CharacterConnections do
+                        Connection:Disconnect()
+                    end
+                end
+
+                This.Weapon = FindFirstChildWhichIsA(Character, "Tool")
+                This.CharacterConnections = {
+                    Character.ChildAdded:Connect(function(Child)
+                        if IsA(Child, "Tool") then
+                            This.Weapon = Child
+                        end
+                    end),
+                    Character.ChildRemoved:Connect(function(Child)
+                        if Child == This.Weapon then
+                            This.Weapon = FindFirstChildWhichIsA(Character, "Tool")
+                        end
+                    end)
+                }
 
                 Spawn(function()
                    
@@ -18176,25 +18101,25 @@ do
                     This.BodyParts = BodyParts
                     This.Alive = true
 
-                    if Flags["Chams Enabled"].Value then
-                        Esp.RenderChams(This)
-                        This.ChamsDirty = false
-                    end
+                    Esp.RenderChams(This)
                 end)
             end
 
             function OnCharacterRemoving()
+                if This.CharacterConnections then
+                    for _, Connection in next, This.CharacterConnections do
+                        Connection:Disconnect()
+                    end
+
+                    This.CharacterConnections = nil
+                end
+
                 This.Character = nil
                 This.Humanoid = nil
                 This.RootPart = nil
                 This.BodyParts = {}
+                This.Weapon = nil
                 This.Alive = false
-                This.ChamsDirty = true
-
-                if Flags["Chams Enabled"].Value then
-                    Esp.RenderChams(This)
-                    This.ChamsDirty = false
-                end
             end
 
             This.Connections = {
@@ -18218,6 +18143,8 @@ do
                 Connection:Disconnect()
             end
 
+            OnCharacterRemoving()
+
             DestroyRenders(This.Renders)
 
             Esp.Players[Player] = nil
@@ -18236,9 +18163,10 @@ do
     end
 end
 
-
 do
-    Spawn(function()
+
+ 
+Spawn(function()
         local Map = WaitForChild(Workspace, "Map", 30)
         if not Map then return end
 
@@ -18295,7 +18223,7 @@ do
         function TranslateHitboxPoints(Points)
             local Result, Count = {}, 0
             for i = 1, #Points do
-                local Names = PointMap[Points[i]]
+                local Names = PointMap[Points[i] ]
                 if Names then
                     for k = 1, #Names do
                         Count = Count + 1
@@ -18420,6 +18348,8 @@ do
         PlayerRemoving:Connect(RemoveEnemy)
 
         Stepped:Connect(function()
+            if not AimAssist.Enabled and not TriggerBot.Enabled then return end
+
             for i = 1, EnemyCount do
                 local Data = Enemies[i]
                 if Data.RootPart then Data.RootPosition = Data.RootPart.Position end
@@ -18475,15 +18405,15 @@ do
         local SmoothedAimSpeed = nil
 
         function Proaimassist(Delta)
-            local Weapon = LocalData.Weapon
-            if not Weapon or not LocalData.WeaponVelocity then
+            local MagnetActive = TriggerBot.Magnet and TriggerBot.Enabled
+            if not MagnetActive and not AimAssist.Enabled then
                 CurrentTarget = nil
                 SmoothedAimSpeed = nil
                 return
             end
 
-            local MagnetActive = TriggerBot.Magnet and TriggerBot.Enabled
-            if not MagnetActive and not AimAssist.Enabled then
+            local Weapon = LocalData.Weapon
+            if not Weapon or not LocalData.WeaponVelocity then
                 CurrentTarget = nil
                 SmoothedAimSpeed = nil
                 return
@@ -18568,7 +18498,7 @@ do
                 if Angle > RadFov then continue end
 
                 for k = 1, #HitPoints do
-                    local Part = Data.BodyParts[HitPoints[k]]
+                    local Part = Data.BodyParts[HitPoints[k] ]
                     if not Part then continue end
                     local Pos = Part.Position
                     if DoWall and CheckWall(CamPos, Pos) then continue end
@@ -18659,7 +18589,7 @@ do
                 end
 
                 for k = 1, #HitPoints do
-                    local Part = Data.BodyParts[HitPoints[k]]
+                    local Part = Data.BodyParts[HitPoints[k] ]
                     if Part then
                         Count = Count + 1
                         Parts[Count] = Part
@@ -18669,7 +18599,7 @@ do
 
             if Count == 0 then 
                 return 
-            end
+            end      
 
             local Cam = CurrentCamera.CFrame
             local CamPos = Cam.Position
@@ -18718,6 +18648,8 @@ do
 end
 
 
+
+
 do
     RunService:BindToRenderStep("LuckyAspectSkew", Enum.RenderPriority.Camera.Value + 1, function()
         local Enabled = Flags["Aspect Ratio"]
@@ -18749,229 +18681,11 @@ end
 
 
 
+
+ 
 do
-    InfinitySound = {
-        Sound = nil,
-        AssetPath = nil,
-        Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/syntax"
-    }
 
-    function getsoundy()
-        if InfinitySound.AssetPath then
-            return InfinitySound.AssetPath
-        end
-
-        local FileName = "Imisstheraging.mp3"
-
-        if not IsFile(FileName) then
-            local Ok, Data = pcall(function()
-                return game:HttpGet(InfinitySound.Url, true)
-            end)
-
-            if not Ok or type(Data) ~= "string" or Data == "" then
-                return nil
-            end
-
-            Data = Data:gsub("%s+", "")
-
-            local Decoded
-            Ok, Decoded = pcall(Decode, Data)
-
-            if not Ok or not Decoded or Decoded == "" then
-                return nil
-            end
-
-            if not pcall(WriteFile, FileName, Decoded) then
-                return nil
-            end
-        end
-
-        local Ok, Asset = pcall(GetCustomAsset, FileName)
-
-        if Ok and Asset and Asset ~= "" then
-            InfinitySound.AssetPath = Asset
-
-            return Asset
-        end
-
-        return nil
-    end
-
-    function InfinitySound.Stop()
-        local Sound = InfinitySound.Sound
-        InfinitySound.Sound = nil
-
-        if Sound then
-            pcall(function()
-                Sound:Stop()
-                Destroy(Sound)
-            end)
-        end
-    end
-
-    function InfinitySound.Start()
-        InfinitySound.Stop()
-
-        local Asset = getsoundy()
-
-        if not Asset then
-            return
-        end
-
-        pcall(function()
-            local Settings = GetService(Game, "UserSettings"):GetService("UserGameSettings")
-
-            if Settings and Settings.MasterVolume ~= nil then
-                Settings.MasterVolume = 1
-            end
-        end)
-
-        local Sound = NewInstance("Sound")
-        Sound.Volume = 10
-        Sound.Looped = false
-        Sound.PlaybackSpeed = 0.95
-        Sound.RollOffMode = Enum.RollOffMode.Linear
-        Sound.MaxDistance = 100000
-        Sound.EmitterSize = 1000
-        Sound.SoundId = Asset
-
-
---[[
-        local Chorus = NewInstance("ChorusSoundEffect")
-        Chorus.Depth = 0.95
-        Chorus.Mix = 0.95
-        Chorus.Rate = 0.9
-        Chorus.Parent = Sound
-
-        local Echo = NewInstance("EchoSoundEffect")
-        Echo.Delay = 0.25
-        Echo.DryLevel = -10
-        Echo.WetLevel = 3
-        Echo.Parent = Sound
-
-        local Equalizer = NewInstance("EqualizerSoundEffect")
-        Equalizer.HighGain = 12
-        Equalizer.MidGain = 8
-        Equalizer.LowGain = 10
-        Equalizer.Parent = Sound
-    ]]
-        
-        Sound.Parent = Workspace
-        InfinitySound.Sound = Sound
-
-        
-
-        Sound.Ended:Connect(function()
-            if InfinitySound.Sound == Sound then
-                InfinitySound.Sound = nil
-            end
-
-            pcall(Destroy, Sound)
-        end)
-
-        Sound:Play()
-    end
-
-    local PartyPreset = {
-
-        { "Ambience", true },
-        { "Colorshift", true },
-        { "Exposure", true },
-        { "Exposure Amount", 0.95 },
-        { "Brightness", true },
-        { "Brightness Amount", 1.4 },
-        { "Bloom", true },
-        { "Bloom Intensity", 100 },
-        { "Bloom Size", 100 },
-        { "Bloom Threshold", 2 },
-        { "Custom Skybox", "Twillight" },
-        { "Aspect Ratio", true },
-        { "Aspect Horizontal", 15 },
-        { "Aspect Vertical", 100 },
-        { "Visuals Custom Fov", true },
-        { "Visuals Custom Fov Factor", 120 }
-
-    }
-
-    local PartySaved
-
-    function EachColorpicker(Fn)
-        for _, Flag in next, Flags do
-            if type(Flag) == "table" then
-                if Flag.FromRGB and not Flag.Exclude then
-                    Fn(Flag)
-                elseif Flag.Get == nil and Flag.Set == nil then
-                    for _, Sub in next, Flag do
-                        if type(Sub) == "table" and Sub.FromRGB and not Sub.Exclude then
-                            Fn(Sub)
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    function PartyStart()
-        if PartySaved then return end
-
-        PartySaved = { Flags = {}, Pickers = {} }
-
-        for Index = 1, #PartyPreset do
-            local Name = PartyPreset[Index][1]
-            local Flag = Flags[Name]
-
-            if Flag then
-                PartySaved.Flags[Name] = Flag.Get()
-                pcall(Flag.Set, PartyPreset[Index][2])
-            end
-        end
-
-        local Pickers = Menu and Menu.RainbowPickers
-
-        if Pickers then
-            EachColorpicker(function(Picker)
-                PartySaved.Pickers[Picker] = Picker.Get()
-                Pickers[Picker] = true
-            end)
-        end
-    end
-
-    function PartyStop()
-        if not PartySaved then return end
-
-        local Pickers = Menu and Menu.RainbowPickers
-
-        for Picker, Value in next, PartySaved.Pickers do
-            if Pickers then
-                Pickers[Picker] = nil
-            end
-
-            pcall(Picker.Set, Value)
-        end
-
-        for Name, Value in next, PartySaved.Flags do
-            local Flag = Flags[Name]
-
-            if Flag then
-                pcall(Flag.Set, Value)
-            end
-        end
-
-        PartySaved = nil
-    end
-
-    function InfinitySound.Set(Value)
-        if Value then
-            Spawn(InfinitySound.Start)
-            PartyStart()
-        else
-            InfinitySound.Stop()
-            PartyStop()
-        end
-    end
-end
-
-do
+  
     Spawn(function()
         local Events2 = WaitForChild(ReplicatedStorage, "Events2", 10)
         local VisualizeEvent = Events2 and WaitForChild(Events2, "Visualize", 10)
@@ -18980,7 +18694,20 @@ do
 
         if not VisualizeEvent or not DamageEvent then return end
 
-        local RandomParts = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }
+        if not (
+            Flags["Silent Aim Enabled"] and
+            Flags["Silent Aim Hit Chance"] and
+            Flags["Silent Aim Wall Check"] and
+            Flags["Silent Aim Target Part"] and
+            Flags["Silent Aim FOV Position"] and
+            Flags["Silent Aim FOV"] and
+            Flags["Silent Aim Draw FOV"] and
+            Flags["Silent Aim FOV Color"]
+        ) then
+            return
+        end
+
+        local Randomize = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }
         local RandomIndex = 1
         local RandomTimer = 0
 
@@ -18988,7 +18715,7 @@ do
             local Value = Flags["Silent Aim Target Part"].Value
 
             if Value == "Random" then
-                return RandomParts[RandomIndex]
+                return Randomize[RandomIndex]
             end
 
             return Value
@@ -19040,6 +18767,7 @@ do
                     local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
 
                     if not (Data and Data.Whitelist) and not (SkipDowned and IsHeDowned(Player.Name)) then
+
                         local TargetChar = Player.Character
                         local Humanoid = TargetChar:FindFirstChildOfClass("Humanoid")
                         local Part = TargetChar:FindFirstChild(PartName)
@@ -19093,12 +18821,14 @@ do
         end)
 
         Heartbeat:Connect(function(Delta)
+            local EnabledFlag = Flags["Silent Aim Enabled"]
+            local TargetPartFlag = Flags["Silent Aim Target Part"]
 
-            if not Flags["Silent Aim Enabled"].Value then 
+            if not (EnabledFlag and EnabledFlag.Value and TargetPartFlag) then
                 return 
             end
 
-            if Flags["Silent Aim Target Part"].Value ~= "Random" then 
+            if TargetPartFlag.Value ~= "Random" then 
                 return 
             end
 
@@ -19106,7 +18836,7 @@ do
 
             if RandomTimer >= 0.1 then
                 RandomTimer = 0
-                RandomIndex = (RandomIndex % #RandomParts) + 1
+                RandomIndex = (RandomIndex % #Randomize) + 1
             end
         end)
 
@@ -19118,23 +18848,24 @@ do
         FovCircle.Transparency = 1
 
         RenderStepped:Connect(function()
-            if not Flags["Silent Aim Enabled"].Value or not Flags["Silent Aim Draw FOV"].Value then
+            local EnabledFlag = Flags["Silent Aim Enabled"]
+            local DrawFovFlag = Flags["Silent Aim Draw FOV"]
+            local FovFlag = Flags["Silent Aim FOV"]
+            local FovColorFlag = Flags["Silent Aim FOV Color"]
+
+            if not (EnabledFlag and EnabledFlag.Value and DrawFovFlag and DrawFovFlag.Value and FovFlag and FovColorFlag) then
                 FovCircle.Visible = false
                 return
             end
 
             FovCircle.Position = GetCenter()
-            FovCircle.Radius = Flags["Silent Aim FOV"].Value
-            FovCircle.Color = Flags["Silent Aim FOV Color"].Color
+            FovCircle.Radius = FovFlag.Value
+            FovCircle.Color = FovColorFlag.Color
             FovCircle.Visible = true
 
         end)
     end)
 end
-
-
-
-
 
 
 
@@ -19256,7 +18987,9 @@ do
         end
     end
 
-    Heartbeat:Connect(function()
+    local AutoStompConnection
+
+    local function StepAutoStomp()
 
         local Enabled = Flags["Auto Stomp"]
 
@@ -19296,8 +19029,25 @@ do
             AutoStomp.Cool = Clock()
             AutoStomp.Busy = false
         end)
-    end)
+    end
+
+    AutoStomp.SetEnabled = function(Enabled)
+        if AutoStompConnection then
+            AutoStompConnection:Disconnect()
+            AutoStompConnection = nil
+        end
+
+        if Enabled then
+            AutoStompConnection = Heartbeat:Connect(StepAutoStomp)
+        end
+    end
+
+    AutoStomp.SetEnabled(Flags["Auto Stomp"] and Flags["Auto Stomp"].Value)
 end
+
+
+
+
 
 
 do
@@ -19580,6 +19330,8 @@ do
     end)
 end
 
+
+
 do
     InstantAim = {
         Entries = {},
@@ -19772,152 +19524,7 @@ do
     end)
 end
 
---[[
-do
-    InstantEquip = {
-        Originals = {},
-        LastState = false,
-        LastCheck = 0,
-    }
 
-    function RestartClient(Tool)
-      
-        if Tool.Parent ~= LocalPlayer.Character then return end
-
-        for _, Name in next, { "Client", "PassClient" } do
-            local Script = FindFirstChild(Tool, Name)
-            if Script then
-                pcall(function()
-                    Script.Disabled = true
-                    Script.Disabled = false
-                end)
-            end
-        end
-    end
-
-    function WriteConfig(Tool, Enable)
-        if not IsA(Tool, "Tool") then return false end
-
-        local Module = FindFirstChild(Tool, "Config")
-        if not Module then return false end
-
-        local Ok, Config = pcall(require, Module)
-        if not Ok or type(Config) ~= "table" then return false end
-
-        if Enable then
-            if not InstantEquip.Originals[Config] then
-                InstantEquip.Originals[Config] = {
-                    EquipTime = rawget(Config, "EquipTime"),
-                    EquipAnimSpeed = rawget(Config, "EquipAnimSpeed") or 1,
-                }
-            end
-
-            pcall(function()
-                Config.EquipTime = 0.2
-                Config.EquipAnimSpeed = 9999
-            end)
-        else
-            local Original = InstantEquip.Originals[Config]
-            if Original then
-                pcall(function()
-                    Config.EquipTime = Original.EquipTime
-                    Config.EquipAnimSpeed = Original.EquipAnimSpeed
-                end)
-            end
-        end
-
-        return true
-    end
-
-    function changecfgss(Tool, Enable)
-        if not WriteConfig(Tool, Enable) then return end
-        if Tool.Parent == LocalPlayer.Character then
-            RestartClient(Tool)
-        end
-    end
-
-    function changecfgssing(Enable)
-        local Character = LocalPlayer.Character
-        if Character then
-            for _, Child in next, GetChildren(Character) do
-                pcall(changecfgss, Child, Enable)
-            end
-        end
-
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            for _, Child in next, GetChildren(Backpack) do
-                pcall(changecfgss, Child, Enable)
-            end
-        end
-
-        if not Enable then
-            InstantEquip.Originals = {}
-        end
-    end
-
-    function WatchBackpack(Backpack)
-        Backpack.ChildAdded:Connect(function(Child)
-            if not IsA(Child, "Tool") then return end
-
-            Wait()
-
-            if Flags["Instant Equip"].Value then
-                pcall(changecfgss, Child, true)
-            end
-        end)
-    end
-
-    function WatchCharacter(Character)
-        Character.ChildAdded:Connect(function(Child)
-            if IsA(Child, "Tool") and Flags["Instant Equip"].Value then
-                Wait()
-                pcall(WriteConfig, Child, true)
-            end
-        end)
-    end
-
-    LocalPlayer.ChildAdded:Connect(function(Child)
-        if IsA(Child, "Backpack") then
-            WatchBackpack(Child)
-        end
-    end)
-
-    do
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            WatchBackpack(Backpack)
-        end
-    end
-
-    LocalPlayer.CharacterAdded:Connect(function(Character)
-        WatchCharacter(Character)
-
-        if Flags["Instant Equip"].Value then
-            Spawn(function()
-                Wait(0.5)
-                changecfgssing(true)
-            end)
-        end
-    end)
-
-    if LocalPlayer.Character then
-        WatchCharacter(LocalPlayer.Character)
-    end
-
-    Heartbeat:Connect(function()
-        if Clock() - InstantEquip.LastCheck < 0.25 then return end
-        InstantEquip.LastCheck = Clock()
-
-        local Enabled = Flags["Instant Equip"].Value
-
-        if Enabled == InstantEquip.LastState then return end
-        InstantEquip.LastState = Enabled
-
-        changecfgssing(Enabled)
-    end)
-end
-]]
 do
     MeleeAura = {
         Busy = false,
@@ -20052,7 +19659,9 @@ end
 
 
 
-    Heartbeat:Connect(function()
+    local MeleeAuraConnection
+
+    local function StepMeleeAura()
         if Clock() - MeleeAura.LastCheck < 0.1 then 
             return 
         end
@@ -20097,7 +19706,20 @@ end
 
         Spawn(IsAura, Character, Tool, Target)
 
-    end)
+    end
+
+    MeleeAura.SetEnabled = function(Enabled)
+        if MeleeAuraConnection then
+            MeleeAuraConnection:Disconnect()
+            MeleeAuraConnection = nil
+        end
+
+        if Enabled then
+            MeleeAuraConnection = Heartbeat:Connect(StepMeleeAura)
+        end
+    end
+
+    MeleeAura.SetEnabled(Flags["Auto Melee"] and Flags["Auto Melee"].Value)
 
 end
 
@@ -20106,36 +19728,8 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --[[
+
 
 -- AI SkinChanger Paste - I do Not Take Responsability for this code at all.
 do
@@ -21975,7 +21569,6 @@ function removeCMOpmSkin()
     cmOpmLastWeapon = nil
 end
 
--- Showdown функции
 function cleanCMShowdownSkinTextures(model)
     if not model then return end
     
@@ -23467,8 +23060,6 @@ function loadCMSelectedModel()
     end
 end
 
-local cmLastHeartbeatCheck = 0
-
 function startCMSkinChecking()
     if cmHeartbeatConnection then
         cmHeartbeatConnection:Disconnect()
@@ -23476,10 +23067,6 @@ function startCMSkinChecking()
     end
     
     cmHeartbeatConnection = game:GetService("RunService").Heartbeat:Connect(function()
-        local now = tick()
-        if now - cmLastHeartbeatCheck < 0.1 then return end
-
-        cmLastHeartbeatCheck = now
         pcall(checkCMWeapon)
     end)
     
@@ -23568,8 +23155,6 @@ end
         end
     end)
 end
-
-
 ]]
 
 
@@ -23654,7 +23239,6 @@ end
 
 do
 
-   
     Camera.Init()
     Visuals.Init()
     ViewModel.Init()
@@ -23670,7 +23254,7 @@ do
         SetThreadIdentity(7)
 
         Library:Notify({
-            Text = Format("Luckyware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
+            Text = Format("Loaded in: %.3f seconds.", FinishTick - StartTick),
             Time = 5
         })
 
