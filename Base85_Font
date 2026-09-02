@@ -1,6 +1,13 @@
 
 
 
+
+
+
+
+    
+
+
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -250,14 +257,14 @@ pcall(aw)
 
 
 
-
-
-
-
-
-
-
 --[[
+
+
+
+
+
+
+
 
  RunService = game:GetService("RunService")
  Players = game:GetService("Players")
@@ -416,26 +423,6 @@ end)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 if not LPH_OBFUSCATED then
     LPH_JIT = function(...) return ... end
     LPH_JIT_MAX = function(...) return ... end
@@ -517,6 +504,7 @@ local ListFiles = listfiles
 local ReadFile = readfile
 local WriteFile = writefile
 local LoadFile = loadfile
+local LoadString = loadstring
 local DelFile = delfile
 
 local IsFolder = isfolder
@@ -2840,7 +2828,7 @@ end
 
                         local Header = Menu.Draw("Frame", { Parent = Inline, Position = EmptyUDim2, Size = NewUDim2(1, 0, 0, 32), BackgroundColor3 = Theme.White, BorderSizePixel = 0 })
 
-                        local Background = Menu.Draw("Frame", { Parent = Outline, Position = NewUDim2(0, 8, 0, 20), Size = NewUDim2(1, -16, 1, -28), BackgroundColor3 = Theme.Contrast.B, BorderColor3 = Theme.Contrast.A, BorderMode = "Inset" })
+                        local Background = Menu.Draw("Frame", { Parent = Outline, Position = NewUDim2(0, 8, 0, 20), Size = NewUDim2(1, -16, 1, -28), BackgroundColor3 = Theme.Contrast.B, BorderColor3 = Theme.Contrast.A, BorderMode = "Inset", ClipsDescendants = true })
 
                         if HasTabs then
                             local TabOutline = Menu.Draw("Frame", { Parent = Background, Position = NewUDim2(0, 2, 0, 2), Size = NewUDim2(1, -4, 1, -4), BackgroundColor3 = Theme.Outline, BorderSizePixel = 0 })
@@ -2921,7 +2909,9 @@ end
 
                         Library:AddAccent(Accent, nil, 1)
 
-                        Menu.Draw("UIDragDetector", { Parent = Outline, BoundingUI = Overlay })
+                        local DragDetector = Menu.Draw("UIDragDetector", { Parent = Outline, BoundingUI = Overlay })
+
+                        local ResizeHandle = Menu.Draw("Frame", { Parent = Outline, AnchorPoint = NewVector2(1, 1), Position = NewUDim2(1, 0, 1, 0), Size = NewUDim2(0, 14, 0, 14), BackgroundTransparency = 1, BorderSizePixel = 0, Active = true, ZIndex = 2147483647 })
 
                         -- Colors
                         do
@@ -2936,6 +2926,8 @@ end
 
                         Window["Outline"] = Outline
                         Window["Overlay"] = Overlay
+                        Window["ResizeHandle"] = ResizeHandle
+                        Window["DragDetector"] = DragDetector
                     end
 
 
@@ -2953,6 +2945,8 @@ end
                     -- Localisation
                     local Outline = Window["Outline"]
                     local Overlay = Window["Overlay"]
+                    local ResizeHandle = Window["ResizeHandle"]
+                    local DragDetector = Window["DragDetector"]
 
 
                     -- Input & Connections
@@ -2982,6 +2976,63 @@ end
                                 end
                             end
                         end)
+                    end
+
+
+                    -- Resize
+                    do
+                        local MinimumSize = NewVector2(Size.X.Offset, Size.Y.Offset)
+
+                        local IsResizing = false
+
+                        local StartMouse = NewVector2()
+                        local StartSize = Outline.Size
+                        local StartPosition = Outline.Position
+
+                        Connections[#Connections + 1] = ResizeHandle.InputBegan:Connect(function(Input, GPE)
+                            if GPE then return end
+
+                            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                IsResizing = true
+
+                                if DragDetector then
+                                    DragDetector.Enabled = false
+                                end
+
+                                StartMouse = NewVector2(Mouse.X, Mouse.Y)
+                                StartSize = Outline.Size
+                                StartPosition = Outline.Position
+                            end
+                        end)
+
+                        Library.InputEnded[#Library.InputEnded + 1] = function(Input)
+                            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                if IsResizing and DragDetector then
+                                    DragDetector.Enabled = true
+                                end
+
+                                IsResizing = false
+                            end
+                        end
+
+                        Library.InputChanged[#Library.InputChanged + 1] = function(Input)
+                            if not IsResizing then return end
+                            if Input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
+
+                            local ViewportSize = workspace.CurrentCamera.ViewportSize
+
+                            local DeltaX = Mouse.X - StartMouse.X
+                            local DeltaY = Mouse.Y - StartMouse.Y
+
+                            local NewSizeX = Clamp(StartSize.X.Offset + DeltaX, MinimumSize.X, ViewportSize.X)
+                            local NewSizeY = Clamp(StartSize.Y.Offset + DeltaY, MinimumSize.Y, ViewportSize.Y)
+
+                            local AppliedDeltaX = NewSizeX - StartSize.X.Offset
+                            local AppliedDeltaY = NewSizeY - StartSize.Y.Offset
+
+                            Outline.Size = NewUDim2(StartSize.X.Scale, NewSizeX, StartSize.Y.Scale, NewSizeY)
+                            Outline.Position = NewUDim2(StartPosition.X.Scale, StartPosition.X.Offset + AppliedDeltaX / 2, StartPosition.Y.Scale, StartPosition.Y.Offset + AppliedDeltaY / 2)
+                        end
                     end
 
 
@@ -4145,6 +4196,7 @@ end
                     local Fill = Parameters.Fill or false
                     local Size = Parameters.Size or 310
                     local Offset = Parameters.Offset or 0
+                    local FillOffset = Parameters.FillOffset or 0
                     local ScrollDown = Parameters.ScrollDown or false
 
 
@@ -4162,7 +4214,7 @@ end
 
                     -- Renders
                     do
-                        local Frame = Menu.Draw("Frame", { Parent = Self[Side], Size = NewUDim2(1, 0, Fill and 1 or 0, Fill and 0 or Size), BackgroundTransparency = 1, BorderSizePixel = 0 })
+                        local Frame = Menu.Draw("Frame", { Parent = Self[Side], Size = NewUDim2(1, 0, Fill and 1 or 0, Fill and -FillOffset or Size), BackgroundTransparency = 1, BorderSizePixel = 0 })
 
                         local Outline = Menu.Draw("Frame", { Parent = Frame, Position = NewUDim2(0, 0, 0, Offset), Size = NewUDim2(1, 0, 1, 0), BackgroundColor3 = Theme.Contrast.A, BorderColor3 = Theme.Outline, BorderMode = "Inset" })
 
@@ -6475,9 +6527,10 @@ end
 
                     local Window = Self.Window
 
-                    local Default = Parameters.Default or "-- //you're not welcome."
+                    local Default = Parameters.Default or "-- // Welcome to Luckyware.Net V3 bitch."
                     local Hidden = Parameters.Hidden or false
                     local Size = Parameters.Size or 334
+                    local Fill = Parameters.Fill or false
                     local Flag = Parameters.Flag
                     local Category = Parameters.Category
 
@@ -6499,9 +6552,9 @@ end
 
                     -- Renders
                     do
-                        local Frame = Menu.Draw("Frame", { Parent = Self.Frame, Size = NewUDim2(1, 0, 0, Size), BackgroundTransparency = 1, BorderSizePixel = 0, Visible = false })
+                        local Frame = Menu.Draw("Frame", { Parent = Self.Frame, Size = NewUDim2(1, 0, Fill and 1 or 0, Fill and 0 or Size), BackgroundTransparency = 1, BorderSizePixel = 0, Visible = false })
 
-                        local Outline = Menu.Draw("Frame", { Parent = Frame, Position = NewUDim2(0, 3, 0, 0), Size = NewUDim2(1, -4, 0, Size), BackgroundColor3 = NewRGB(30, 30, 30), BorderSizePixel = 0 })
+                        local Outline = Menu.Draw("Frame", { Parent = Frame, Position = NewUDim2(0, 3, 0, 0), Size = NewUDim2(1, -4, Fill and 1 or 0, Fill and 0 or Size), BackgroundColor3 = NewRGB(30, 30, 30), BorderSizePixel = 0 })
 
                         local Inline = Menu.Draw("ScrollingFrame", { Parent = Outline, Position = EmptyUDim2, Size = NewUDim2(1, 0, 1, 0), BackgroundTransparency = 1, BorderSizePixel = 0, VerticalScrollBarInset = "None", MidImage = Images.Scrollbar, TopImage = Images.Scrollbar, BottomImage = Images.Scrollbar, ScrollBarImageColor3 = NewRGB(88, 88, 88), CanvasSize = EmptyUDim2, ScrollingEnabled = false, ScrollBarThickness = 13, ClipsDescendants = true, ZIndex = Outline.ZIndex + 100, SmoothScroll = false, ScrollRate = 0.25 })
 
@@ -9263,6 +9316,58 @@ end
 local Library = Menu.Library
 local Flags = Menu.Flags
 
+local SkyboxOptions = {}
+
+do
+    local SkyboxFolder = Format("%s/skyboxes", Menu.BasePath)
+    local RequiredProperties = { "SkyboxLf", "SkyboxBk", "SkyboxDn", "SkyboxFt", "SkyboxRt", "SkyboxUp" }
+
+    Menu.Folders.Skyboxes = SkyboxFolder
+
+    if not IsFolder(SkyboxFolder) then
+        MakeFolder(SkyboxFolder)
+    end
+
+    local Files = {}
+
+    pcall(function()
+        Files = ListFiles(SkyboxFolder)
+    end)
+
+    for _, FilePath in next, Files do
+        if IsFile(FilePath) and string.sub(FilePath, -4) == ".lua" then
+            local Compiled, Chunk = pcall(LoadString, ReadFile(FilePath))
+
+            if Compiled and type(Chunk) == "function" then
+                local Loaded, CustomSkyboxes = pcall(Chunk)
+
+                if Loaded and type(CustomSkyboxes) == "table" then
+                    for Name, Properties in next, CustomSkyboxes do
+                        local Valid = type(Name) == "string" and type(Properties) == "table"
+
+                        for i = 1, #RequiredProperties do
+                            if type(Properties[RequiredProperties[i]]) ~= "string" then
+                                Valid = false
+                                break
+                            end
+                        end
+
+                        if Valid then
+                            SkyBoxes[Name] = Properties
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    for Name in next, SkyBoxes do
+        SkyboxOptions[#SkyboxOptions + 1] = Name
+    end
+
+    Sort(SkyboxOptions)
+end
+
 RenderStepped:Connect(function()
     local Pickers = Menu.RainbowPickers
 
@@ -9333,12 +9438,34 @@ do
         Section:Slider({ Name = "Aim Speed", Min = 1, Max = 100, Default = 50, Flag = "AimAssist Speed", Callback = function(v) AimAssist.Speed = v end })
         Section:Slider({ Name = "Accuracy", Min = 1, Max = 100, Default = 60, Prefix = "%", Flag = "AimAssist Accuracy", Callback = function(v) AimAssist.Accuracy = v end })
         Section:Toggle({ Name = "Skip Downed", Default = false, Flag = "AimAssist Skip Downed", Callback = function(v) AimAssist.SkipDowned = v end })
-        Section:Toggle({ Name = "[exp] No Jumptrack", Default = false, Flag = "AimAssist No Jump Track", Callback = function(v) AimAssist.NoJumpTrack = v end })
-        Section:Slider({ Name = "Jump tracksmooth test", Min = 1, Max = 100, Default = 15, Flag = "AimAssist Jump Smoothness", Callback = function(v) AimAssist.JumpSmoothness = v end })
+        Section:Toggle({ Name = "No Jump Track", Default = false, Flag = "AimAssist No Jump Track", Callback = function(v) AimAssist.NoJumpTrack = v end })
+        Section:Slider({ Name = "Jump Smoothness", Min = 1, Max = 100, Default = 15, Flag = "AimAssist Jump Smoothness", Callback = function(v) AimAssist.JumpSmoothness = v end })
         Section:Toggle({ Name = "Visualize FOV", Default = false, Flag = "AimAssist VisualizeFov", Callback = function(v) AimAssist.VisualizeFov = v end }):Colorpicker({ Color = NewRGB(181, 179, 253), Flag = "AimAssist FOV Color", Callback = function(Color) AimAssist.FovColor = Color end })
         Section:Slider({ Name = "FOV", Min = 1, Max = 35, Default = 10, Decimals = 0.1, Prefix = "°", Flag = "AimAssist Fov", Callback = function(v) AimAssist.Fov = v end })
     
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9542,13 +9669,13 @@ end
                             Flag = "Instant Aim",
                             Unsafe = true
                         })
-                        --[[
+--[[
                         Section:Toggle({
                             Name = "Instant Equip",
                             Flag = "Instant Equip",
                             Unsafe = true
                         })
-                        ]]
+                            ]]
                 end
 
                 Section = MultiSection[2]
@@ -9592,7 +9719,11 @@ end
                 end
 
                 Section = MultiSection[3]
+
+                
                 do
+
+                    --[[
                         Section:Toggle({
                             Name = "Skin Changer",
                             Flag = "Skin Changer Enabled",
@@ -9676,6 +9807,7 @@ end
                                 if Fn then Fn(Value) end
                             end
                         })
+                    ]]
                 end
             end
         end
@@ -9690,6 +9822,8 @@ end
         RapidFire = false,
         DownCheck = true,
         TargetMode = "Normal",
+        Hitbox = 1,
+        HitboxNames = { "Head", "Right Arm", "Right Leg", "Left Arm", "Left Leg", "Torso" },
         Fov = 120,
         FovColor = NewRGB(255, 255, 255),
         OriginRadius = 18.5,
@@ -9784,12 +9918,30 @@ end
 
             local Id = RageConfig.SoundList[RageConfig.HitsoundKey]
             if not Id or Id == "" then return end
-            local Sound = NewInstance("Sound")
+
+            local PlayerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+            if not PlayerGui then return end
+
+            local CoreGui = PlayerGui:FindFirstChild("CoreGUI")
+            if not CoreGui then
+                CoreGui = NewInstance("ScreenGui")
+                CoreGui.Name = "CoreGUI"
+                CoreGui.ResetOnSpawn = false
+                CoreGui.Parent = PlayerGui
+            end
+
+            local Sound = CoreGui:FindFirstChild("HitmarkerSound")
+            if not Sound then
+                Sound = NewInstance("Sound")
+                Sound.Name = "HitmarkerSound"
+                Sound.Looped = false
+                Sound.PlayOnRemove = false
+                Sound.Parent = CoreGui
+            end
+
             Sound.Volume = RageConfig.HitVolumes
             Sound.SoundId = "rbxassetid://" .. Id
-            Sound.PlayOnRemove = true
-            Sound.Parent = CurrentCamera
-            Destroy(Sound)
+            Sound:Play()
         end
 
         function WatchRageHit(Target, Bone)
@@ -9952,10 +10104,14 @@ end
             local Character = LocalPlayer.Character
             local MyRoot = Character and FindFirstChild(Character, "HumanoidRootPart")
             local TargetRoot = FindFirstChild(Target.Character, "HumanoidRootPart")
-            if not MyRoot or not TargetRoot then return end
+            local HitboxName = RageConfig.HitboxNames[RageConfig.Hitbox] or "Head"
+            local TargetBone = FindFirstChild(Target.Character, HitboxName) or TargetRoot
+            if not MyRoot or not TargetRoot or not TargetBone then return end
 
             local MyPos = MyRoot.Position
-            local TargetPos = TargetRoot.Position
+            local TargetPos = TargetBone.Position
+
+            if LockedPath and LockedPath.Hitbox ~= RageConfig.Hitbox then LockedPath = nil end
 
             if LockedPath then
                 local MovedOrigin = (MyPos - LockedPath.MyPos).Magnitude
@@ -9965,7 +10121,7 @@ end
 
                 if MovedOrigin <= RageConfig.CacheThreshold and MovedHit <= RageConfig.CacheThreshold and InRange then
                     if CheckWallbang(LockedPath.AbsO, LockedPath.AbsH) then
-                        ValidPair = { Origin = LockedPath.AbsO, Hit = LockedPath.AbsH, Target = Target }
+                        ValidPair = { Origin = LockedPath.AbsO, Hit = LockedPath.AbsH, Target = Target, Bone = TargetBone }
                         return
                     end
                 end
@@ -9994,8 +10150,8 @@ end
             for OriginIndex, Origin in next, NewOrigins do
                 for HitIndex, Hit in next, NewHits do
                     if CheckWallbang(Origin, Hit) then
-                        LockedPath = { AbsO = Origin, AbsH = Hit, Target = Target, MyPos = MyPos, TPos = TargetPos }
-                        ValidPair = { Origin = Origin, Hit = Hit, Target = Target }
+                        LockedPath = { AbsO = Origin, AbsH = Hit, Target = Target, MyPos = MyPos, TPos = TargetPos, Hitbox = RageConfig.Hitbox }
+                        ValidPair = { Origin = Origin, Hit = Hit, Target = Target, Bone = TargetBone }
                         return
                     end
                 end
@@ -10040,7 +10196,7 @@ end
             local ServerAmmo = Values and FindFirstChild(Values, "SERVER_Ammo")
             if not ServerAmmo or ServerAmmo.Value <= 0 then return end
 
-            local Bone = FindFirstChild(ValidPair.Target.Character, "Head")
+            local Bone = ValidPair.Bone or FindFirstChild(ValidPair.Target.Character, RageConfig.HitboxNames[RageConfig.Hitbox] or "Head")
                 or FindFirstChild(ValidPair.Target.Character, "HumanoidRootPart")
             if not Bone then return end
 
@@ -10106,6 +10262,7 @@ end
         Section:Toggle({ Name = "ignore downed", Default = false, Flag = "Rage Skip Downed", Callback = function(Value) RageConfig.DownCheck = Value end })
 
         Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(Value) RageConfig.TargetMode = Value end })
+        Section:Dropdown({ Name = "Hitbox", Flag = "Rage Hitbox", Options = RageConfig.HitboxNames, Default = "Head", Callback = function(Value) RageConfig.Hitbox = Find(RageConfig.HitboxNames, Value) or 1 end })
 
         Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(Value) RageConfig.Fov = Value end })
 Section:TextBox({
@@ -10136,9 +10293,7 @@ Section:TextBox({
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
-
-
--- 这太糟糕了，以后我得从头开始  \ AI 洗肤膏——我对这段代码不承担任何责任。
+--[[
 Spinner = { Enabled = false, Speed = 50 }
 Spinning = nil
 
@@ -11176,7 +11331,7 @@ Section:Toggle({ Name = "Client Rep", Flag = "AA Pose Local Replicate", Default 
 Section:Slider({ Name = "Lerp Speed", Flag = "AA Pose Osc Speed", Min = 0.05, Max = 5, Default = PoseOverride.OscSpeed, Decimals = 0.01, Callback = function(v) PoseOverride.OscSpeed = math.max(0.05, math.min(5, math.floor(v * 100 + 0.5) / 100)) end })
 Section:Toggle({ Name = "Force Instant", Flag = "AA Pose Instant", Default = PoseOverride.Instant, Callback = function(on) PoseOverride.Instant = on end })
 
-
+]]
     end
 end
 
@@ -11393,7 +11548,7 @@ end
                             Category = "Player",
                             Flag = "Esp Refresh Rate",
                             Prefix = "hz",
-                            Min = 60, Max = 265, Default = 144
+                            Min = 0, Max = 265, Default = 45
                         })
                     end
 
@@ -11925,7 +12080,7 @@ end
                 Section:Dropdown({
                     Name = "Skybox",
                     Flag = "Custom Skybox",
-                    Options = { "Default", "Nebula", "Blue Nebula", "Setting Hills", "Blue Aurora", "Red Aurora", "Pink Vision", "Twillight", "Distopia", "Peaceful", "cloudycache" },
+                    Options = SkyboxOptions,
                     Default = "Default",
                     Size = 125,
                     Callback = function()
@@ -12023,6 +12178,8 @@ end
                             Default = 0
                         })
                     end
+
+
 
                     Tree = Section:ExpandableToggle({
                         Name = "ViewModel Offset",
@@ -12324,7 +12481,18 @@ end
                             local LocalBeam = Cache and Cache.LocalBeam
 
                             if LocalBeam then
-                                LocalBeam.Color = NewColorSequence(NewColor)
+                                LocalBeam.Color = NewColorSequence(NewColor, Flags["Local Tracer Gradient"].Color)
+                            end
+                        end
+                    }):Colorpicker({
+                        Color = NewRGB(255, 255, 255),
+                        Flag = "Local Tracer Gradient",
+                        Callback = function(NewColor)
+                            local Cache = Visuals.Cache
+                            local LocalBeam = Cache and Cache.LocalBeam
+
+                            if LocalBeam then
+                                LocalBeam.Color = NewColorSequence(Flags["Local Tracer Color"].Color, NewColor)
                             end
                         end
                     })
@@ -12340,7 +12508,18 @@ end
                             local EnemyBeam = Cache and Cache.EnemyBeam
 
                             if EnemyBeam then
-                                EnemyBeam.Color = NewColorSequence(NewColor)
+                                EnemyBeam.Color = NewColorSequence(NewColor, Flags["Enemy Tracer Gradient"].Color)
+                            end
+                        end
+                    }):Colorpicker({
+                        Color = NewRGB(255, 255, 255),
+                        Flag = "Enemy Tracer Gradient",
+                        Callback = function(NewColor)
+                            local Cache = Visuals.Cache
+                            local EnemyBeam = Cache and Cache.EnemyBeam
+
+                            if EnemyBeam then
+                                EnemyBeam.Color = NewColorSequence(Flags["Enemy Tracer Color"].Color, NewColor)
                             end
                         end
                     })
@@ -12448,6 +12627,19 @@ end
                     Section:Toggle({
                         Name = "Infinite Jump",
                         Flag = "Infinite Jump"
+                    })
+
+                    Section:Toggle({
+                        Name = "Infinite Stamina",
+                        Flag = "Infinite Stamina",
+                        Callback = function(Value)
+                            _G.InfiniteStaminaEnabled = Value
+                            local EnableInfiniteStamina = Movement.EnableInfiniteStamina
+
+                            if Value and EnableInfiniteStamina then
+                                EnableInfiniteStamina()
+                            end
+                        end
                     })
 
                     Section:Toggle({
@@ -12612,7 +12804,7 @@ end
             Section = Tab:Section({
                 Name = "Other",
                 Side = "Right",
-                Size = 269
+                Size = 260
             })
             do
 
@@ -12638,7 +12830,7 @@ end
             end
 
             Section = Tab:Section({
-                Name = "Sins",
+                Name = "Skins",
                 Side = "Right",
                 Size = 269
             })
@@ -12978,7 +13170,9 @@ end
             Section = Tab:ContentBox({
                 Side = "Fill",
                 Offset = -2,
-                Size = 312
+                Size = 312,
+                Fill = true,
+                FillOffset = 22
             })
             do
                 Section:List({
@@ -13044,7 +13238,8 @@ end
         do
             Section = Tab:ContentBox({
                 Side = "Fill",
-                Size = 334
+                Size = 334,
+                Fill = true
             })
             do
                 ListLabel = Section:Label({
@@ -13362,7 +13557,9 @@ end
         Section = Theme:ContentBox({
             Side = "Fill",
             Offset = -2,
-            Size = 216
+            Size = 216,
+            Fill = true,
+            FillOffset = 24
         })
         do
             Section:Label({
@@ -14055,11 +14252,14 @@ end
             Section = Tab:ContentBox({
                 Side = "Fill",
                 Size = 314,
-                Offset = -2
+                Offset = -2,
+                Fill = true,
+                FillOffset = 22
             })
             do
                 CodeBox = Section:CodeBox({
-                    Size = 306
+                    Size = 306,
+                    Fill = true
                 })
 
                 Bar.Buttons[1].SetValue(Options[1])
@@ -14104,7 +14304,8 @@ end
                 Side = "Fill",
                 Size = 436,
                 Offset = -2,
-                ScrollDown = true
+                ScrollDown = true,
+                Fill = true
             })
         end
 
@@ -14141,7 +14342,9 @@ end
                 Side = "Fill",
                 Size = 412,
                 Offset = -2,
-                ScrollDown = true
+                ScrollDown = true,
+                Fill = true,
+                FillOffset = 24
             })
         end
 
@@ -14200,7 +14403,8 @@ end
 
         local ContentBox = Inventory:ContentBox({
             Side = "Fill",
-            Size = 42
+            Size = 42,
+            Fill = true
         })
         do
             ListLabel = ContentBox:Label({
@@ -14307,11 +14511,15 @@ end
     })
     do
         local StatsHeartbeat = StatsService.Workspace["Heartbeat"]
+        local LastUpdate = 0
 
         RenderStepped:Connect(function()
-            if not Watermark.IsVisible then 
-                return 
-            end
+            if not Watermark.IsVisible then return end
+
+            local Now = Clock()
+            if (Now - LastUpdate) < 0.1 then return end
+
+            LastUpdate = Now
 
             local Text = "Luckyware.Net"
 
@@ -14841,29 +15049,49 @@ do
         Cache.FogStart = Lighting.FogStart
         Cache.FogEnd = Lighting.FogEnd
 
-        if not getgenv().timehook then
+        if not getgenv().visualsWorldHook then
             local OldNewIndex
 
             OldNewIndex = hookmetamethod(game, "__newindex", function(Self, Index, Value)
-                if Self == Lighting and Flags["Time"].Value and (Index == "ClockTime" or Index == "TimeOfDay") then
-                    return OldNewIndex(Self, "ClockTime", Flags["Time Factor"].Value)
+                if not CheckCaller() then
+                    if Self == Lighting then
+                        if Flags["Ambience"].Value and Index == "Ambient" then
+                            return OldNewIndex(Self, Index, Flags["Ambience Color 1"].Color)
+                        elseif Flags["Ambience"].Value and Index == "OutdoorAmbient" then
+                            return OldNewIndex(Self, Index, Flags["Ambience Color 2"].Color)
+                        elseif Flags["Brightness"].Value and Index == "Brightness" then
+                            return OldNewIndex(Self, Index, Flags["Brightness Amount"].Value)
+                        elseif Flags["Time"].Value and (Index == "ClockTime" or Index == "TimeOfDay") then
+                            return OldNewIndex(Self, "ClockTime", Flags["Time Factor"].Value)
+                        end
+                    elseif Self == Visuals.Bloom and Flags["Bloom"].Value then
+                        if Index == "Intensity" then
+                            return OldNewIndex(Self, Index, Flags["Bloom Intensity"].Value * 0.01)
+                        elseif Index == "Size" then
+                            return OldNewIndex(Self, Index, Flags["Bloom Size"].Value * 0.56)
+                        elseif Index == "Threshold" then
+                            return OldNewIndex(Self, Index, Flags["Bloom Threshold"].Value * 0.0025)
+                        elseif Index == "Enabled" then
+                            return OldNewIndex(Self, Index, true)
+                        end
+                    end
                 end
 
                 return OldNewIndex(Self, Index, Value)
             end)
 
-            getgenv().timehook = true
+            getgenv().visualsWorldHook = true
         end
 
         Lighting.GlobalShadows = Flags["Shadows"].Value
 
-        Visuals.World()
+       Visuals.World()
         Visuals.Sky()
         Visuals.Atmosphere()
-        Visuals.Clouds()
+       Visuals.Clouds()
 
         RenderStepped:Connect(function()
-            Visuals.World()
+           Visuals.World()
             Visuals.Sky()
         end)
     end
@@ -14876,8 +15104,43 @@ do
 
     ViewModel.BaselineByTool = setmetatable({}, { __mode = "k" })
     ViewModel.ToolStash = setmetatable({}, { __mode = "k" })
+    ViewModel.ToolParts = setmetatable({}, { __mode = "k" })
+    ViewModel.WatchedTools = setmetatable({}, { __mode = "k" })
 
     ViewModel.StoredShirt = nil
+    ViewModel.LastUpdate = 0
+
+    ViewModel.GetToolParts = function(Tool)
+        local Parts = ViewModel.ToolParts[Tool]
+
+        if Parts then return Parts end
+
+        Parts = {}
+
+        for _, Descendant in next, Tool:GetDescendants() do
+            if Descendant:IsA("BasePart") then
+                Parts[#Parts + 1] = Descendant
+            end
+        end
+
+        ViewModel.ToolParts[Tool] = Parts
+
+        return Parts
+    end
+
+    ViewModel.WatchToolParts = function(Tool)
+        if ViewModel.WatchedTools[Tool] then return end
+
+        ViewModel.WatchedTools[Tool] = true
+
+        Tool.DescendantAdded:Connect(function()
+            ViewModel.ToolParts[Tool] = nil
+        end)
+
+        Tool.DescendantRemoving:Connect(function()
+            ViewModel.ToolParts[Tool] = nil
+        end)
+    end
 
     function FindOffset(Tool)
         if not Tool or not Tool.Parent then return nil end
@@ -14962,6 +15225,8 @@ do
 
     function HookOffsetTool(Tool)
         if not Tool:IsA("Tool") then return end
+
+        ViewModel.WatchToolParts(Tool)
 
         if FindOffset(Tool) then
             EnsureBaseline(Tool)
@@ -15184,18 +15449,20 @@ do
 
         ViewModel.CleanWeaponTool(Tool)
 
-        for _, Part in next, Tool:GetDescendants() do
-            if Part:IsA("BasePart") then
-                ApplyPartChams(Part, Color, Material, Transparency, Reflectance, Animation)
-            end
+        local Parts = ViewModel.GetToolParts(Tool)
+
+        for i = 1, #Parts do
+            local Part = Parts[i]
+
+            ApplyPartChams(Part, Color, Material, Transparency, Reflectance, Animation)
         end
     end
 
     function RestoreTool(Tool)
-        for _, Part in next, Tool:GetDescendants() do
-            if Part:IsA("BasePart") then
-                RestoreOriginal(Part)
-            end
+        local Parts = ViewModel.GetToolParts(Tool)
+
+        for i = 1, #Parts do
+            RestoreOriginal(Parts[i])
         end
 
         ViewModel.RestoreWeaponTool(Tool)
@@ -15260,6 +15527,8 @@ do
     function HookVMTool(VM, Tool)
         if not Tool:IsA("Tool") then return end
 
+        ViewModel.WatchToolParts(Tool)
+
         Tool.Equipped:Connect(function()
             if Flags["Weapon Chams"].Value and IsFirstPerson() then
                 ViewModel.ApplyWeapon(Tool)
@@ -15291,8 +15560,8 @@ do
                 local Name = Lower(Child.Name)
 
                 if Child.Name ~= "HumanoidRootPart" and not StringFind(Name, "armholder") then
+                    
                     local ColorFlag = Flags["ViewModel Arms Color"]
-
                     local Color = ColorFlag.Color
                     local Transparency = ColorFlag.Transparency
                     local Material = Enum.Material[Flags["ViewModel Arms Material"].Value]
@@ -15306,7 +15575,9 @@ do
     end
 
     ViewModel.Update = LPH_JIT_MAX(function()
+
         local ArmsEnabled = Flags["ViewModel Arms"].Value
+
         local WeaponEnabled = Flags["Weapon Chams"].Value
 
         if not ArmsEnabled and not WeaponEnabled then
@@ -15319,6 +15590,13 @@ do
             return
         end
 
+        local Now = Clock()
+
+        local RefreshRate = 1 / Flags["ViewModel Refresh Rate"].Value
+
+        if (Now - ViewModel.LastUpdate) < RefreshRate then return end
+
+        ViewModel.LastUpdate = Now
         ViewModel.WasActive = true
 
         local FirstPerson = IsFirstPerson()
@@ -15451,6 +15729,23 @@ do
                         Humanoid.JumpPower = Flags["Jump Power Amount"].Value
                     end
                 end)
+            end
+        end
+
+        Movement.EnableInfiniteStamina = function()
+            if Movement.OriginalStaminaFunction then return end
+
+            for _, Data in next, getgc(true) do
+                if typeof(Data) == "function" and debug.getinfo(Data).name == "S_Get" then
+                    Movement.OriginalStaminaFunction = hookfunction(Data, function(...)
+                        if _G.InfiniteStaminaEnabled then
+                            return 100, 100
+                        end
+
+                        return Movement.OriginalStaminaFunction(...)
+                    end)
+                    break
+                end
             end
         end
 
@@ -15722,7 +16017,8 @@ do
             savejump = nil,
             ifanchor = false,
             platfourm = nil,
-            rotationsing = nil
+            rotationsing = nil,
+            LastEnforce = 0
         }
 
         Movement.Freecam = Freecam
@@ -15755,11 +16051,11 @@ do
         end
 
         function wwwwwweewwwwweeeeeewwwweeee(Humanoid, Root)
-            Humanoid.WalkSpeed = 0
-            Humanoid.JumpPower = 0
-            Humanoid.PlatformStand = true
-            Humanoid.AutoRotate = false
-            Root.Anchored = true
+            if Humanoid.WalkSpeed ~= 0 then Humanoid.WalkSpeed = 0 end
+            if Humanoid.JumpPower ~= 0 then Humanoid.JumpPower = 0 end
+            if not Humanoid.PlatformStand then Humanoid.PlatformStand = true end
+            if Humanoid.AutoRotate then Humanoid.AutoRotate = false end
+            if not Root.Anchored then Root.Anchored = true end
         end
 
         function DisableCharacterMovement()
@@ -15783,6 +16079,11 @@ do
 
             Movement.Connections.FreecamEnforce = Heartbeat:Connect(function()
                 if not Freecam.Active or not Humanoid.Parent or not Root.Parent then return end
+
+                local Now = Clock()
+                if (Now - Freecam.LastEnforce) < 0.05 then return end
+
+                Freecam.LastEnforce = Now
 
                 wwwwwweewwwwweeeeeewwwweeee(Humanoid, Root)
             end)
@@ -16299,20 +16600,20 @@ do
 end
 
 do
-    function NewBeamTemplate(Color)
+    function NewBeamTemplate(StartColor, EndColor)
         local Beam = NewInstance("Beam")
 
         for Index, Value in next, TracerProperties[Flags["Tracer Texture"].Value] do
             Beam[Index] = Value
         end
 
-        Beam.Color = NewColorSequence(Color)
+        Beam.Color = NewColorSequence(StartColor, EndColor or StartColor)
 
         return Beam
     end
 
-    Visuals.Cache.LocalBeam = NewBeamTemplate(Flags["Local Tracer Color"].Color)
-    Visuals.Cache.EnemyBeam = NewBeamTemplate(Flags["Enemy Tracer Color"].Color)
+    Visuals.Cache.LocalBeam = NewBeamTemplate(Flags["Local Tracer Color"].Color, Flags["Local Tracer Gradient"].Color)
+    Visuals.Cache.EnemyBeam = NewBeamTemplate(Flags["Enemy Tracer Color"].Color, Flags["Enemy Tracer Gradient"].Color)
 
     function FireTracer(MuzzlePosition, HitPosition, Template)
         local StartAttachment = NewInstance("Attachment", Terrain)
@@ -17651,11 +17952,39 @@ do
         Esp.Step = LPH_JIT_MAX(function()
             local RenderInfo = {}
 
-
             do
                 local Section = Flags["Player"]
 
                 local EspEnabled = Section["Esp Enabled"].Value
+                local ChamsEnabled = Flags["Chams Enabled"].Value
+
+                if not EspEnabled then
+                    if ChamsEnabled then
+                        for _, This in next, Esp.Players do
+                            if This.ChamsDirty then
+                                Esp.RenderChams(This)
+                                This.ChamsDirty = false
+                            end
+                        end
+                    elseif not Esp.AllHidden then
+                        Esp.AllHidden = true
+
+                        for _, This in next, Esp.Players do
+                            local Renders = This.Renders
+
+                            Renders.RenderFrame.Visible = false
+                            Renders.Arrow.Visible = false
+                            Renders.ArrowOutline.Visible = false
+
+                            Esp.HideSkeleton(Renders.Skeleton)
+                            Esp.Parent(Renders)
+                        end
+                    end
+
+                    return
+                end
+
+                Esp.AllHidden = false
                 local MaxDistance = Section["Esp Max Distance"].Value
 
                 local RefreshRate = 1 / Section["Esp Refresh Rate"].Value
@@ -17679,7 +18008,10 @@ do
                     local Humanoid = This.Humanoid
                     local RootPart = This.RootPart
 
-                    Esp.RenderChams(This)
+                    if This.ChamsDirty then
+                        Esp.RenderChams(This)
+                        This.ChamsDirty = false
+                    end
 
                     if Character and Humanoid and RootPart then
                         This.Alive = Humanoid.Health > 0
@@ -17810,6 +18142,7 @@ do
                 MaxHealth = 100,
                 Distance = Infinite,
                 LastRefresh = 0,
+                ChamsDirty = true,
                 Renders = Esp.GetPlayerRenders(Player)
             }
 
@@ -17817,6 +18150,7 @@ do
                 This.Character = Character
                 This.Alive = false
                 This.Humanoid = nil
+                This.ChamsDirty = true
 
                 Spawn(function()
                    
@@ -17841,6 +18175,11 @@ do
 
                     This.BodyParts = BodyParts
                     This.Alive = true
+
+                    if Flags["Chams Enabled"].Value then
+                        Esp.RenderChams(This)
+                        This.ChamsDirty = false
+                    end
                 end)
             end
 
@@ -17850,6 +18189,12 @@ do
                 This.RootPart = nil
                 This.BodyParts = {}
                 This.Alive = false
+                This.ChamsDirty = true
+
+                if Flags["Chams Enabled"].Value then
+                    Esp.RenderChams(This)
+                    This.ChamsDirty = false
+                end
             end
 
             This.Connections = {
@@ -17913,9 +18258,7 @@ do
             FovColor = NewRGB(181, 179, 253),
             PriorityOnly = false,
             SkipDowned = false
-        } 
-        
-        do
+        } do
             if AimAssist[Index] == nil then
                 AimAssist[Index] = Value
             end
@@ -17931,14 +18274,11 @@ do
             MagnetPriority = "Closest",
             PriorityOnly = false,
             SkipDowned = false
-        } 
-        
-        do
+        } do
             if TriggerBot[Index] == nil then
                 TriggerBot[Index] = Value
             end
         end
-
 
         local PointMap = { Head = { "Head" }, Body = { "Torso" }, Arms = { "Right Arm", "Left Arm" }, Legs = { "Right Leg", "Left Leg" } }
         local PriorityMap = { Head = "Head", Body = "Torso" }
@@ -17966,7 +18306,6 @@ do
             return Result
         end
 
-
         local LocalData = { Character = nil, Humanoid = nil, RootPart = nil, Weapon = nil, WeaponVelocity = nil, WeaponAcceleration = nil }
 
         function SetupLocal(Character)
@@ -17975,21 +18314,11 @@ do
             LocalData.RootPart = WaitForChild(Character, "HumanoidRootPart", Infinite)
 
             Character.ChildAdded:Connect(function(Child)
-
-                if Child.ClassName ~= "Tool" then 
-                    return 
-                end
-
+                if Child.ClassName ~= "Tool" then return end
                 local Config = FindFirstChild(Child, "Config")
-                if not Config then 
-                    return 
-                end
-
+                if not Config then return end
                 local Ok, Cfg = pcall(Require, Config)
-                if not Ok or not Cfg or not Cfg.BulletSettings then 
-                    return 
-                end
-
+                if not Ok or not Cfg or not Cfg.BulletSettings then return end
                 LocalData.Weapon = Child
                 LocalData.WeaponVelocity = Cfg.BulletSettings.Velocity * 1.5
                 LocalData.WeaponAcceleration = Cfg.BulletSettings.Acceleration
@@ -18011,9 +18340,7 @@ do
         local EnemyCount = 0
 
         function AddEnemy(Player)
-            if Player == LocalPlayer or Enemies[Player] then
-                return 
-            end
+            if Player == LocalPlayer or Enemies[Player] then return end
 
             local Data = {
                 Player = Player,
@@ -19445,7 +19772,152 @@ do
     end)
 end
 
+--[[
+do
+    InstantEquip = {
+        Originals = {},
+        LastState = false,
+        LastCheck = 0,
+    }
 
+    function RestartClient(Tool)
+      
+        if Tool.Parent ~= LocalPlayer.Character then return end
+
+        for _, Name in next, { "Client", "PassClient" } do
+            local Script = FindFirstChild(Tool, Name)
+            if Script then
+                pcall(function()
+                    Script.Disabled = true
+                    Script.Disabled = false
+                end)
+            end
+        end
+    end
+
+    function WriteConfig(Tool, Enable)
+        if not IsA(Tool, "Tool") then return false end
+
+        local Module = FindFirstChild(Tool, "Config")
+        if not Module then return false end
+
+        local Ok, Config = pcall(require, Module)
+        if not Ok or type(Config) ~= "table" then return false end
+
+        if Enable then
+            if not InstantEquip.Originals[Config] then
+                InstantEquip.Originals[Config] = {
+                    EquipTime = rawget(Config, "EquipTime"),
+                    EquipAnimSpeed = rawget(Config, "EquipAnimSpeed") or 1,
+                }
+            end
+
+            pcall(function()
+                Config.EquipTime = 0.2
+                Config.EquipAnimSpeed = 9999
+            end)
+        else
+            local Original = InstantEquip.Originals[Config]
+            if Original then
+                pcall(function()
+                    Config.EquipTime = Original.EquipTime
+                    Config.EquipAnimSpeed = Original.EquipAnimSpeed
+                end)
+            end
+        end
+
+        return true
+    end
+
+    function changecfgss(Tool, Enable)
+        if not WriteConfig(Tool, Enable) then return end
+        if Tool.Parent == LocalPlayer.Character then
+            RestartClient(Tool)
+        end
+    end
+
+    function changecfgssing(Enable)
+        local Character = LocalPlayer.Character
+        if Character then
+            for _, Child in next, GetChildren(Character) do
+                pcall(changecfgss, Child, Enable)
+            end
+        end
+
+        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
+        if Backpack then
+            for _, Child in next, GetChildren(Backpack) do
+                pcall(changecfgss, Child, Enable)
+            end
+        end
+
+        if not Enable then
+            InstantEquip.Originals = {}
+        end
+    end
+
+    function WatchBackpack(Backpack)
+        Backpack.ChildAdded:Connect(function(Child)
+            if not IsA(Child, "Tool") then return end
+
+            Wait()
+
+            if Flags["Instant Equip"].Value then
+                pcall(changecfgss, Child, true)
+            end
+        end)
+    end
+
+    function WatchCharacter(Character)
+        Character.ChildAdded:Connect(function(Child)
+            if IsA(Child, "Tool") and Flags["Instant Equip"].Value then
+                Wait()
+                pcall(WriteConfig, Child, true)
+            end
+        end)
+    end
+
+    LocalPlayer.ChildAdded:Connect(function(Child)
+        if IsA(Child, "Backpack") then
+            WatchBackpack(Child)
+        end
+    end)
+
+    do
+        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
+        if Backpack then
+            WatchBackpack(Backpack)
+        end
+    end
+
+    LocalPlayer.CharacterAdded:Connect(function(Character)
+        WatchCharacter(Character)
+
+        if Flags["Instant Equip"].Value then
+            Spawn(function()
+                Wait(0.5)
+                changecfgssing(true)
+            end)
+        end
+    end)
+
+    if LocalPlayer.Character then
+        WatchCharacter(LocalPlayer.Character)
+    end
+
+    Heartbeat:Connect(function()
+        if Clock() - InstantEquip.LastCheck < 0.25 then return end
+        InstantEquip.LastCheck = Clock()
+
+        local Enabled = Flags["Instant Equip"].Value
+
+        if Enabled == InstantEquip.LastState then return end
+        InstantEquip.LastState = Enabled
+
+        changecfgssing(Enabled)
+    end)
+end
+]]
 do
     MeleeAura = {
         Busy = false,
@@ -19663,9 +20135,9 @@ end
 
 
 
+--[[
 
-
--- AI 洗肤膏——我对这段代码不承担任何责任。
+-- AI SkinChanger Paste - I do Not Take Responsability for this code at all.
 do
     local LP = LocalPlayer
 
@@ -22995,6 +23467,8 @@ function loadCMSelectedModel()
     end
 end
 
+local cmLastHeartbeatCheck = 0
+
 function startCMSkinChecking()
     if cmHeartbeatConnection then
         cmHeartbeatConnection:Disconnect()
@@ -23002,6 +23476,10 @@ function startCMSkinChecking()
     end
     
     cmHeartbeatConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        local now = tick()
+        if now - cmLastHeartbeatCheck < 0.1 then return end
+
+        cmLastHeartbeatCheck = now
         pcall(checkCMWeapon)
     end)
     
@@ -23092,6 +23570,8 @@ end
 end
 
 
+]]
+
 
 do
     MuteAlarms = {
@@ -23136,9 +23616,7 @@ do
         local Map = WaitForChild(Workspace, "Map", 30)
         local Security = Map and WaitForChild(Map, "Security", 30)
         local Alarms = Security and WaitForChild(Security, "Alarms", 30)
-        if not Alarms then 
-            return 
-        end
+        if not Alarms then return end
 
         MuteAlarms.Folder = Alarms
 
@@ -23192,7 +23670,7 @@ do
         SetThreadIdentity(7)
 
         Library:Notify({
-            Text = Format("imgui Loaded in: %.3f seconds.", FinishTick - StartTick),
+            Text = Format("Luckyware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
             Time = 5
         })
 
