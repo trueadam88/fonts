@@ -15592,7 +15592,8 @@ do
 
         local Now = Clock()
 
-        local RefreshRate = 1 / Flags["ViewModel Refresh Rate"].Value
+        local RefreshRateFlag = Flags["ViewModel Refresh Rate"]
+        local RefreshRate = 1 / (RefreshRateFlag and RefreshRateFlag.Value or 60)
 
         if (Now - ViewModel.LastUpdate) < RefreshRate then return end
 
@@ -17959,14 +17960,7 @@ do
                 local ChamsEnabled = Flags["Chams Enabled"].Value
 
                 if not EspEnabled then
-                    if ChamsEnabled then
-                        for _, This in next, Esp.Players do
-                            if This.ChamsDirty then
-                                Esp.RenderChams(This)
-                                This.ChamsDirty = false
-                            end
-                        end
-                    elseif not Esp.AllHidden then
+                    if not Esp.AllHidden then
                         Esp.AllHidden = true
 
                         for _, This in next, Esp.Players do
@@ -17978,6 +17972,15 @@ do
 
                             Esp.HideSkeleton(Renders.Skeleton)
                             Esp.Parent(Renders)
+                        end
+                    end
+
+                    if ChamsEnabled then
+                        for _, This in next, Esp.Players do
+                            if This.ChamsDirty then
+                                Esp.RenderChams(This)
+                                This.ChamsDirty = false
+                            end
                         end
                     end
 
