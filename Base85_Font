@@ -16748,6 +16748,9 @@ do
     Esp.Flags = {}
     Esp.Players = {}
 
+    local EspV3Up3 = NewVector3(0, 3, 0)
+    local EspV3Up2 = NewVector3(0, 2, 0)
+
     do
         Esp.Render = LPH_JIT_MAX(function(Type : String, Properties : Table, Drawing : Boolean)
             if Drawing == true then
@@ -17042,34 +17045,17 @@ do
                 Flags = {}
             }
 
-            This.RenderFrame = Esp.Render("Frame", { Visible = false, BackgroundTransparency = 1 })
+            This.Name     = Esp.Render("Text", { Text = Player.Name, Visible = false, Size = 13, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = Drawing.Fonts.Plex }, true)
+            This.Weapon   = Esp.Render("Text", { Text = "", Visible = false, Size = 13, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = Drawing.Fonts.Plex }, true)
+            This.Distance = Esp.Render("Text", { Text = "", Visible = false, Size = 13, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = Drawing.Fonts.Plex }, true)
 
-            This.ShadowName = Esp.Render("TextLabel", { ZIndex = 3, Visible = false, Position = NewUDim2(0.5, 0, 0, -9), Text = Player.Name, TextTransparency = 0, BackgroundTransparency = 1, FontFace = Fonts["Tahoma Bold"], RichText = true }, "Shadow")
-            This.OutlineName = Esp.Render("TextLabel", { ZIndex = 3, Visible = false, Position = NewUDim2(0.5, 0, 0, -9), Text = Player.Name, TextTransparency = 0, TextStrokeTransparency = 0, BackgroundTransparency = 1, FontFace = Fonts["Tiny5"], RichText = true })
+            This.BoxFill    = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 0, 0) }, true)
+            This.BoxOutline = Esp.Render("Square", { Thickness = 3, Visible = false, Filled = false, Color = NewRGB(0, 0, 0) }, true)
+            This.BoxInline  = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = false, Color = NewRGB(255, 255, 255) }, true)
 
-            This.Avatar = Esp.Render("ImageLabel", { ZIndex = 3, Visible = false, AnchorPoint = NewVector2(0.5, 1), Position = NewUDim2(0.5, 0, 0, -16), Size = NewUDim2(0, 26, 0, 26), BackgroundTransparency = 1, Image = Format("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100", Player.UserId) })
-            Esp.Render("UICorner", { Parent = This.Avatar, CornerRadius = NewUDim(1, 0) })
-            This.AvatarStroke = Esp.Render("UIStroke", { Parent = This.Avatar, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Round, Color = NewRGB(0, 0, 0), Thickness = 1 })
-
-            This.Distance = Esp.Render("TextLabel", { ZIndex = 3, Visible = false, Position = NewUDim2(0.5, 0, 1, 7), TextTransparency = 0, TextStrokeTransparency = 0, BackgroundTransparency = 1 })
-            This.Weapon = Esp.Render("TextLabel", { ZIndex = 3, Visible = false, Position = NewUDim2(0.5, 0, 1, 15), TextTransparency = 0, TextStrokeTransparency = 0, BackgroundTransparency = 1 })
-            This.WeaponIcon = Esp.Render("ImageLabel", { ZIndex = 2, Visible = false, Position = NewUDim2(0.5, -13, 1, 22), Size = NewUDim2(0, 25, 0, 25), BackgroundTransparency = 1, Image = "" })
-
-            This.Box = Esp.Render("Frame", { ZIndex = 1, Visible = false, Position = NewUDim2(0, -1, 0, -1), Size = NewUDim2(1, 2, 1, 2), BackgroundTransparency = 1 })
-            This.BoxFill = Esp.Render("Frame", { ZIndex = 2, Visible = false, Position = NewUDim2(0, 1, 0, 1), Size = NewUDim2(1, -2, 1, -2), BackgroundTransparency = 0, BorderSizePixel = 0, BackgroundColor3 = NewRGB(255, 255, 255) })
-
-            This.BoxOutline = Esp.Render("UIStroke", { Thickness = 3 })
-            This.BoxInline = Esp.Render("UIStroke", { LineJoinMode = Enum.LineJoinMode.Miter, Thickness = 1, Color = NewRGB(255, 255, 255) })
-            This.BoxGradient = Esp.Render("UIGradient", { Enabled = false, Rotation = -90 })
-            This.BoxGlow = Esp.Render("ImageLabel", { Position = NewUDim2(0, -24, 0, -24), Size = NewUDim2(1, 47, 1, 47), BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Slice, SliceCenter = NewRect(NewVector2(21, 21), NewVector2(79, 79)), ResampleMode = Enum.ResamplerMode.Pixelated, Image = "rbxassetid://110204605000367", ImageTransparency = 0.75 })
-
-            This.Health = Esp.Render("Frame", { ZIndex = 4, Visible = false, Position = NewUDim2(0, -7, 0, -2), Size = NewUDim2(0, 2, 1, 4), BorderColor3 = NewRGB(0, 0, 0), BackgroundColor3 = NewRGB(255, 255, 255), BackgroundTransparency = 0, BorderSizePixel = 0 })
-            This.HealthBack = Esp.Render("Frame", { ZIndex = 3, Visible = false, Position = NewUDim2(0, -7, 0, -2), Size = NewUDim2(0, 2, 1, 4), BorderColor3 = NewRGB(0, 0, 0), BackgroundColor3 = NewRGB(22, 22, 22), BorderSizePixel = 1 })
-            This.HealthGradient = Esp.Render("UIGradient", { Enabled = true, Rotation = 90 })
-            This.HealthText = Esp.Render("TextLabel", { ZIndex = 5, Visible = false, AnchorPoint = NewVector2(0.5, 0), Position = NewUDim2(0.5, 0, 0, 2), Text = "115", TextTransparency = 0, TextStrokeTransparency = 0, BackgroundTransparency = 1 })
-
-            This.Arrow = Esp.Render("Quad", { Visible = false, ZIndex = 3 }, true)
-            This.ArrowOutline = Esp.Render("Triangle", { Visible = false, ZIndex = 2, Thickness = 4, Filled = false }, true)
+            This.HealthBarOutline = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 0, 0) }, true)
+            This.HealthBarInline  = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 255, 0) }, true)
+            This.HealthBarValue   = Esp.Render("Text", { Text = "100", Visible = false, Size = 13, Center = true, Color = NewRGB(0, 255, 0), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = 2 }, true)
 
             return This
         end)
@@ -17152,44 +17138,8 @@ do
 
 
     do
-        Esp.RenderPlayerOnScreen = LPH_NO_VIRTUALIZE(function(This : Table, Renders : Table, BoxPosition : UDim2, BoxSize : UDim2)
-            Renders.Arrow.Visible = false
-            Renders.ArrowOutline.Visible = false
-
-            local WeaponObject = This.Weapon
-            local BodyParts = This.BodyParts
-
-            local RenderFrame = Renders.RenderFrame
-
-            local Box = Renders.Box
-            local BoxInline = Renders.BoxInline
-            local BoxOutline = Renders.BoxOutline
-            local BoxFill = Renders.BoxFill
-            local BoxGradient = Renders.BoxGradient
-            local BoxGlow = Renders.BoxGlow
-
-            local HealthInline = Renders.Health
-            local HealthOutline = Renders.HealthBack
-            local HealthText = Renders.HealthText
-            local HealthGradient = Renders.HealthGradient
-
-            local ShadowName = Renders.ShadowName
-            local OutlineName = Renders.OutlineName
-
-            local Weapon = Renders.Weapon
-            local WeaponIcon = Renders.WeaponIcon
-            local Distance = Renders.Distance
-            local Avatar = Renders.Avatar
-
-            local SkeletonRenders = Renders.Skeleton
-
-            local EspFlags = Esp.Flags
-            local RenderFlags = Renders.Flags
-
+        Esp.RenderPlayerOnScreen = LPH_NO_VIRTUALIZE(function(This : Table, Renders : Table, BoxPosition : Vector2, BoxSize : Vector2)
             local Section = Flags["Player"]
-
-            local SkeletonEnabled = Section["Esp Skeleton"].Value
-            local SkeletonFlag = Section["Esp Skeleton Color"]
 
             local PriorityColor
             local InfoThis = Info.PlayerData[This.Name]
@@ -17202,678 +17152,128 @@ do
                 end
             end
 
-            local SkeletonColor = SkeletonFlag.Color
-            local SkeletonTransparency = 1 - SkeletonFlag.Transparency
+            if Section["Esp Name"].Value then
+                local NameDraw = Renders.Name
+                local NameColorFlag = Section["Esp Name Color"]
 
-            RenderFrame.Position = BoxPosition
-            RenderFrame.Size = BoxSize
-
-            RenderFrame.Visible = true
-            RenderFrame.Parent = Esp.Overlay
+                NameDraw.Color        = PriorityColor or (NameColorFlag and NameColorFlag.Color or NewRGB(255, 255, 255))
+                NameDraw.Text         = This.Name
+                NameDraw.Position     = NewVector2(BoxPosition.X + BoxSize.X / 2, BoxPosition.Y - 16)
+                NameDraw.Transparency = 1 - (NameColorFlag and (NameColorFlag.Transparency or 0) or 0)
+                NameDraw.Visible      = true
+            else
+                Renders.Name.Visible = false
+            end
 
             if Section["Esp Box"].Value then
-                local Color = PriorityColor or Section["Esp Box Color"].Color
+                local BoxInline    = Renders.BoxInline
+                local BoxOutline   = Renders.BoxOutline
+                local BoxColorFlag = Section["Esp Box Color"]
+                local BoxColor     = PriorityColor or (BoxColorFlag and BoxColorFlag.Color or NewRGB(26, 102, 255))
+                local BoxAlpha     = BoxColorFlag and (BoxColorFlag.Transparency or 0) or 0
 
-                Box.Parent = RenderFrame
+                BoxInline.Color        = BoxColor
+                BoxInline.Size         = BoxSize
+                BoxInline.Position     = BoxPosition
+                BoxInline.Transparency = 1 - BoxAlpha
+                BoxInline.Visible      = true
 
-                BoxInline.Color = Color
-
-                if Section["Esp Box Fill"].Value then
-                    BoxFill.Parent = Box
-
-                    local Color1 = Section["Esp Box Fill Color 1"]
-                    local Color2 = Section["Esp Box Fill Color 2"]
-
-                    BoxGradient.Parent = BoxFill
-
-                    BoxGradient.Color = NewColorSequence(Color1.Color, Color2.Color)
-                    BoxGradient.Transparency = NewNumberSequence({ NewNumberKeypoint(0, Color1.Transparency, 0), NewNumberKeypoint(1, Color2.Transparency, 0) })
-
-                    if Section["Esp Box Fill Spin"].Value then
-                        BoxGradient.Rotation += 0.65
-                    else
-                        BoxGradient.Rotation = -90
-                    end
-
-                    BoxGradient.Enabled = true
-
-                    BoxFill.Visible = true
-                else
-                    BoxFill.Visible = false
-                    BoxFill.Parent = nil
-
-                    BoxGradient.Parent = nil
-                end
-
-                if Section["Esp Box Glow"].Value then
-                    BoxGlow.Parent = RenderFrame
-
-                    BoxGlow.ImageColor3 = Color
-
-                    BoxGlow.Visible = true
-                else
-                    BoxGlow.Visible = false
-                    BoxGlow.Parent = nil
-                end
-
-                Box.Visible = true
-
-                BoxInline.Parent = Box
-                BoxOutline.Parent = RenderFrame
+                BoxOutline.Size         = BoxSize
+                BoxOutline.Position     = BoxPosition
+                BoxOutline.Transparency = 1 - BoxAlpha
+                BoxOutline.Visible      = true
             else
-                Box.Visible = false
-                Box.Parent = nil
+                Renders.BoxInline.Visible = false
+                Renders.BoxOutline.Visible = false
+            end
 
-                BoxInline.Parent = nil
-                BoxOutline.Parent = nil
+            if Section["Esp Box Fill"].Value then
+                local BoxFill = Renders.BoxFill
+                local FillColorFlag = Section["Esp Box Fill Color 1"]
 
-                BoxGlow.Visible = false
-                BoxGlow.Parent = nil
-
-                BoxGradient.Parent = nil
+                BoxFill.Color        = FillColorFlag and FillColorFlag.Color or NewRGB(0, 0, 0)
+                BoxFill.Size         = BoxSize
+                BoxFill.Position     = BoxPosition
+                BoxFill.Transparency = 1 - (FillColorFlag and (FillColorFlag.Transparency or 0.7) or 0.7)
+                BoxFill.Visible      = true
+            else
+                Renders.BoxFill.Visible = false
             end
 
             if Section["Esp Health Bar"].Value then
-                local Health = Ceil(This.Health)
+                local HealthPercent    = This.Health / This.MaxHealth
+                local HealthSize       = Floor(BoxSize.Y * HealthPercent)
+                local HealthColor1Flag = Section["Esp Health Color 1"]
+                local HealthColor2Flag = Section["Esp Health Color 2"]
+                local HighColor        = HealthColor1Flag and HealthColor1Flag.Color or NewRGB(0, 255, 0)
+                local LowColor         = HealthColor2Flag and HealthColor2Flag.Color or NewRGB(255, 0, 0)
+                local HColor           = PriorityColor or HighColor:Lerp(LowColor, 1 - HealthPercent)
+                local Height           = (BoxPosition.Y + BoxSize.Y) - HealthSize
 
-                local Percent = Health / This.MaxHealth
-                local SizeY = Esp.Lerp(HealthInline.Size.Y.Scale, Percent, 0.1)
+                local HBarIn  = Renders.HealthBarInline
+                local HBarOut = Renders.HealthBarOutline
+                local HBarVal = Renders.HealthBarValue
 
-                HealthOutline.Parent = RenderFrame
-                HealthInline.Parent = HealthOutline
+                HBarIn.Color        = HColor
+                HBarIn.Size         = NewVector2(2, HealthSize)
+                HBarIn.Position     = NewVector2(BoxPosition.X - 5, Height)
+                HBarIn.Transparency = 0.8
+                HBarIn.Visible      = true
 
-                HealthInline.Size = NewUDim2(0, 2, SizeY, 0)
-                HealthInline.Position = NewUDim2(0, 0, 1 - SizeY, 0)
+                HBarOut.Size         = NewVector2(4, BoxSize.Y + 2)
+                HBarOut.Position     = NewVector2(BoxPosition.X - 6, BoxPosition.Y - 1)
+                HBarOut.Transparency = 0.8
+                HBarOut.Visible      = true
 
-                HealthOutline.Size = NewUDim2(0, 2, 1, 4)
-                HealthOutline.Position = NewUDim2(0, -7, 0, -2)
-
-                HealthInline.BackgroundTransparency = 0
-                HealthOutline.BackgroundTransparency = 0
-
-                if PriorityColor then
-                    HealthGradient.Enabled = false
-                    HealthGradient.Parent = nil
-
-                    HealthInline.BackgroundColor3 = PriorityColor
-                else
-                    local HealthColor1 = Section["Esp Health Color 1"].Color
-                    local HealthColor2 = Section["Esp Health Color 2"].Color
-
-                    local HealthType = Section["Esp Health Bar Type"].Value
-
-                    if HealthType == "Static" then
-                        HealthGradient.Enabled = false
-                        HealthGradient.Parent = nil
-
-                        HealthInline.BackgroundColor3 = HealthColor1
-                    elseif HealthType == "Dynamic" then
-                        HealthGradient.Enabled = false
-                        HealthGradient.Parent = nil
-
-                        if HealthColor1 == HealthColor2 then
-                            HealthInline.BackgroundColor3 = HealthColor1
-                        else
-                            HealthInline.BackgroundColor3 = Esp.LerpColor(HealthColor2, HealthColor1, Percent)
-                        end
-                    else
-                        HealthGradient.Parent = HealthInline
-                        HealthGradient.Enabled = true
-
-                        HealthInline.BackgroundColor3 = NewRGB(255, 255, 255)
-
-                        if HealthColor1 == HealthColor2 then
-                            HealthGradient.Color = NewColorSequence(HealthColor1, HealthColor1)
-                        else
-                            HealthGradient.Color = NewColorSequence(Esp.LerpColor(HealthColor2, HealthColor1, Percent), HealthColor2)
-                        end
-                    end
-                end
-
-                if Percent < 1 then
-                    HealthText.Parent = HealthInline
-
-                    HealthText.Text = Health
-
-                    if PriorityColor then
-                        HealthText.TextColor3 = PriorityColor
-                        HealthText.TextTransparency = 0
-                    else
-                        local HealthColor3 = Section["Esp Health Color 3"]
-
-                        HealthText.TextColor3 = HealthColor3.Color
-                        HealthText.TextTransparency = HealthColor3.Transparency
-                    end
-
-                    HealthText.Visible = true
-                else
-                    HealthText.Visible = false
-                    HealthText.Parent = nil
-                end
-
-                HealthInline.Visible = true
-                HealthOutline.Visible = true
+                HBarVal.Text         = tostring(Ceil(This.Health))
+                HBarVal.Color        = HColor
+                HBarVal.Position     = NewVector2(BoxPosition.X - 17, BoxPosition.Y + BoxSize.Y - HealthPercent * BoxSize.Y)
+                HBarVal.Transparency = 0.8
+                HBarVal.Visible      = HealthPercent < 1
             else
-                HealthInline.Visible = false
-                HealthOutline.Visible = false
-
-                HealthInline.Parent = nil
-                HealthOutline.Parent = nil
-
-                HealthText.Parent = nil
-                HealthGradient.Parent = nil
+                Renders.HealthBarInline.Visible = false
+                Renders.HealthBarOutline.Visible = false
+                Renders.HealthBarValue.Visible = false
             end
 
-            if Section["Esp Name"].Value then
-                local Font = Section["Esp Name Font"].Value
+            if Section["Esp Weapon"].Value then
+                local WeaponDraw      = Renders.Weapon
+                local WeaponColorFlag = Section["Esp Weapon Color"]
+                local Tool            = This.Weapon
 
-                local Player = This.Player
-                local Text = Font == "Small" and Upper(This.Name) or This.Name
-
-                if Font == "Bold" then
-                    OutlineName.Visible = false
-                    OutlineName.Parent = nil
-
-                    ShadowName.Parent = RenderFrame
-
-                    ShadowName.Position = NewUDim2(0.5, 0, 0, -9)
-
-                    ShadowName.Text = Text
-
-                    if PriorityColor then
-                        ShadowName.TextColor3 = PriorityColor
-                        ShadowName.TextTransparency = 0
-                    else
-                        local Flag = Section["Esp Name Color"]
-
-                        ShadowName.TextColor3 = Flag.Color
-                        ShadowName.TextTransparency = Flag.Transparency
-                    end
-
-                    ShadowName.Visible = true
-                else
-                    local OutlineFont = Fonts[Font == "Regular" and "Sevasto" or "Tiny5"]
-
-                    ShadowName.Visible = false
-                    ShadowName.Parent = nil
-
-                    OutlineName.Parent = RenderFrame
-
-                    OutlineName.FontFace = OutlineFont[1]
-                    OutlineName.TextSize = OutlineFont[2]
-
-                    OutlineName.Position = NewUDim2(0.5, 0, 0, Font == "Small" and -8 or -9)
-
-                    OutlineName.Text = Text
-
-                    if PriorityColor then
-                        OutlineName.TextColor3 = PriorityColor
-                        OutlineName.TextTransparency = 0
-                    else
-                        local Flag = Section["Esp Name Color"]
-
-                        OutlineName.TextColor3 = Flag.Color
-                        OutlineName.TextTransparency = Flag.Transparency
-                    end
-
-                    OutlineName.Visible = true
-                end
+                WeaponDraw.Color        = PriorityColor or (WeaponColorFlag and WeaponColorFlag.Color or NewRGB(255, 255, 255))
+                WeaponDraw.Text         = Tool and Tool.Name or "None"
+                WeaponDraw.Position     = NewVector2(BoxPosition.X + BoxSize.X / 2, BoxPosition.Y + BoxSize.Y + 2)
+                WeaponDraw.Transparency = 1 - (WeaponColorFlag and (WeaponColorFlag.Transparency or 0) or 0)
+                WeaponDraw.Visible      = true
             else
-                ShadowName.Visible = false
-                ShadowName.Parent = nil
-
-                OutlineName.Visible = false
-                OutlineName.Parent = nil
+                Renders.Weapon.Visible = false
             end
 
-            if Section["Esp Avatar"].Value then
-                local AvatarFlag = Section["Esp Avatar Color"]
+            if Section["Esp Distance"].Value then
+                local DistanceDraw = Renders.Distance
+                local DistColorFlag = Section["Esp Distance Color"]
 
-                local AvatarColor = AvatarFlag.Color
-                local AvatarTransparency = AvatarFlag.Transparency
-
-                local AvatarStroke = Renders.AvatarStroke
-
-                Avatar.BackgroundColor3 = AvatarColor
-                Avatar.BackgroundTransparency = AvatarTransparency
-                Avatar.ImageTransparency = AvatarTransparency
-
-                AvatarStroke.Color = AvatarColor
-                AvatarStroke.Transparency = AvatarTransparency
-
-                Avatar.Parent = RenderFrame
-                Avatar.Visible = true
+                DistanceDraw.Color        = PriorityColor or (DistColorFlag and DistColorFlag.Color or NewRGB(255, 255, 255))
+                DistanceDraw.Text         = Ceil(This.Distance) .. "m"
+                DistanceDraw.Position     = NewVector2(BoxPosition.X + BoxSize.X / 2, BoxPosition.Y + BoxSize.Y + 15)
+                DistanceDraw.Transparency = 1 - (DistColorFlag and (DistColorFlag.Transparency or 0) or 0)
+                DistanceDraw.Visible      = true
             else
-                Avatar.Visible = false
-                Avatar.Parent = nil
-            end
-
-            do
-                local OffsetY = 7
-
-                if Section["Esp Weapon"].Value and WeaponObject then
-                    Weapon.Parent = RenderFrame
-
-                    Weapon.Text = Upper(WeaponObject.Name)
-
-                    if PriorityColor then
-                        Weapon.TextColor3 = PriorityColor
-                        Weapon.TextTransparency = 0
-                    else
-                        local Flag = Section["Esp Weapon Color"]
-
-                        Weapon.TextColor3 = Flag.Color
-                        Weapon.TextTransparency = Flag.Transparency
-                    end
-
-                    Weapon.Position = NewUDim2(0.5, 0, 1, OffsetY)
-
-                    Weapon.Visible = true
-
-                    OffsetY += 8
-                else
-                    Weapon.Visible = false
-                    Weapon.Parent = nil
-                end
-
-                if Section["Esp Distance"].Value then
-                    Distance.Parent = RenderFrame
-
-                    Distance.Text = Ceil(This.Distance) .. "M"
-
-                    if PriorityColor then
-                        Distance.TextColor3 = PriorityColor
-                        Distance.TextTransparency = 0
-                    else
-                        local Flag = Section["Esp Distance Color"]
-
-                        Distance.TextColor3 = Flag.Color
-                        Distance.TextTransparency = Flag.Transparency
-                    end
-
-                    Distance.Position = NewUDim2(0.5, 0, 1, OffsetY)
-
-                    Distance.Visible = true
-
-                    OffsetY += 8
-                else
-                    Distance.Visible = false
-                    Distance.Parent = nil
-                end
-
-                WeaponIcon.Visible = false
-                WeaponIcon.Parent = nil
-            end
-
-            do
-                local OffsetY = 0
-
-                local FlagsEnabled = Section["Esp Flags"].Value
-
-                for i = 1, #EspFlags do
-                    local Cache = EspFlags[i]
-
-                    local Index = Cache[1]
-
-                    local Data = RenderFlags[Index]
-
-                    if not Data then
-                        local NewValue = Shared.DeepCopy(Cache[2])
-
-                        RenderFlags[Index] = NewValue
-
-                        Data = NewValue
-                    end
-
-                    local Render = Data.Render
-
-                    local FakeThis = {
-                        Character = This.Character,
-                        Humanoid = This.Humanoid,
-                        RootPart = This.RootPart
-                    }
-
-                    if not Render then
-                        Render = Esp.Render("TextLabel", { ZIndex = 3, Text = "", TextXAlignment = "Left", Visible = false, Position = NewUDim2(1, 5, 0, 0), TextTransparency = 0, TextStrokeTransparency = 0, BackgroundTransparency = 1 })
-
-                        Data.Render = Render
-                    end
-
-                    if FlagsEnabled and Data.GetVisibility(FakeThis) then
-                        local Color = Data.GetColor(FakeThis)
-
-                        Render.Parent = RenderFrame
-
-                        Render.Position = NewUDim2(1, 5, 0, OffsetY)
-
-                        Render.Text = Data.GetText(FakeThis)
-
-                        Render.TextColor3 = Color.Color
-                        Render.TextTransparency = Color.Transparency
-
-                        Render.Visible = true
-
-                        OffsetY += 8
-                    else
-                        Render.Visible = false
-                        Render.Parent = nil
-                    end
-                end
-            end
-
-            for i = 1, #SkeletonBones do
-                local Line = SkeletonRenders[i]
-
-                if not SkeletonEnabled then
-                    Line.Visible = false
-
-                    continue
-                end
-
-                local Bone = SkeletonBones[i]
-
-                local PartA = BodyParts[Bone[1]]
-                local PartB = BodyParts[Bone[3]]
-
-                if not PartA or not PartB then
-                    Line.Visible = false
-
-                    continue
-                end
-
-                local From, OnScreen = Camera.WorldToViewportPoint(Esp.GetBonePoint(PartA, Bone[2]))
-                local To, OnScreen2 = Camera.WorldToViewportPoint(Esp.GetBonePoint(PartB, Bone[4]))
-
-                if not OnScreen and not OnScreen2 then
-                    Line.Visible = false
-
-                    continue
-                end
-
-                Line.From = NewVector2(From.X, From.Y)
-                Line.To = NewVector2(To.X, To.Y)
-
-                Line.Color = SkeletonColor
-                Line.Transparency = SkeletonTransparency
-
-                Line.Visible = true
+                Renders.Distance.Visible = false
             end
         end)
 
-        Esp.RenderPlayerOffScreen = LPH_NO_VIRTUALIZE(function(This : Table, Renders : Table, Skeleton : Table, Position : Vector3)
-            Renders.RenderFrame.Visible = false
-
-            Esp.HideSkeleton(Skeleton)
-
-            Esp.Parent(Renders)
-
-            local Arrow = Renders.Arrow
-            local ArrowOutline = Renders.ArrowOutline
-
-            local ShadowName = Renders.ShadowName
-            local OutlineName = Renders.OutlineName
-
-            local Weapon = Renders.Weapon
-
-            local HealthInline = Renders.Health
-            local HealthOutline = Renders.HealthBack
-
-            local DistanceRender = Renders.Distance
-
-            if Flags["Esp Oov"].Value then
-                local Section = Flags["Player"]
-                local Flag = Flags["Esp Oov Color"]
-
-                local Blinking = Flags["Esp Oov Blink"].Value
-
-                local Transparency = Blinking and (Sin(Tick() * (4 + Flags["Esp Oov Blink Speed"].Value)) + 1) / 2 or Flag.Transparency
-                local PriorityColor
-                local InfoThis = Info.PlayerData[This.Name]
-
-                if InfoThis then
-                    if InfoThis.Priority and Flags["Priority Color Enabled"].Value then
-                        PriorityColor = Flags["Priority Color"].Color
-                    elseif InfoThis.Whitelist and Flags["Whitelist Color Enabled"].Value then
-                        PriorityColor = Flags["Whitelist Color"].Color
-                    end
-                end
-
-                local Overlay = Esp.Overlay
-
-                local WeaponObject = This.Weapon
-
-                local HealthGradient = Renders.HealthGradient
-                local HealthText = Renders.HealthText
-
-                local Relative = PointToObjectSpace(CurrentCamera.CFrame, Position)
-                local Angle = Atan2(-Relative.Y, Relative.X)
-
-                local Radius
-                local Size
-
-                local Direction = NewVector2(Cos(Angle), Sin(Angle))
-
-                do
-                    local Distance = Min((Position - CurrentCamera.CFrame.Position).Magnitude, 150)
-
-                    if Flags["Esp Oov Dynamic Distance"].Value then
-                        Radius = Clamp(10 + (Max(0, Distance) / 150) * 85, 10, 95) / 400
-                    else
-                        Radius = Flags["Esp Oov Distance"].Value / 400
-                    end
-
-                    if Flags["Esp Oov Dynamic Size"].Value then
-                        Size = 40 - Clamp(10 + (Max(0, Distance) / 150) * 20, 10, 30)
-                    else
-                        Size = Flags["Esp Oov Size"].Value
-                    end
-                end
-
-                local PointA = (Direction * ScreenX * Radius) + (ScreenSize / 2)
-                local PointB
-                local PointC
-
-                do
-                    Arrow.PointA = PointA
-
-                    if Flags["Esp Oov Style"].Value == "Concave" then
-                        PointB = PointA - Esp.Rotate(Direction, 0.45) * Size
-                        PointC = PointA - Esp.Rotate(Direction, -0.45) * Size
-
-                        local PointD = PointA - Esp.Rotate(Direction, 0) * (Size / 1.6)
-
-                        Arrow.PointB = PointB
-                        Arrow.PointC = PointD
-                        Arrow.PointD = PointC
-
-                        ArrowOutline.Visible = false
-                    else
-                        PointB = PointA - Esp.Rotate(Direction, 0.5) * Size
-                        PointC = PointA - Esp.Rotate(Direction, -0.5) * Size
-
-                        Arrow.PointB = PointB
-                        Arrow.PointC = PointB
-                        Arrow.PointD = PointC
-
-                        ArrowOutline.Color = Esp.MultiplyColor(PriorityColor or Flag.Color, 0.6)
-                        ArrowOutline.Transparency = 1 - Transparency
-
-                        ArrowOutline.PointA = PointA
-                        ArrowOutline.PointB = PointB
-                        ArrowOutline.PointC = PointC
-
-                        ArrowOutline.Visible = true
-                    end
-
-                    Arrow.Color = PriorityColor or Flag.Color
-                    Arrow.Transparency = 1 - Transparency
-
-                    Arrow.Visible = true
-                end
-
-                do
-                    local BoxPosition = (NewVector2((PointA.X + PointB.X + PointC.X) / 3, (PointA.Y + PointB.Y + PointC.Y) / 3)) - NewVector2(Size / 2, Size / 2)
-
-                    local Elements = Flags["Esp Oov Elements"].Value
-
-                    local CenterX = BoxPosition.X + Size / 2
-                    local BottomY = BoxPosition.Y + Size
-
-                    local OffsetY = 6
-
-                    if Find(Elements, "Name") then
-                        local Font = Section["Esp Name Font"].Value
-
-                        local Player = This.Player
-                        local Text = Font == "Small" and Upper(This.Name) or This.Name
-
-                        if Font == "Bold" then
-                            OutlineName.Visible = false
-
-                            ShadowName.Parent = Overlay
-
-                            ShadowName.Position = NewUDim2(0, CenterX, 0, BoxPosition.Y - 12)
-
-                            ShadowName.Text = Text
-
-                            ShadowName.TextColor3 = PriorityColor or Section["Esp Name Color"].Color
-                            ShadowName.TextTransparency = Transparency
-
-                            ShadowName.Visible = true
-                        else
-                            local OutlineFont = Fonts[Font == "Regular" and "Sevasto" or "Tiny5"]
-
-                            ShadowName.Visible = false
-
-                            OutlineName.Parent = Overlay
-
-                            OutlineName.FontFace = OutlineFont[1]
-                            OutlineName.TextSize = OutlineFont[2]
-
-                            OutlineName.Position = NewUDim2(0, CenterX, 0, BoxPosition.Y - (Font == "Small" and 14 or 12))
-
-                            OutlineName.Text = Text
-
-                            OutlineName.TextColor3 = PriorityColor or Section["Esp Name Color"].Color
-                            OutlineName.TextTransparency = Transparency
-
-                            OutlineName.Visible = true
-                        end
-                    end
-
-                    if Find(Elements, "Health Bar") then
-                        local Health = Ceil(This.Health)
-
-                        local Percent = Health / This.MaxHealth
-                        local SizeY = Esp.Lerp(HealthInline.Size.Y.Scale, Percent, 0.1)
-
-                        HealthInline.Parent = HealthOutline
-                        HealthOutline.Parent = Overlay
-
-                        HealthInline.Position = NewUDim2(0, 0, 1 - SizeY, 0)
-                        HealthOutline.Position = NewUDim2(0, BoxPosition.X - 7, 0, BoxPosition.Y - 1)
-
-                        HealthInline.Size = NewUDim2(0, 2, SizeY, 0)
-                        HealthOutline.Size = NewUDim2(0, 2, 0, Size)
-
-                        HealthInline.BackgroundTransparency = Transparency
-                        HealthOutline.BackgroundTransparency = Transparency
-
-                        if PriorityColor then
-                            HealthGradient.Enabled = false
-
-                            HealthInline.BackgroundColor3 = PriorityColor
-                        else
-                            local HealthColor1 = Section["Esp Health Color 1"].Color
-                            local HealthColor2 = Section["Esp Health Color 2"].Color
-
-                            local HealthType = Section["Esp Health Bar Type"].Value
-
-                            if HealthType == "Static" then
-                                HealthGradient.Enabled = false
-                                HealthGradient.Parent = nil
-
-                                HealthInline.BackgroundColor3 = HealthColor1
-                            elseif HealthType == "Dynamic" then
-                                HealthGradient.Enabled = false
-                                HealthGradient.Parent = nil
-
-                                if HealthColor1 == HealthColor2 then
-                                    HealthInline.BackgroundColor3 = HealthColor1
-                                else
-                                    HealthInline.BackgroundColor3 = Esp.LerpColor(HealthColor2, HealthColor1, Percent)
-                                end
-                            else
-                                HealthGradient.Parent = HealthInline
-                                HealthGradient.Enabled = true
-
-                                HealthInline.BackgroundColor3 = NewRGB(255, 255, 255)
-
-                                if HealthColor1 == HealthColor2 then
-                                    HealthGradient.Color = NewColorSequence(HealthColor1, HealthColor1)
-                                else
-                                    HealthGradient.Color = NewColorSequence(Esp.LerpColor(HealthColor2, HealthColor1, Percent), HealthColor2)
-                                end
-                            end
-                        end
-
-                        if Percent < 1 then
-                            HealthText.Parent = HealthInline
-
-                            HealthText.Text = Health
-
-                            HealthText.TextColor3 = PriorityColor or Section["Esp Health Color 3"].Color
-                            HealthText.TextTransparency = Transparency
-
-                            HealthText.Visible = true
-                        else
-                            HealthText.Visible = false
-                        end
-
-                        HealthInline.Visible = true
-                        HealthOutline.Visible = true
-                    end
-
-                    if Find(Elements, "Weapon") and WeaponObject then
-                        Weapon.Parent = Overlay
-                        Weapon.Position = NewUDim2(0, CenterX, 0, BottomY + OffsetY)
-
-                        Weapon.Text = Upper(WeaponObject.Name)
-
-                        Weapon.TextColor3 = PriorityColor or Section["Esp Weapon Color"].Color
-                        Weapon.TextTransparency = Transparency
-
-                        Weapon.Visible = true
-
-                        OffsetY += 8
-                    end
-
-                    if Find(Elements, "Distance") then
-                        DistanceRender.Parent = Overlay
-                        DistanceRender.Position = NewUDim2(0, CenterX, 0, BottomY + OffsetY)
-
-                        DistanceRender.Text = Ceil(This.Distance) .. "M"
-
-                        DistanceRender.TextColor3 = PriorityColor or Section["Esp Distance Color"].Color
-                        DistanceRender.TextTransparency = Transparency
-
-                        DistanceRender.Visible = true
-                    end
-                end
-            else
-                Arrow.Visible = false
-                ArrowOutline.Visible = false
-
-                ShadowName.Visible = false
-                OutlineName.Visible = false
-
-                Weapon.Visible = false
-
-                HealthInline.Visible = false
-                HealthOutline.Visible = false
-
-                DistanceRender.Visible = false
-            end
+        Esp.RenderPlayerOffScreen = LPH_NO_VIRTUALIZE(function(This : Table, Renders : Table)
+            Renders.Name.Visible = false
+            Renders.Weapon.Visible = false
+            Renders.Distance.Visible = false
+            Renders.BoxFill.Visible = false
+            Renders.BoxOutline.Visible = false
+            Renders.BoxInline.Visible = false
+            Renders.HealthBarOutline.Visible = false
+            Renders.HealthBarInline.Visible = false
+            Renders.HealthBarValue.Visible = false
         end)
 
         Esp.RenderChams = LPH_JIT_MAX(function(This : Table)
@@ -17966,12 +17366,15 @@ do
                         for _, This in next, Esp.Players do
                             local Renders = This.Renders
 
-                            Renders.RenderFrame.Visible = false
-                            Renders.Arrow.Visible = false
-                            Renders.ArrowOutline.Visible = false
-
-                            Esp.HideSkeleton(Renders.Skeleton)
-                            Esp.Parent(Renders)
+                            Renders.Name.Visible = false
+                            Renders.Weapon.Visible = false
+                            Renders.Distance.Visible = false
+                            Renders.BoxFill.Visible = false
+                            Renders.BoxOutline.Visible = false
+                            Renders.BoxInline.Visible = false
+                            Renders.HealthBarOutline.Visible = false
+                            Renders.HealthBarInline.Visible = false
+                            Renders.HealthBarValue.Visible = false
                         end
                     end
 
@@ -17991,7 +17394,6 @@ do
                 local MaxDistance = Section["Esp Max Distance"].Value
 
                 local RefreshRate = 1 / Section["Esp Refresh Rate"].Value
-                local BoundingType = Section["Esp Bounding Type"].Value
 
                 local CameraPosition = CurrentCamera.CFrame.Position
 
@@ -18005,7 +17407,6 @@ do
                     This.LastRefresh = Clock()
 
                     local Renders = This.Renders
-                    local Skeleton = Renders.Skeleton
 
                     local Character = This.Character
                     local Humanoid = This.Humanoid
@@ -18031,21 +17432,20 @@ do
                         not RootPart or
                         This.Distance > MaxDistance
                     then
-                        Renders.RenderFrame.Visible = false
-
-                        Renders.Arrow.Visible = false
-                        Renders.ArrowOutline.Visible = false
-
-                        Esp.HideSkeleton(Skeleton)
-
-                        Esp.Parent(Renders)
+                        Renders.Name.Visible = false
+                        Renders.Weapon.Visible = false
+                        Renders.Distance.Visible = false
+                        Renders.BoxFill.Visible = false
+                        Renders.BoxOutline.Visible = false
+                        Renders.BoxInline.Visible = false
+                        Renders.HealthBarOutline.Visible = false
+                        Renders.HealthBarInline.Visible = false
+                        Renders.HealthBarValue.Visible = false
 
                         continue
                     end
 
                     local RootPosition = RootPart.Position
-
-                    local BoxPosition, BoxSize = Esp.GetBoundingBox(This, RootPosition, BoundingType)
 
                     local InfoThis = Info.PlayerData[This.Name]
                     local PriorityOnly = Section["Esp Priority Only"].Value
@@ -18056,50 +17456,40 @@ do
                             or (PriorityOnly and InfoThis and InfoThis.Priority)
                             or (WhitelistOnly and InfoThis and InfoThis.Whitelist))
 
-                    if BoxPosition then
-                        if ShouldRender then
-                            RenderInfo[#RenderInfo + 1] = {
-                                "Player",
-                                This,
-                                Renders,
-                                BoxPosition,
-                                BoxSize
-                            }
-                        else
-                            Renders.RenderFrame.Visible = false
+                    if not ShouldRender then
+                        Renders.Name.Visible = false
+                        Renders.Weapon.Visible = false
+                        Renders.Distance.Visible = false
+                        Renders.BoxFill.Visible = false
+                        Renders.BoxOutline.Visible = false
+                        Renders.BoxInline.Visible = false
+                        Renders.HealthBarOutline.Visible = false
+                        Renders.HealthBarInline.Visible = false
+                        Renders.HealthBarValue.Visible = false
 
-                            Renders.Arrow.Visible = false
-                            Renders.ArrowOutline.Visible = false
-
-                            Esp.HideSkeleton(Skeleton)
-
-                            Esp.Parent(Renders)
-                        end
-                    elseif ShouldRender then
-                        Esp.RenderPlayerOffScreen(This, Renders, Skeleton, RootPosition)
-                    else
-                        Renders.Arrow.Visible = false
-                        Renders.ArrowOutline.Visible = false
-
-                        Esp.Parent(Renders)
+                        continue
                     end
+
+                    local Position, OnScreen = Camera.WorldToViewportPoint(RootPosition)
+
+                    if not OnScreen then
+                        Esp.RenderPlayerOffScreen(This, Renders)
+
+                        continue
+                    end
+
+                    local Size       = (Camera.WorldToViewportPoint(RootPosition - EspV3Up3).Y - Camera.WorldToViewportPoint(RootPosition + EspV3Up2).Y) / 2
+                    local BoxSize     = NewVector2(Floor(Size * 1.2), Floor(Size * 1.9))
+                    local BoxPosition = NewVector2(Floor(Position.X - Size * 1.25 / 2), Floor(Position.Y - Size * 1.6 / 2))
+
+                    RenderInfo[#RenderInfo + 1] = { This, Renders, BoxPosition, BoxSize }
                 end
             end
-
-
 
             for i = 1, #RenderInfo do
                 local Render = RenderInfo[i]
 
-                local Type = Render[1]
-                local This = Render[2]
-                local Renders = Render[3]
-
-                Renders.RenderFrame.ZIndex = Floor(100000 - This.Distance)
-
-                if Type == "Player" then
-                    Esp.RenderPlayerOnScreen(This, Renders, Render[4], Render[5])
-                end
+                Esp.RenderPlayerOnScreen(Render[1], Render[2], Render[3], Render[4])
             end
         end)
     end
@@ -18125,6 +17515,8 @@ do
                     end
                 elseif typeof(Render) == "Instance" then
                     Render:Destroy()
+                elseif typeof(Render) == "Drawing" then
+                    Render:Remove()
                 end
             end
         end
