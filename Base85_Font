@@ -6529,7 +6529,7 @@ end
 
                     local Window = Self.Window
 
-                    local Default = Parameters.Default or "-- // Welcome to V3 bitch."
+                    local Default = Parameters.Default or "-- // Welcome to Luckyware.Net V3 bitch."
                     local Hidden = Parameters.Hidden or false
                     local Size = Parameters.Size or 334
                     local Fill = Parameters.Fill or false
@@ -16919,10 +16919,23 @@ do
         return Text
     end
 
+    local function ApplyEspFont(Draw : Instance, Font : Table, Size : Number)
+        local Applied = pcall(function()
+            Draw.Font = Font
+            Draw.Size = Size
+        end)
+
+        if not Applied then
+            pcall(function()
+                Draw.Font = 2
+                Draw.Size = 13
+            end)
+        end
+    end
+
     local function RenderEspText(Draw : Instance, Shadow : Instance, Text : String, Size : Number, Font : Table, Color : Color3, Alpha : Number, Position : Vector2, Dropshadow : Boolean, OutlineColor : Color3)
-        Draw.Font         = Font
+        ApplyEspFont(Draw, Font, Size)
         Draw.Text         = Text
-        Draw.Size         = Size
         Draw.Position     = Position
         Draw.Color        = Color
         Draw.OutlineColor = OutlineColor or NewRGB(0, 0, 0)
@@ -16931,9 +16944,8 @@ do
         Draw.Visible      = true
 
         if Dropshadow then
-            Shadow.Font         = Font
+            ApplyEspFont(Shadow, Font, Size)
             Shadow.Text         = Text
-            Shadow.Size         = Size
             Shadow.Position     = NewVector2(Position.X + 1, Position.Y + 1)
             Shadow.Color        = NewRGB(0, 0, 0)
             Shadow.Transparency = Alpha
@@ -23188,7 +23200,7 @@ end
 end
 
 
-]]
+
 
 
 do
@@ -23288,7 +23300,7 @@ do
         SetThreadIdentity(8)
 
         Library:Notify({
-            Text = Format("theware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
+            Text = Format("Luckyware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
             Time = 5
         })
 
