@@ -11792,7 +11792,7 @@ end
                         Name = "Health Size",
                         Category = "Player",
                         Flag = "Esp Health Size",
-                        Min = 8, Max = 30, Default = 13
+                        Min = 8, Max = 30, Default = 9
                     })
 
                     Section:Dropdown({
@@ -16872,7 +16872,6 @@ do
                 MakeFolder(FontFolder)
             end
 
-            -- always rewrite so a stale/corrupt cached file can never stick around
             WriteFile(FontPath, Decode(Menu.EncodedAssets[AssetKey]))
 
             local CustomFont = NewDrawing("Font")
@@ -16886,7 +16885,7 @@ do
             return Result
         end
 
-        warn(Format("[Esp Font]: Failed to load '%s' -> %s", AssetKey, tostring(Result)))
+        warn(Format("Failed to load fount'%s' -> %s", AssetKey, tostring(Result)))
         return 2
     end
 
@@ -16895,7 +16894,7 @@ do
         { Key = "Tahoma", File = "EspTahoma", Size = 12 },
         { Key = "Tahoma Bold", File = "EspTahomaBold", Size = 9 },
         { Key = "Consolas Bold", File = "EspConsolasBold", Size = 11 },
-        { Key = "Tiny5", File = "EspTiny5", Size = 8 }
+        { Key = "Tiny5", File = "EspTiny5", Size = 9 }
     }
 
     local EspFonts = {}
@@ -17261,12 +17260,12 @@ do
                 Flags = {}
             }
 
-            This.NameShadow     = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontName }, true)
-            This.Name           = Esp.Render("Text", { Text = Player.Name, Visible = false, Size = 16, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontName }, true)
-            This.WeaponShadow   = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
-            This.Weapon         = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
-            This.DistanceShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
-            This.Distance       = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+            This.NameShadow     = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontName }, true)
+            This.Name           = Esp.Render("Text", { Text = Player.Name, Visible = false, Size = 14, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontName }, true)
+            This.WeaponShadow   = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.Weapon         = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+            This.DistanceShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.Distance       = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
 
             This.BoxFill    = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 0, 0) }, true)
             This.BoxOutline = Esp.Render("Square", { Thickness = 3, Visible = false, Filled = false, Color = NewRGB(0, 0, 0) }, true)
@@ -17277,14 +17276,14 @@ do
 
             local HealthGradient = {}
 
-            for i = 1, 8 do
+            for i = 1, 128 do
                 HealthGradient[i] = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 255, 0) }, true)
             end
 
             This.HealthGradient = HealthGradient
 
-            This.HealthBarValueShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 10, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
-            This.HealthBarValue       = Esp.Render("Text", { Text = "100", Visible = false, Size = 10, Center = true, Color = NewRGB(0, 255, 0), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+            This.HealthBarValueShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.HealthBarValue       = Esp.Render("Text", { Text = "100", Visible = false, Size = 14, Center = true, Color = NewRGB(0, 255, 0), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
 
             This.Avatar = Esp.Render("ImageLabel", {
                 Parent = Esp.Overlay,
@@ -17516,20 +17515,28 @@ do
                 if BarType == "Gradient" and not PriorityColor then
                     HBarIn.Visible = false
 
-                    local SegmentCount = #Gradient
+                    local PoolSize = #Gradient
+                    local SegmentCount = Clamp(Ceil(BoxSize.Y), 1, PoolSize)
                     local SegHeight = BoxSize.Y / SegmentCount
+                    local BoxBottom = BoxPosition.Y + BoxSize.Y
 
                     for i = 1, SegmentCount do
                         local Seg = Gradient[i]
                         local SegTop = BoxPosition.Y + (i - 1) * SegHeight
                         local SegCenter = SegTop + SegHeight / 2
-                        local Fraction = (i - 1) / (SegmentCount - 1)
+                        local Fraction = SegmentCount > 1 and (i - 1) / (SegmentCount - 1) or 0
+                        local FlooredTop = Floor(SegTop)
+                        local SegBottom = (i == SegmentCount) and BoxBottom or (FlooredTop + Ceil(SegHeight) + 1)
 
                         Seg.Color        = HighColor:Lerp(LowColor, Fraction)
-                        Seg.Size         = NewVector2(2, Ceil(SegHeight) + 1)
-                        Seg.Position     = NewVector2(BoxPosition.X - 5, Floor(SegTop))
+                        Seg.Size         = NewVector2(2, Max(SegBottom - FlooredTop, 1))
+                        Seg.Position     = NewVector2(BoxPosition.X - 5, FlooredTop)
                         Seg.Transparency = 0.8
                         Seg.Visible      = SegCenter >= Height
+                    end
+
+                    for i = SegmentCount + 1, PoolSize do
+                        Gradient[i].Visible = false
                     end
                 else
                     for i = 1, #Gradient do
@@ -17545,17 +17552,19 @@ do
                     HBarIn.Visible      = true
                 end
 
-                local HealthColor = PriorityColor or (Section["Esp Health Color 3"] and Section["Esp Health Color 3"].Color or NewRGB(255, 255, 255))
+                local HealthColor3Flag = Section["Esp Health Color 3"]
+                local HealthColor = PriorityColor or (HealthColor3Flag and HealthColor3Flag.Color or NewRGB(255, 255, 255))
                 local HealthFont = EspFonts[Section["Esp Health Font"].Value] or EspFontTiny
                 local HealthTextSize = Section["Esp Health Size"].Value
-                local HealthValueY = (BoxPosition.Y + BoxSize.Y - HealthPercent * BoxSize.Y) - (HealthTextSize / 2)
+                local HealthValueY = Floor(Height - (HealthTextSize / 2))
                 local HealthOutlineFlag = Section["Esp Health Outline Color"]
 
                 RenderEspText(
                     HBarVal, HBarValShadow,
                     tostring(Ceil(This.Health)),
                     HealthTextSize, HealthFont,
-                    HealthColor, 0.8,
+                    HealthColor,
+                    1 - (HealthColor3Flag and (HealthColor3Flag.Transparency or 0) or 0),
                     NewVector2(BoxPosition.X - 4, HealthValueY),
                     Section["Esp Health Dropshadow"].Value,
                     HealthOutlineFlag and HealthOutlineFlag.Color
@@ -17913,7 +17922,6 @@ do
                 This.Alive = false
                 This.ChamsDirty = true
 
-                -- hide immediately instead of waiting on Esp.Step's throttled refresh
                 pcall(Esp.HideAll, This.Renders)
 
                 if Flags["Chams Enabled"].Value then
@@ -17939,7 +17947,6 @@ do
 
             if not This then return end
 
-            -- untrack immediately so no other loop (Step/RenderChams) can still touch this player's renders
             Esp.Players[Player] = nil
 
             for _, Connection in next, This.Connections do
@@ -17959,8 +17966,6 @@ do
 
             Stepped:Connect(Esp.Step)
 
-            -- safety net: force-clean any tracked player whose instance already left,
-            -- in case PlayerRemoving ever fails to fire for a specific player
             Spawn(function()
                 while true do
                     Wait(2)
