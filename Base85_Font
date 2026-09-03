@@ -2301,10 +2301,12 @@ end
             local FontPath = Menu.Folders.Fonts
 
             DelFolder(ImagePath)
-            DelFolder(FontPath)
-
             MakeFolder(ImagePath)
-            MakeFolder(FontPath)
+
+            -- Fonts folder holds user-added custom fonts too, never wipe it
+            if not IsFolder(FontPath) then
+                MakeFolder(FontPath)
+            end
         end
 
 
@@ -6527,7 +6529,7 @@ end
 
                     local Window = Self.Window
 
-                    local Default = Parameters.Default or "-- // Welcome to Luckyware.Net V3 bitch."
+                    local Default = Parameters.Default or "-- // Welcome to V3 bitch."
                     local Hidden = Parameters.Hidden or false
                     local Size = Parameters.Size or 334
                     local Fill = Parameters.Fill or false
@@ -9669,13 +9671,7 @@ end
                             Flag = "Instant Aim",
                             Unsafe = true
                         })
---[[
-                        Section:Toggle({
-                            Name = "Instant Equip",
-                            Flag = "Instant Equip",
-                            Unsafe = true
-                        })
-                            ]]
+
                 end
 
                 Section = MultiSection[2]
@@ -9723,7 +9719,7 @@ end
                 
                 do
 
-                    --[[
+                 
                         Section:Toggle({
                             Name = "Skin Changer",
                             Flag = "Skin Changer Enabled",
@@ -9807,7 +9803,7 @@ end
                                 if Fn then Fn(Value) end
                             end
                         })
-                    ]]
+                    
                 end
             end
         end
@@ -10293,7 +10289,7 @@ Section:TextBox({
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
---[[
+
 Spinner = { Enabled = false, Speed = 50 }
 Spinning = nil
 
@@ -11331,7 +11327,7 @@ Section:Toggle({ Name = "Client Rep", Flag = "AA Pose Local Replicate", Default 
 Section:Slider({ Name = "Lerp Speed", Flag = "AA Pose Osc Speed", Min = 0.05, Max = 5, Default = PoseOverride.OscSpeed, Decimals = 0.01, Callback = function(v) PoseOverride.OscSpeed = math.max(0.05, math.min(5, math.floor(v * 100 + 0.5) / 100)) end })
 Section:Toggle({ Name = "Force Instant", Flag = "AA Pose Instant", Default = PoseOverride.Instant, Callback = function(on) PoseOverride.Instant = on end })
 
-]]
+
     end
 end
 
@@ -11341,7 +11337,7 @@ end
         do
             MultiSection = Tab:MultiSection({
                 Name = "ESP",
-                Sections = { "Players" },
+                Sections = { "Players", "Options" },
                 Size = 309
             })
             do
@@ -11519,14 +11515,6 @@ end
                         })
 
                         Tree:Dropdown({
-                            Name = "Name Font",
-                            Options = { "Small", "Regular", "Bold" },
-                            Default = "Bold",
-                            Category = "Player",
-                            Flag = "Esp Name Font"
-                        })
-
-                        Tree:Dropdown({
                             Name = "Bounding Type",
                             Options = { "Static", "Dynamic" },
                             Default = "Static",
@@ -11694,6 +11682,137 @@ end
                             end
                         })
                     end
+                end
+
+                Section = MultiSection[2]
+                do
+                    Section:Slider({
+                        Name = "Name Size",
+                        Category = "Player",
+                        Flag = "Esp Name Size",
+                        Min = 8, Max = 30, Default = 10
+                    })
+
+                    Section:Dropdown({
+                        Name = "Name Case",
+                        Category = "Player",
+                        Flag = "Esp Name Case",
+                        Options = { "none", "lowercase", "UPPERCASE" },
+                        Default = "none"
+                    })
+
+                    Section:Dropdown({
+                        Name = "Name Font",
+                        Category = "Player",
+                        Flag = "Esp Name Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tahoma Bold"
+                    })
+
+                    Section:Toggle({
+                        Name = "Name Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Name Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Name Outline Color"
+                    })
+
+                    Section:Slider({
+                        Name = "Weapon Size",
+                        Category = "Player",
+                        Flag = "Esp Weapon Size",
+                        Min = 8, Max = 30, Default = 9
+                    })
+
+                    Section:Dropdown({
+                        Name = "Weapon Case",
+                        Category = "Player",
+                        Flag = "Esp Weapon Case",
+                        Options = { "none", "lowercase", "UPPERCASE" },
+                        Default = "UPPERCASE"
+                    })
+
+                    Section:Dropdown({
+                        Name = "Weapon Font",
+                        Category = "Player",
+                        Flag = "Esp Weapon Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tiny5"
+                    })
+
+                    Section:Toggle({
+                        Name = "Weapon Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Weapon Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Weapon Outline Color"
+                    })
+
+                    Section:Slider({
+                        Name = "Distance Size",
+                        Category = "Player",
+                        Flag = "Esp Distance Size",
+                        Min = 8, Max = 30, Default = 9
+                    })
+
+                    Section:Dropdown({
+                        Name = "Distance Case",
+                        Category = "Player",
+                        Flag = "Esp Distance Case",
+                        Options = { "none", "lowercase", "UPPERCASE" },
+                        Default = "UPPERCASE"
+                    })
+
+                    Section:Dropdown({
+                        Name = "Distance Font",
+                        Category = "Player",
+                        Flag = "Esp Distance Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tiny5"
+                    })
+
+                    Section:Toggle({
+                        Name = "Distance Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Distance Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Distance Outline Color"
+                    })
+
+                    Section:Slider({
+                        Name = "Health Size",
+                        Category = "Player",
+                        Flag = "Esp Health Size",
+                        Min = 8, Max = 30, Default = 13
+                    })
+
+                    Section:Dropdown({
+                        Name = "Health Font",
+                        Category = "Player",
+                        Flag = "Esp Health Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tiny5"
+                    })
+
+                    Section:Toggle({
+                        Name = "Health Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Health Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Health Outline Color"
+                    })
                 end
             end
 
@@ -16744,6 +16863,85 @@ end
 do
     local Fonts = Menu.Fonts
 
+    local function LoadEspFont(FileName : String, AssetKey : String, FontSize : Number)
+        local Success, Result = pcall(function()
+            local FontFolder = Menu.Folders.Fonts
+            local FontPath = Format("%s/%s.ttf", FontFolder, FileName)
+
+            if not IsFolder(FontFolder) then
+                MakeFolder(FontFolder)
+            end
+
+            -- always rewrite so a stale/corrupt cached file can never stick around
+            WriteFile(FontPath, Decode(Menu.EncodedAssets[AssetKey]))
+
+            local CustomFont = NewDrawing("Font")
+            CustomFont.Data = ReadFile(FontPath)
+            CustomFont.Size = FontSize
+
+            return CustomFont
+        end)
+
+        if Success then
+            return Result
+        end
+
+        warn(Format("[Esp Font]: Failed to load '%s' -> %s", AssetKey, tostring(Result)))
+        return 2
+    end
+
+    local EspFontDefs = {
+        { Key = "Sevasto", File = "EspSevasto", Size = 14 },
+        { Key = "Tahoma", File = "EspTahoma", Size = 12 },
+        { Key = "Tahoma Bold", File = "EspTahomaBold", Size = 9 },
+        { Key = "Consolas Bold", File = "EspConsolasBold", Size = 11 },
+        { Key = "Tiny5", File = "EspTiny5", Size = 8 }
+    }
+
+    local EspFonts = {}
+
+    for i = 1, #EspFontDefs do
+        local Def = EspFontDefs[i]
+
+        EspFonts[Def.Key] = LoadEspFont(Def.File, Def.Key, Def.Size)
+    end
+
+    local EspFontName = EspFonts["Tahoma Bold"]
+    local EspFontTiny = EspFonts["Tiny5"]
+
+    local function ApplyTextCase(Text : String, CaseValue : String)
+        if CaseValue == "lowercase" then
+            return Lower(Text)
+        elseif CaseValue == "UPPERCASE" then
+            return Upper(Text)
+        end
+
+        return Text
+    end
+
+    local function RenderEspText(Draw : Instance, Shadow : Instance, Text : String, Size : Number, Font : Table, Color : Color3, Alpha : Number, Position : Vector2, Dropshadow : Boolean, OutlineColor : Color3)
+        Draw.Font         = Font
+        Draw.Text         = Text
+        Draw.Size         = Size
+        Draw.Position     = Position
+        Draw.Color        = Color
+        Draw.OutlineColor = OutlineColor or NewRGB(0, 0, 0)
+        Draw.Transparency = Alpha
+        Draw.Outline      = not Dropshadow
+        Draw.Visible      = true
+
+        if Dropshadow then
+            Shadow.Font         = Font
+            Shadow.Text         = Text
+            Shadow.Size         = Size
+            Shadow.Position     = NewVector2(Position.X + 1, Position.Y + 1)
+            Shadow.Color        = NewRGB(0, 0, 0)
+            Shadow.Transparency = Alpha
+            Shadow.Visible      = true
+        else
+            Shadow.Visible = false
+        end
+    end
 
     Esp.Flags = {}
     Esp.Players = {}
@@ -16766,7 +16964,13 @@ do
                 end
 
                 for Index, Value in next, Properties do
-                    Render[Index] = Value
+                    if Index ~= "Font" then
+                        Render[Index] = Value
+                    end
+                end
+
+                if Properties.Font ~= nil then
+                    Render.Font = Properties.Font
                 end
 
                 return Render
@@ -17045,9 +17249,12 @@ do
                 Flags = {}
             }
 
-            This.Name     = Esp.Render("Text", { Text = Player.Name, Visible = false, Size = 13, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = Drawing.Fonts.Plex }, true)
-            This.Weapon   = Esp.Render("Text", { Text = "", Visible = false, Size = 13, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = Drawing.Fonts.Plex }, true)
-            This.Distance = Esp.Render("Text", { Text = "", Visible = false, Size = 13, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = Drawing.Fonts.Plex }, true)
+            This.NameShadow     = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontName }, true)
+            This.Name           = Esp.Render("Text", { Text = Player.Name, Visible = false, Size = 16, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontName }, true)
+            This.WeaponShadow   = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.Weapon         = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+            This.DistanceShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.Distance       = Esp.Render("Text", { Text = "", Visible = false, Size = 16, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
 
             This.BoxFill    = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 0, 0) }, true)
             This.BoxOutline = Esp.Render("Square", { Thickness = 3, Visible = false, Filled = false, Color = NewRGB(0, 0, 0) }, true)
@@ -17055,7 +17262,29 @@ do
 
             This.HealthBarOutline = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 0, 0) }, true)
             This.HealthBarInline  = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 255, 0) }, true)
-            This.HealthBarValue   = Esp.Render("Text", { Text = "100", Visible = false, Size = 13, Center = true, Color = NewRGB(0, 255, 0), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = 2 }, true)
+
+            local HealthGradient = {}
+
+            for i = 1, 8 do
+                HealthGradient[i] = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 255, 0) }, true)
+            end
+
+            This.HealthGradient = HealthGradient
+
+            This.HealthBarValueShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 10, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.HealthBarValue       = Esp.Render("Text", { Text = "100", Visible = false, Size = 10, Center = true, Color = NewRGB(0, 255, 0), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+
+            This.Avatar = Esp.Render("ImageLabel", {
+                Parent = Esp.Overlay,
+                BackgroundTransparency = 1,
+                Size = NewUDim2(0, 26, 0, 26),
+                AnchorPoint = NewVector2(0.5, 1),
+                Image = Format("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100", Player.UserId),
+                Visible = false
+            })
+
+            Esp.Render("UICorner", { Parent = This.Avatar, CornerRadius = NewUDim(1, 0) })
+            This.AvatarStroke = Esp.Render("UIStroke", { Parent = This.Avatar, Color = NewRGB(0, 0, 0), Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Round })
 
             return This
         end)
@@ -17138,6 +17367,29 @@ do
 
 
     do
+        Esp.HideAll = LPH_NO_VIRTUALIZE(function(Renders : Table)
+            Renders.Name.Visible = false
+            Renders.NameShadow.Visible = false
+            Renders.Weapon.Visible = false
+            Renders.WeaponShadow.Visible = false
+            Renders.Distance.Visible = false
+            Renders.DistanceShadow.Visible = false
+            Renders.BoxFill.Visible = false
+            Renders.BoxOutline.Visible = false
+            Renders.BoxInline.Visible = false
+            Renders.HealthBarOutline.Visible = false
+            Renders.HealthBarInline.Visible = false
+            Renders.HealthBarValue.Visible = false
+            Renders.HealthBarValueShadow.Visible = false
+            Renders.Avatar.Visible = false
+
+            local Gradient = Renders.HealthGradient
+
+            for i = 1, #Gradient do
+                Gradient[i].Visible = false
+            end
+        end)
+
         Esp.RenderPlayerOnScreen = LPH_NO_VIRTUALIZE(function(This : Table, Renders : Table, BoxPosition : Vector2, BoxSize : Vector2)
             local Section = Flags["Player"]
 
@@ -17152,17 +17404,45 @@ do
                 end
             end
 
-            if Section["Esp Name"].Value then
-                local NameDraw = Renders.Name
-                local NameColorFlag = Section["Esp Name Color"]
+            local NameEnabled = Section["Esp Name"].Value
+            local NameSize = Section["Esp Name Size"].Value
+            local NameTopY = BoxPosition.Y - NameSize - 1
 
-                NameDraw.Color        = PriorityColor or (NameColorFlag and NameColorFlag.Color or NewRGB(255, 255, 255))
-                NameDraw.Text         = This.Name
-                NameDraw.Position     = NewVector2(BoxPosition.X + BoxSize.X / 2, BoxPosition.Y - 16)
-                NameDraw.Transparency = 1 - (NameColorFlag and (NameColorFlag.Transparency or 0) or 0)
-                NameDraw.Visible      = true
+            if NameEnabled then
+                local NameColorFlag = Section["Esp Name Color"]
+                local NameOutlineFlag = Section["Esp Name Outline Color"]
+                local NameFont = EspFonts[Section["Esp Name Font"].Value] or EspFontName
+
+                RenderEspText(
+                    Renders.Name, Renders.NameShadow,
+                    ApplyTextCase(This.Name, Section["Esp Name Case"].Value),
+                    NameSize, NameFont,
+                    PriorityColor or (NameColorFlag and NameColorFlag.Color or NewRGB(255, 255, 255)),
+                    1 - (NameColorFlag and (NameColorFlag.Transparency or 0) or 0),
+                    NewVector2(BoxPosition.X + BoxSize.X / 2, NameTopY),
+                    Section["Esp Name Dropshadow"].Value,
+                    NameOutlineFlag and NameOutlineFlag.Color
+                )
             else
                 Renders.Name.Visible = false
+                Renders.NameShadow.Visible = false
+            end
+
+            if Section["Esp Avatar"].Value then
+                local Avatar = Renders.Avatar
+                local AvatarStroke = Renders.AvatarStroke
+                local AvatarColorFlag = Section["Esp Avatar Color"]
+                local AvatarTopY = NameEnabled and (NameTopY - 1) or (BoxPosition.Y - 1)
+
+                Avatar.Position = NewUDim2(0, BoxPosition.X + BoxSize.X / 2, 0, AvatarTopY)
+                Avatar.Visible  = true
+
+                if AvatarStroke then
+                    AvatarStroke.Color        = AvatarColorFlag and AvatarColorFlag.Color or NewRGB(0, 0, 0)
+                    AvatarStroke.Transparency = AvatarColorFlag and (AvatarColorFlag.Transparency or 0) or 0
+                end
+            else
+                Renders.Avatar.Visible = false
             end
 
             if Section["Esp Box"].Value then
@@ -17207,73 +17487,134 @@ do
                 local HealthColor2Flag = Section["Esp Health Color 2"]
                 local HighColor        = HealthColor1Flag and HealthColor1Flag.Color or NewRGB(0, 255, 0)
                 local LowColor         = HealthColor2Flag and HealthColor2Flag.Color or NewRGB(255, 0, 0)
-                local HColor           = PriorityColor or HighColor:Lerp(LowColor, 1 - HealthPercent)
+                local BarType          = Section["Esp Health Bar Type"].Value
                 local Height           = (BoxPosition.Y + BoxSize.Y) - HealthSize
 
                 local HBarIn  = Renders.HealthBarInline
                 local HBarOut = Renders.HealthBarOutline
                 local HBarVal = Renders.HealthBarValue
-
-                HBarIn.Color        = HColor
-                HBarIn.Size         = NewVector2(2, HealthSize)
-                HBarIn.Position     = NewVector2(BoxPosition.X - 5, Height)
-                HBarIn.Transparency = 0.8
-                HBarIn.Visible      = true
+                local HBarValShadow = Renders.HealthBarValueShadow
+                local Gradient = Renders.HealthGradient
 
                 HBarOut.Size         = NewVector2(4, BoxSize.Y + 2)
                 HBarOut.Position     = NewVector2(BoxPosition.X - 6, BoxPosition.Y - 1)
                 HBarOut.Transparency = 0.8
                 HBarOut.Visible      = true
 
-                HBarVal.Text         = tostring(Ceil(This.Health))
-                HBarVal.Color        = HColor
-                HBarVal.Position     = NewVector2(BoxPosition.X - 17, BoxPosition.Y + BoxSize.Y - HealthPercent * BoxSize.Y)
-                HBarVal.Transparency = 0.8
-                HBarVal.Visible      = HealthPercent < 1
+                if BarType == "Gradient" and not PriorityColor then
+                    HBarIn.Visible = false
+
+                    local SegmentCount = #Gradient
+                    local SegHeight = BoxSize.Y / SegmentCount
+
+                    for i = 1, SegmentCount do
+                        local Seg = Gradient[i]
+                        local SegTop = BoxPosition.Y + (i - 1) * SegHeight
+                        local SegCenter = SegTop + SegHeight / 2
+                        local Fraction = (i - 1) / (SegmentCount - 1)
+
+                        Seg.Color        = HighColor:Lerp(LowColor, Fraction)
+                        Seg.Size         = NewVector2(2, Ceil(SegHeight) + 1)
+                        Seg.Position     = NewVector2(BoxPosition.X - 5, Floor(SegTop))
+                        Seg.Transparency = 0.8
+                        Seg.Visible      = SegCenter >= Height
+                    end
+                else
+                    for i = 1, #Gradient do
+                        Gradient[i].Visible = false
+                    end
+
+                    local HColor = PriorityColor or (BarType == "Static" and HighColor or HighColor:Lerp(LowColor, 1 - HealthPercent))
+
+                    HBarIn.Color        = HColor
+                    HBarIn.Size         = NewVector2(2, HealthSize)
+                    HBarIn.Position     = NewVector2(BoxPosition.X - 5, Height)
+                    HBarIn.Transparency = 0.8
+                    HBarIn.Visible      = true
+                end
+
+                local HealthColor = PriorityColor or (Section["Esp Health Color 3"] and Section["Esp Health Color 3"].Color or NewRGB(255, 255, 255))
+                local HealthFont = EspFonts[Section["Esp Health Font"].Value] or EspFontTiny
+                local HealthTextSize = Section["Esp Health Size"].Value
+                local HealthValueY = (BoxPosition.Y + BoxSize.Y - HealthPercent * BoxSize.Y) - (HealthTextSize / 2)
+                local HealthOutlineFlag = Section["Esp Health Outline Color"]
+
+                RenderEspText(
+                    HBarVal, HBarValShadow,
+                    tostring(Ceil(This.Health)),
+                    HealthTextSize, HealthFont,
+                    HealthColor, 0.8,
+                    NewVector2(BoxPosition.X - 4, HealthValueY),
+                    Section["Esp Health Dropshadow"].Value,
+                    HealthOutlineFlag and HealthOutlineFlag.Color
+                )
+
+                local HealthVisible = HealthPercent < 1
+
+                HBarVal.Visible = HealthVisible
+                HBarValShadow.Visible = HBarValShadow.Visible and HealthVisible
             else
                 Renders.HealthBarInline.Visible = false
                 Renders.HealthBarOutline.Visible = false
                 Renders.HealthBarValue.Visible = false
+                Renders.HealthBarValueShadow.Visible = false
+
+                local Gradient = Renders.HealthGradient
+
+                for i = 1, #Gradient do
+                    Gradient[i].Visible = false
+                end
             end
 
-            if Section["Esp Weapon"].Value then
-                local WeaponDraw      = Renders.Weapon
-                local WeaponColorFlag = Section["Esp Weapon Color"]
-                local Tool            = This.Weapon
+            local StackY = BoxPosition.Y + BoxSize.Y + 1
 
-                WeaponDraw.Color        = PriorityColor or (WeaponColorFlag and WeaponColorFlag.Color or NewRGB(255, 255, 255))
-                WeaponDraw.Text         = Tool and Tool.Name or "None"
-                WeaponDraw.Position     = NewVector2(BoxPosition.X + BoxSize.X / 2, BoxPosition.Y + BoxSize.Y + 2)
-                WeaponDraw.Transparency = 1 - (WeaponColorFlag and (WeaponColorFlag.Transparency or 0) or 0)
-                WeaponDraw.Visible      = true
+            if Section["Esp Weapon"].Value then
+                local WeaponColorFlag = Section["Esp Weapon Color"]
+                local WeaponOutlineFlag = Section["Esp Weapon Outline Color"]
+                local Tool            = This.Weapon
+                local WeaponSize      = Section["Esp Weapon Size"].Value
+                local WeaponFont      = EspFonts[Section["Esp Weapon Font"].Value] or EspFontTiny
+
+                RenderEspText(
+                    Renders.Weapon, Renders.WeaponShadow,
+                    ApplyTextCase(Tool and Tool.Name or "None", Section["Esp Weapon Case"].Value),
+                    WeaponSize, WeaponFont,
+                    PriorityColor or (WeaponColorFlag and WeaponColorFlag.Color or NewRGB(255, 255, 255)),
+                    1 - (WeaponColorFlag and (WeaponColorFlag.Transparency or 0) or 0),
+                    NewVector2(BoxPosition.X + BoxSize.X / 2, StackY),
+                    Section["Esp Weapon Dropshadow"].Value,
+                    WeaponOutlineFlag and WeaponOutlineFlag.Color
+                )
+
+                StackY += WeaponSize + 1
             else
                 Renders.Weapon.Visible = false
+                Renders.WeaponShadow.Visible = false
             end
 
             if Section["Esp Distance"].Value then
-                local DistanceDraw = Renders.Distance
                 local DistColorFlag = Section["Esp Distance Color"]
+                local DistOutlineFlag = Section["Esp Distance Outline Color"]
+                local DistanceFont = EspFonts[Section["Esp Distance Font"].Value] or EspFontTiny
 
-                DistanceDraw.Color        = PriorityColor or (DistColorFlag and DistColorFlag.Color or NewRGB(255, 255, 255))
-                DistanceDraw.Text         = Ceil(This.Distance) .. "m"
-                DistanceDraw.Position     = NewVector2(BoxPosition.X + BoxSize.X / 2, BoxPosition.Y + BoxSize.Y + 15)
-                DistanceDraw.Transparency = 1 - (DistColorFlag and (DistColorFlag.Transparency or 0) or 0)
-                DistanceDraw.Visible      = true
+                RenderEspText(
+                    Renders.Distance, Renders.DistanceShadow,
+                    ApplyTextCase(Ceil(This.Distance) .. "m", Section["Esp Distance Case"].Value),
+                    Section["Esp Distance Size"].Value, DistanceFont,
+                    PriorityColor or (DistColorFlag and DistColorFlag.Color or NewRGB(255, 255, 255)),
+                    1 - (DistColorFlag and (DistColorFlag.Transparency or 0) or 0),
+                    NewVector2(BoxPosition.X + BoxSize.X / 2, StackY),
+                    Section["Esp Distance Dropshadow"].Value,
+                    DistOutlineFlag and DistOutlineFlag.Color
+                )
             else
                 Renders.Distance.Visible = false
+                Renders.DistanceShadow.Visible = false
             end
         end)
 
         Esp.RenderPlayerOffScreen = LPH_NO_VIRTUALIZE(function(This : Table, Renders : Table)
-            Renders.Name.Visible = false
-            Renders.Weapon.Visible = false
-            Renders.Distance.Visible = false
-            Renders.BoxFill.Visible = false
-            Renders.BoxOutline.Visible = false
-            Renders.BoxInline.Visible = false
-            Renders.HealthBarOutline.Visible = false
-            Renders.HealthBarInline.Visible = false
-            Renders.HealthBarValue.Visible = false
+            Esp.HideAll(Renders)
         end)
 
         Esp.RenderChams = LPH_JIT_MAX(function(This : Table)
@@ -17364,17 +17705,7 @@ do
                         Esp.AllHidden = true
 
                         for _, This in next, Esp.Players do
-                            local Renders = This.Renders
-
-                            Renders.Name.Visible = false
-                            Renders.Weapon.Visible = false
-                            Renders.Distance.Visible = false
-                            Renders.BoxFill.Visible = false
-                            Renders.BoxOutline.Visible = false
-                            Renders.BoxInline.Visible = false
-                            Renders.HealthBarOutline.Visible = false
-                            Renders.HealthBarInline.Visible = false
-                            Renders.HealthBarValue.Visible = false
+                            Esp.HideAll(This.Renders)
                         end
                     end
 
@@ -17432,15 +17763,7 @@ do
                         not RootPart or
                         This.Distance > MaxDistance
                     then
-                        Renders.Name.Visible = false
-                        Renders.Weapon.Visible = false
-                        Renders.Distance.Visible = false
-                        Renders.BoxFill.Visible = false
-                        Renders.BoxOutline.Visible = false
-                        Renders.BoxInline.Visible = false
-                        Renders.HealthBarOutline.Visible = false
-                        Renders.HealthBarInline.Visible = false
-                        Renders.HealthBarValue.Visible = false
+                        Esp.HideAll(Renders)
 
                         continue
                     end
@@ -17457,15 +17780,7 @@ do
                             or (WhitelistOnly and InfoThis and InfoThis.Whitelist))
 
                     if not ShouldRender then
-                        Renders.Name.Visible = false
-                        Renders.Weapon.Visible = false
-                        Renders.Distance.Visible = false
-                        Renders.BoxFill.Visible = false
-                        Renders.BoxOutline.Visible = false
-                        Renders.BoxInline.Visible = false
-                        Renders.HealthBarOutline.Visible = false
-                        Renders.HealthBarInline.Visible = false
-                        Renders.HealthBarValue.Visible = false
+                        Esp.HideAll(Renders)
 
                         continue
                     end
@@ -17479,7 +17794,7 @@ do
                     end
 
                     local Size       = (Camera.WorldToViewportPoint(RootPosition - EspV3Up3).Y - Camera.WorldToViewportPoint(RootPosition + EspV3Up2).Y) / 2
-                    local BoxSize     = NewVector2(Floor(Size * 1.2), Floor(Size * 1.9))
+                    local BoxSize     = NewVector2(Max(Floor(Size * 1.2), 6), Max(Floor(Size * 1.9), 6))
                     local BoxPosition = NewVector2(Floor(Position.X - Size * 1.25 / 2), Floor(Position.Y - Size * 1.6 / 2))
 
                     RenderInfo[#RenderInfo + 1] = { This, Renders, BoxPosition, BoxSize }
@@ -17499,24 +17814,24 @@ do
 
         function DestroyRenders(Renders : Table)
             for Index, Render in next, Renders do
-                if Index == "Skeleton" then
+                if Index == "Skeleton" or Index == "HealthGradient" then
                     for _, Line in next, Render do
-                        Line:Destroy()
+                        pcall(function() Line:Remove() end)
                     end
                 elseif Index == "Chams" then
                     for _, Data in next, Render do
-                        Data[1]:Destroy()
+                        pcall(function() Data[1]:Destroy() end)
                     end
                 elseif Index == "Flags" then
                     for _, Data in next, Render do
                         if Data.Render then
-                            Data.Render:Destroy()
+                            pcall(function() Data.Render:Destroy() end)
                         end
                     end
                 elseif typeof(Render) == "Instance" then
-                    Render:Destroy()
+                    pcall(function() Render:Destroy() end)
                 elseif typeof(Render) == "Drawing" then
-                    Render:Remove()
+                    pcall(function() Render:Remove() end)
                 end
             end
         end
@@ -17586,6 +17901,9 @@ do
                 This.Alive = false
                 This.ChamsDirty = true
 
+                -- hide immediately instead of waiting on Esp.Step's throttled refresh
+                pcall(Esp.HideAll, This.Renders)
+
                 if Flags["Chams Enabled"].Value then
                     Esp.RenderChams(This)
                     This.ChamsDirty = false
@@ -17609,13 +17927,14 @@ do
 
             if not This then return end
 
+            -- untrack immediately so no other loop (Step/RenderChams) can still touch this player's renders
+            Esp.Players[Player] = nil
+
             for _, Connection in next, This.Connections do
-                Connection:Disconnect()
+                pcall(function() Connection:Disconnect() end)
             end
 
             DestroyRenders(This.Renders)
-
-            Esp.Players[Player] = nil
         end)
 
         Esp.Init = function()
@@ -17627,6 +17946,20 @@ do
             Players.PlayerRemoving:Connect(Esp.RemovePlayer)
 
             Stepped:Connect(Esp.Step)
+
+            -- safety net: force-clean any tracked player whose instance already left,
+            -- in case PlayerRemoving ever fails to fire for a specific player
+            Spawn(function()
+                while true do
+                    Wait(2)
+
+                    for Player in next, Esp.Players do
+                        if not Player.Parent then
+                            pcall(Esp.RemovePlayer, Player)
+                        end
+                    end
+                end
+            end)
         end
     end
 end
@@ -18535,6 +18868,43 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 do
     AutoStomp = {
         Busy = false,
@@ -19167,152 +19537,6 @@ do
     end)
 end
 
---[[
-do
-    InstantEquip = {
-        Originals = {},
-        LastState = false,
-        LastCheck = 0,
-    }
-
-    function RestartClient(Tool)
-      
-        if Tool.Parent ~= LocalPlayer.Character then return end
-
-        for _, Name in next, { "Client", "PassClient" } do
-            local Script = FindFirstChild(Tool, Name)
-            if Script then
-                pcall(function()
-                    Script.Disabled = true
-                    Script.Disabled = false
-                end)
-            end
-        end
-    end
-
-    function WriteConfig(Tool, Enable)
-        if not IsA(Tool, "Tool") then return false end
-
-        local Module = FindFirstChild(Tool, "Config")
-        if not Module then return false end
-
-        local Ok, Config = pcall(require, Module)
-        if not Ok or type(Config) ~= "table" then return false end
-
-        if Enable then
-            if not InstantEquip.Originals[Config] then
-                InstantEquip.Originals[Config] = {
-                    EquipTime = rawget(Config, "EquipTime"),
-                    EquipAnimSpeed = rawget(Config, "EquipAnimSpeed") or 1,
-                }
-            end
-
-            pcall(function()
-                Config.EquipTime = 0.2
-                Config.EquipAnimSpeed = 9999
-            end)
-        else
-            local Original = InstantEquip.Originals[Config]
-            if Original then
-                pcall(function()
-                    Config.EquipTime = Original.EquipTime
-                    Config.EquipAnimSpeed = Original.EquipAnimSpeed
-                end)
-            end
-        end
-
-        return true
-    end
-
-    function changecfgss(Tool, Enable)
-        if not WriteConfig(Tool, Enable) then return end
-        if Tool.Parent == LocalPlayer.Character then
-            RestartClient(Tool)
-        end
-    end
-
-    function changecfgssing(Enable)
-        local Character = LocalPlayer.Character
-        if Character then
-            for _, Child in next, GetChildren(Character) do
-                pcall(changecfgss, Child, Enable)
-            end
-        end
-
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            for _, Child in next, GetChildren(Backpack) do
-                pcall(changecfgss, Child, Enable)
-            end
-        end
-
-        if not Enable then
-            InstantEquip.Originals = {}
-        end
-    end
-
-    function WatchBackpack(Backpack)
-        Backpack.ChildAdded:Connect(function(Child)
-            if not IsA(Child, "Tool") then return end
-
-            Wait()
-
-            if Flags["Instant Equip"].Value then
-                pcall(changecfgss, Child, true)
-            end
-        end)
-    end
-
-    function WatchCharacter(Character)
-        Character.ChildAdded:Connect(function(Child)
-            if IsA(Child, "Tool") and Flags["Instant Equip"].Value then
-                Wait()
-                pcall(WriteConfig, Child, true)
-            end
-        end)
-    end
-
-    LocalPlayer.ChildAdded:Connect(function(Child)
-        if IsA(Child, "Backpack") then
-            WatchBackpack(Child)
-        end
-    end)
-
-    do
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            WatchBackpack(Backpack)
-        end
-    end
-
-    LocalPlayer.CharacterAdded:Connect(function(Character)
-        WatchCharacter(Character)
-
-        if Flags["Instant Equip"].Value then
-            Spawn(function()
-                Wait(0.5)
-                changecfgssing(true)
-            end)
-        end
-    end)
-
-    if LocalPlayer.Character then
-        WatchCharacter(LocalPlayer.Character)
-    end
-
-    Heartbeat:Connect(function()
-        if Clock() - InstantEquip.LastCheck < 0.25 then return end
-        InstantEquip.LastCheck = Clock()
-
-        local Enabled = Flags["Instant Equip"].Value
-
-        if Enabled == InstantEquip.LastState then return end
-        InstantEquip.LastState = Enabled
-
-        changecfgssing(Enabled)
-    end)
-end
-]]
 do
     MeleeAura = {
         Busy = false,
@@ -19530,7 +19754,6 @@ end
 
 
 
---[[
 
 -- AI SkinChanger Paste - I do Not Take Responsability for this code at all.
 do
@@ -23065,7 +23288,7 @@ do
         SetThreadIdentity(8)
 
         Library:Notify({
-            Text = Format("Luckyware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
+            Text = Format("theware.net Loaded in: %.3f seconds.", FinishTick - StartTick),
             Time = 5
         })
 
