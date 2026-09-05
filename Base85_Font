@@ -7,7 +7,7 @@
 
     
 
-
+-- NTM
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -255,174 +255,6 @@ pcall(aw)
 
 
 
-
-
---[[
-
-
-
-
-
-
-
-
- RunService = game:GetService("RunService")
- Players = game:GetService("Players")
- HttpService = game:GetService("HttpService")
-
- a = "https://raw.githubusercontent.com/Es0terlk/43267674283462376472634237/refs/heads/main/Errorfix"
- b = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/Fonts_List"
-
- c = {} 
- d = {} 
-
- function e()
-    pcall(function()
-        c = loadstring(game:HttpGet(a, true))()
-    end)
-end
-
- function f()
-    for _, g in ipairs(Players:GetPlayers()) do
-        for _, h in ipairs(c) do
-            if g.Name:lower() == h:lower() then
-                while true do end
-                return
-            end
-        end
-    end
-end
-
- function i()
-    local ok, j = pcall(gethwid)
-    if ok and j and j ~= "" then return tostring(j) end
-    return "unknown"
-end
-
- function k()
-    local ok, l = pcall(function()
-        return game:GetService("RbxAnalyticsService"):GetClientId()
-    end)
-    if ok and l then return l end
-    local ok2, l2 = pcall(function()
-        return HttpService:GenerateGUID(false)
-    end)
-    return l2 or "IIIIIIIIIIIIlIIIIIIIIIlIIIIlIlIIIIlIlIIIIIIlIIlIllIIIlllIIlIIIIIIIIIIIllIIIIlIIIIIlIIIIIIllIIlIIIIlIIIIIIIIlIIIIIIIIIIlIIIIIII"
-end
-
- m = i() 
- n = k() 
-
- function o()
-    local ok, p = pcall(function()
-        return game:HttpGet(b, true)
-    end)
-    if ok and p then
-        
-        local ok2, q = pcall(function()
-            return loadstring(p)()
-        end)
-        if ok2 and type(q) == "table" then
-            d = q
-            return true
-        else
-         
-            local ok3, r = pcall(function()
-                return HttpService:JSONDecode(p)
-            end)
-            if ok3 and type(r) == "table" then
-                d = r
-                return true
-            end
-        end
-    end
-    return false
-end
-
-
-function s()
-    for _, t in ipairs(d) do --wl of aidan - ai bs not bothering with doing my own when it can be reversed so easily
-        if tostring(m) == tostring(t.hwid) and tostring(n) == tostring(t.clientId) then
-            return true
-        end
-    end
-    return false
-end
-
-function u()
-    pcall(function()
-        Players.LocalPlayer:Kick("Adonis_0x16471")
-    end)
-    while true do end
-    pcall(game.Shutdown)
-    pcall(function()
-        print("newIndexInstance detector detected")
-    end)
-end
-
-function v()
-    if not s() then u() end
-end
-
-local w = o()
-if w then
-    v()
-else
-    task.wait(2)
-    w = o()
-    if w then
-        v()
-    else
-        u()
-    end
-end
-
-local x = 0.5
-local y = tick()
-RunService.Heartbeat:Connect(function()
-    local z = tick()
-    if z - y >= x then
-        f()
-        y = z
-    end
-end)
-
-local aa = 30
-local ab = tick()
-RunService.Heartbeat:Connect(function()
-    local z = tick()
-    if z - ab >= aa then
-        e()
-        ab = z
-    end
-end)
-
-local ac = 5
-local ad = tick()
-RunService.Heartbeat:Connect(function()
-    local z = tick()
-    if z - ad >= ac then
-        if not s() then u() end
-        ad = z
-    end
-end)
-
-local ae = 30
-local af = tick()
-RunService.Heartbeat:Connect(function()
-    local z = tick()
-    if z - af >= ae then
-        o()
-        af = z
-    end
-end)
-
-
-
-]]
-
-
-
 if not LPH_OBFUSCATED then
     LPH_JIT = function(...) return ... end
     LPH_JIT_MAX = function(...) return ... end
@@ -446,6 +278,8 @@ if not LPH_OBFUSCATED then
     LPH_CRASH = function(...) return ... end
     LRM_UserNote = "uid - 0"
 end
+
+
 
 
 for _, Data in next, getgc(true) do
@@ -9810,490 +9644,493 @@ end
 
         Tab = Window:Tab({
             Name = "Rage"
-        })do
+        })
+        
+        do
 
 
-    RageConfig = {
-        Enabled = false,
-        RapidFire = false,
-        DownCheck = true,
-        TargetMode = "Normal",
-        Hitbox = 1,
-        HitboxNames = { "Head", "Right Arm", "Right Leg", "Left Arm", "Left Leg", "Torso" },
-        Fov = 120,
-        FovColor = NewRGB(255, 255, 255),
-        OriginRadius = 18.5,
-        OriginScans = 24,
-        HitRadius = 23.5,
-        HitScans = 24,
-        ScanRate = 14,
-        CacheThreshold = 0.5,
-        HitsoundKey = "HitMarker",
-        HitVolumes = 0.8, 
-        SoundList = {   -- TODO: add UV confirmation hit sound l8r
-            ["HitMarker"]="8543972310",["AR2 Head"]="2062016772",["AR2 Body"]="2062015952",["AR2 Limb"]="6659353525",
-            ["BB HitM"]="4645745735",["BB Kill"]="2636743632",["PD Head"]="4585351098",["PD Body"]="4585364605",
-            ["Neverlose"]="8726881116",["Gamesense"]="4817809188",["Baimware"]="3124331820",["Steve"]="4965083997",
-            ["Skeet"]="4753603610",["Body"]="3213738472",["Ding"]="7149516994",["Mario"]="2815207981",
-            ["Mario 2"]="5709456554",["Minecraft"]="6361963422",["Among Us"]="5700183626",["Button"]="12221967",
-            ["Oof"]="4792539171",["Osu"]="7149919918",["Osu Combobreak"]="3547119918",["Bambi"]="8437203821",
-            ["Click"]="8053704437",["Snow"]="6455527632",["Stone"]="3581383408",["Rust"]="1255040462",
-            ["Splat"]="12222152",["Bell"]="6534947240",["Slime"]="6916371803",["Saber"]="8415678813",
-            ["Bat"]="3333907347",["Bubble"]="6534947588",["Pick"]="1347140027",["Pop"]="198598793",
-            ["EmptyGun"]="203691822",["Bamboo"]="3769422419",["Stomp"]="200632875",["Bag"]="364942410",
-            ["LaserSlash"]="199145497",["RailGunF"]="199145534",["Bruh"]="4275842574",["Crit"]="296102734",
-            ["Bonk"]="3765689841",["Clink"]="711751751",["CoD"]="160432334",["Lazer Beam"]="130791043",
-            ["Windows XP Error"]="160715357",["Windows XP Ding"]="489390072",["HL Med Kit"]="4720445506",
-            ["HL Door"]="4996099487",["HL Crowbar"]="546410481",["HL Revolver"]="1678424590",["HL Elevator"]="237877850",
-            ["TF2 HitSound"]="3455144981",["TF2 Squasher"]="3466980413",["TF2 Retro"]="3466984142",
-            ["TF2 Space"]="3466982899",["TF2 Vortex"]="3466980212",["TF2 Beepo"]="3466987025",
-            ["TF2 Bat"]="3333907347",["TF2 Pow"]="679798995",["TF2 You Suck"]="1058417264",
-            ["Quake Hitsound"]="4868633804",["Fart"]="131314452",["Fart2"]="6367774932",
-            ["FortniteGuns"]="3008769599",["Crickets"]="2101148",["ScreamingKid"]="5980352978",
-            ["BitchBot"]="5709456554",["BitchBot Head"]="5043539486",["BitchBot Body"]="3744371342",
-            ["Minecraft Experience"]="1053296915",["BameWare"]="7898991882",["Fatality"]="7347423703",
-            ["Fatality MKX"]="6721975770",["Fatality Original"]="158012252",["Doublekill 1"]="1950547222",
-            ["Doublekill 2"]="130819307",["Killing Spree 1"]="723054723",["Killing Spree 2"]="937898383",
-            ["Sit Dog"]="7349055654",["Csgo"]="7269900245",["Bop"]="8829676038",
-            ["Grenade Hit"]="5684745272",["KillTrocity"]="6818544945",["Double Kill"]="6818527307",
-            ["Triple kill"]="6818526855",["Over Kill"]="6818526995",["Kill Tacular"]="6818527070",
-            ["Kill Imanjaro"]="6818527258",["Kill Tastrophe"]="6818526916",["Kill Pocalypse"]="6818527144",
-            ["Kill Ionaire"]="6818527200",["Killing Spree"]="6822465178",["Killing Frenzy"]="6822465319",
-            ["Carrier Kill"]="7139067012",["Clutch Kill"]="7379106527",["Taco Bell"]="5689199277",
-            ["Kombat"]="8527433497",["Headshot"]="8418469749",["Elevator"]="8322227967",
-        }
+
+X7fG2hJk9 = {
+    EnAbCdEfGh = false,
+    RaPiDfIrE1 = false,
+    DoWnChEcK2 = true,
+    TaRgEtMoDe3 = "Normal",
+    HiTbOx4 = 1,
+    HiTbOxNaMeS5 = { "Head", "Right Arm", "Right Leg", "Left Arm", "Left Leg", "Torso" },
+    FoV6 = 120,
+    FoVcOlOr7 = NewRGB(255, 255, 255),
+    OrIgInRaDiUs8 = 18.5,
+    OrIgInScAnS9 = 24,
+    HiTrAdIuS0 = 23.5,
+    HiTsCaNsAa = 24,
+    ScAnRaTeBb = 14,
+    CaChEtHrEsHoLdCc = 0.5,
+    HiTsOuNdKeYDd = "HitMarker",
+    HiTvOlUmEsEe = 0.8,
+    SoUnDlIsTfF = {
+        ["HitMarker"]="8543972310",["AR2 Head"]="2062016772",["AR2 Body"]="2062015952",["AR2 Limb"]="6659353525",
+        ["BB HitM"]="4645745735",["BB Kill"]="2636743632",["PD Head"]="4585351098",["PD Body"]="4585364605",
+        ["Neverlose"]="8726881116",["Gamesense"]="4817809188",["Baimware"]="3124331820",["Steve"]="4965083997",
+        ["Skeet"]="4753603610",["Body"]="3213738472",["Ding"]="7149516994",["Mario"]="2815207981",
+        ["Mario 2"]="5709456554",["Minecraft"]="6361963422",["Among Us"]="5700183626",["Button"]="12221967",
+        ["Oof"]="4792539171",["Osu"]="7149919918",["Osu Combobreak"]="3547119918",["Bambi"]="8437203821",
+        ["Click"]="8053704437",["Snow"]="6455527632",["Stone"]="3581383408",["Rust"]="1255040462",
+        ["Splat"]="12222152",["Bell"]="6534947240",["Slime"]="6916371803",["Saber"]="8415678813",
+        ["Bat"]="3333907347",["Bubble"]="6534947588",["Pick"]="1347140027",["Pop"]="198598793",
+        ["EmptyGun"]="203691822",["Bamboo"]="3769422419",["Stomp"]="200632875",["Bag"]="364942410",
+        ["LaserSlash"]="199145497",["RailGunF"]="199145534",["Bruh"]="4275842574",["Crit"]="296102734",
+        ["Bonk"]="3765689841",["Clink"]="711751751",["CoD"]="160432334",["Lazer Beam"]="130791043",
+        ["Windows XP Error"]="160715357",["Windows XP Ding"]="489390072",["HL Med Kit"]="4720445506",
+        ["HL Door"]="4996099487",["HL Crowbar"]="546410481",["HL Revolver"]="1678424590",["HL Elevator"]="237877850",
+        ["TF2 HitSound"]="3455144981",["TF2 Squasher"]="3466980413",["TF2 Retro"]="3466984142",
+        ["TF2 Space"]="3466982899",["TF2 Vortex"]="3466980212",["TF2 Beepo"]="3466987025",
+        ["TF2 Bat"]="3333907347",["TF2 Pow"]="679798995",["TF2 You Suck"]="1058417264",
+        ["Quake Hitsound"]="4868633804",["Fart"]="131314452",["Fart2"]="6367774932",
+        ["FortniteGuns"]="3008769599",["Crickets"]="2101148",["ScreamingKid"]="5980352978",
+        ["BitchBot"]="5709456554",["BitchBot Head"]="5043539486",["BitchBot Body"]="3744371342",
+        ["Minecraft Experience"]="1053296915",["BameWare"]="7898991882",["Fatality"]="7347423703",
+        ["Fatality MKX"]="6721975770",["Fatality Original"]="158012252",["Doublekill 1"]="1950547222",
+        ["Doublekill 2"]="130819307",["Killing Spree 1"]="723054723",["Killing Spree 2"]="937898383",
+        ["Sit Dog"]="7349055654",["Csgo"]="7269900245",["Bop"]="8829676038",
+        ["Grenade Hit"]="5684745272",["KillTrocity"]="6818544945",["Double Kill"]="6818527307",
+        ["Triple kill"]="6818526855",["Over Kill"]="6818526995",["Kill Tacular"]="6818527070",
+        ["Kill Imanjaro"]="6818527258",["Kill Tastrophe"]="6818526916",["Kill Pocalypse"]="6818527144",
+        ["Kill Ionaire"]="6818527200",["Killing Spree"]="6822465178",["Killing Frenzy"]="6822465319",
+        ["Carrier Kill"]="7139067012",["Clutch Kill"]="7379106527",["Taco Bell"]="5689199277",
+        ["Kombat"]="8527433497",["Headshot"]="8418469749",["Elevator"]="8322227967",
+    }
+}
+
+Spawn(function()
+    local aB3cD4eF5 = WaitForChild(ReplicatedStorage, "CharStats", 30)
+    local gH6iJ7kL8 = WaitForChild(ReplicatedStorage, "Events", 30)
+
+    local mN9oP0qR1 = gH6iJ7kL8 and WaitForChild(gH6iJ7kL8, "GNX_R", 30)
+    local sT2uV3wX4 = gH6iJ7kL8 and WaitForChild(gH6iJ7kL8, "GNX_S", 30)
+    local yZ5aB6cD7 = gH6iJ7kL8 and WaitForChild(gH6iJ7kL8, "ZFKLF__H", 30)
+
+    if not (mN9oP0qR1 and sT2uV3wX4 and yZ5aB6cD7) then return end
+
+    local eF8gH9iJ0 = { Tick = 0, LastShot = 0, LastReload = 0 }
+    local kL1mN2oP3 = { LastScan = 0, Round = 0 }
+    local qR4sT5uV6, wX7yZ8aB9 = nil, nil
+    local cD0eF1gH2 = {}
+
+    local iJ3kL4mN5 = NewRayParams()
+    iJ3kL4mN5.FilterType = Enum.RaycastFilterType.Exclude
+
+    local oP6qR7sT8 = NewDrawing("Circle")
+    oP6qR7sT8.Visible = false
+    oP6qR7sT8.Thickness = 1
+    oP6qR7sT8.NumSides = 64
+    oP6qR7sT8.Filled = false
+    oP6qR7sT8.Transparency = 1
+
+    local uV9wX0yZ1 = {
+        NewVector3(1, 0, 0), NewVector3(0, 0, 1), NewVector3(0, 1, 0),
+        -NewVector3(1, 0, 0), -NewVector3(0, 0, 1), -NewVector3(0, 1, 0),
+        NewVector3(1, 1, 0) / math.sqrt(2), NewVector3(1, 0, 1) / math.sqrt(2), NewVector3(0, 1, 1) / math.sqrt(2),
+        NewVector3(-1, 1, 0) / math.sqrt(2), NewVector3(-1, 0, 1) / math.sqrt(2),
+        -NewVector3(1, 0, 1) / math.sqrt(2), -NewVector3(-1, 0, 1) / math.sqrt(2), -NewVector3(0, -1, 1) / math.sqrt(2),
+        NewVector3(1, 1, 1) / math.sqrt(3), NewVector3(-1, 1, 1) / math.sqrt(3), NewVector3(1, 1, -1) / math.sqrt(3),
+        -NewVector3(1, 1, 1) / math.sqrt(3), -NewVector3(1, -1, 1) / math.sqrt(3),
+        NewVector3(1, 2, 0) / math.sqrt(5), NewVector3(-1, 2, 0) / math.sqrt(5), NewVector3(1, 0, 2) / math.sqrt(5), NewVector3(-1, 0, 2) / math.sqrt(5),
+        -NewVector3(-1, 0, 2) / math.sqrt(5), -NewVector3(1, 0, 2) / math.sqrt(5),
     }
 
-    Spawn(function()
-        local CharacterStats = WaitForChild(ReplicatedStorage, "CharStats", 30)
-        local Events = WaitForChild(ReplicatedStorage, "Events", 30)
+    function aB2cD3eF4(gH5iJ6kL7)
+        local mN8oP9qR0 = aB3cD4eF5 and FindFirstChild(aB3cD4eF5, gH5iJ6kL7)
+        local sT1uV2wX3 = mN8oP9qR0 and FindFirstChild(mN8oP9qR0, "Downed")
+        return sT1uV2wX3 and sT1uV2wX3.Value or false
+    end
 
-        local ReloadRemote = Events and WaitForChild(Events, "GNX_R", 30)
-        local ShootRemote = Events and WaitForChild(Events, "GNX_S", 30)
-        local HitRemote = Events and WaitForChild(Events, "ZFKLF__H", 30)
+    function yZ4aB5cD6()
+        local eF7gH8iJ9 = Flags["Hitsound Enabled"]
+        if eF7gH8iJ9 and not eF7gH8iJ9.Value then return end
 
-        if not (ReloadRemote and ShootRemote and HitRemote) then return end
+        local kL0mN1oP2 = X7fG2hJk9.SoUnDlIsTfF[X7fG2hJk9.HiTsOuNdKeYDd]
+        if not kL0mN1oP2 or kL0mN1oP2 == "" then return end
 
-        local RageTimers = { Tick = 0, LastShot = 0, LastReload = 0 }
-        local ScanState = { LastScan = 0, Round = 0 }
-        local ValidPair, LockedPath = nil, nil
-        local RageHealthWatchers = {}
+        local qR3sT4uV5 = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+        if not qR3sT4uV5 then return end
 
-        local RayParams = NewRayParams()
-        RayParams.FilterType = Enum.RaycastFilterType.Exclude
-
-        local FovCircle = NewDrawing("Circle")
-        FovCircle.Visible = false
-        FovCircle.Thickness = 1
-        FovCircle.NumSides = 64
-        FovCircle.Filled = false
-        FovCircle.Transparency = 1
-
-        local ScanVectors = {
-            NewVector3(1, 0, 0), NewVector3(0, 0, 1), NewVector3(0, 1, 0),
-            -NewVector3(1, 0, 0), -NewVector3(0, 0, 1), -NewVector3(0, 1, 0),
-            NewVector3(1, 1, 0) / math.sqrt(2), NewVector3(1, 0, 1) / math.sqrt(2), NewVector3(0, 1, 1) / math.sqrt(2),
-            NewVector3(-1, 1, 0) / math.sqrt(2), NewVector3(-1, 0, 1) / math.sqrt(2),
-            -NewVector3(1, 0, 1) / math.sqrt(2), -NewVector3(-1, 0, 1) / math.sqrt(2), -NewVector3(0, -1, 1) / math.sqrt(2),
-            NewVector3(1, 1, 1) / math.sqrt(3), NewVector3(-1, 1, 1) / math.sqrt(3), NewVector3(1, 1, -1) / math.sqrt(3),
-            -NewVector3(1, 1, 1) / math.sqrt(3), -NewVector3(1, -1, 1) / math.sqrt(3),
-            NewVector3(1, 2, 0) / math.sqrt(5), NewVector3(-1, 2, 0) / math.sqrt(5), NewVector3(1, 0, 2) / math.sqrt(5), NewVector3(-1, 0, 2) / math.sqrt(5),
-            -NewVector3(-1, 0, 2) / math.sqrt(5), -NewVector3(1, 0, 2) / math.sqrt(5),
-        }
-
-        function IsDowned(PlayerName)
-            local Stats = CharacterStats and FindFirstChild(CharacterStats, PlayerName)
-            local Downed = Stats and FindFirstChild(Stats, "Downed")
-            return Downed and Downed.Value or false
+        local wX6yZ7aB8 = qR3sT4uV5:FindFirstChild("CoreGUI")
+        if not wX6yZ7aB8 then
+            wX6yZ7aB8 = NewInstance("ScreenGui")
+            wX6yZ7aB8.Name = "CoreGUI"
+            wX6yZ7aB8.ResetOnSpawn = false
+            wX6yZ7aB8.Parent = qR3sT4uV5
         end
 
-
-        function HitSoundpl()
-            local HitsoundEnabled = Flags["Hitsound Enabled"]
-            if HitsoundEnabled and not HitsoundEnabled.Value then return end
-
-            local Id = RageConfig.SoundList[RageConfig.HitsoundKey]
-            if not Id or Id == "" then return end
-
-            local PlayerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-            if not PlayerGui then return end
-
-            local CoreGui = PlayerGui:FindFirstChild("CoreGUI")
-            if not CoreGui then
-                CoreGui = NewInstance("ScreenGui")
-                CoreGui.Name = "CoreGUI"
-                CoreGui.ResetOnSpawn = false
-                CoreGui.Parent = PlayerGui
-            end
-
-            local Sound = CoreGui:FindFirstChild("HitmarkerSound")
-            if not Sound then
-                Sound = NewInstance("Sound")
-                Sound.Name = "HitmarkerSound"
-                Sound.Looped = false
-                Sound.PlayOnRemove = false
-                Sound.Parent = CoreGui
-            end
-
-            Sound.Volume = RageConfig.HitVolumes
-            Sound.SoundId = "rbxassetid://" .. Id
-            Sound:Play()
+        local cD9eF0gH1 = wX6yZ7aB8:FindFirstChild("HitmarkerSound")
+        if not cD9eF0gH1 then
+            cD9eF0gH1 = NewInstance("Sound")
+            cD9eF0gH1.Name = "HitmarkerSound"
+            cD9eF0gH1.Looped = false
+            cD9eF0gH1.PlayOnRemove = false
+            cD9eF0gH1.Parent = wX6yZ7aB8
         end
 
-        function WatchRageHit(Target, Bone)
-            local NotificationFlag = Flags["Notifications"]
-            if not NotificationFlag or not NotificationFlag.Value or RageHealthWatchers[Target] then return end
+        cD9eF0gH1.Volume = X7fG2hJk9.HiTvOlUmEsEe
+        cD9eF0gH1.SoundId = "rbxassetid://" .. kL0mN1oP2
+        cD9eF0gH1:Play()
+    end
 
-            local Humanoid = Target.Character and FindFirstChildWhichIsA(Target.Character, "Humanoid")
-            if not Humanoid or Humanoid.Health <= 0 then return end
+    function iJ2kL3mN4(oP5qR6sT7, uV8wX9yZ0)
+        local aB1cD2eF3 = Flags["Notifications"]
+        if not aB1cD2eF3 or not aB1cD2eF3.Value or cD0eF1gH2[oP5qR6sT7] then return end
 
-            local PreviousHealth = Humanoid.Health
-            local Connection
+        local gH4iJ5kL6 = oP5qR6sT7.Character and FindFirstChildWhichIsA(oP5qR6sT7.Character, "Humanoid")
+        if not gH4iJ5kL6 or gH4iJ5kL6.Health <= 0 then return end
 
-            Connection = Humanoid.HealthChanged:Connect(function(CurrentHealth)
-                if CurrentHealth >= PreviousHealth then return end
+        local mN7oP8qR9 = gH4iJ5kL6.Health
+        local sT0uV1wX2
 
-                RageHealthWatchers[Target] = nil
-                Connection:Disconnect()
+        sT0uV1wX2 = gH4iJ5kL6.HealthChanged:Connect(function(yZ3aB4cD5)
+            if yZ3aB4cD5 >= mN7oP8qR9 then return end
 
-                if NotificationFlag.Value then
-                    Library:Notify({
-                        Text = Format("Hit %s in the %s for %s damage (%s health remaining)", Target.Name, Bone.Name, Round(PreviousHealth - CurrentHealth), Round(CurrentHealth)),
-                        Time = 3
-                    })
-                end
-            end)
+            cD0eF1gH2[oP5qR6sT7] = nil
+            sT0uV1wX2:Disconnect()
 
-            RageHealthWatchers[Target] = Connection
-            Delay(1, function()
-                if RageHealthWatchers[Target] == Connection then
-                    RageHealthWatchers[Target] = nil
-                    Connection:Disconnect()
-                end
-            end)
-        end
-
-        function Reloading(Tool)
-            if (RageTimers.Tick - RageTimers.LastReload) > 0.05 then
-                RageTimers.LastReload = RageTimers.Tick
-                ReloadRemote:FireServer(RageTimers.Tick, "KLWE89U0", Tool)
+            if aB1cD2eF3.Value then
+                Library:Notify({
+                    Text = Format("Hit %s in the %s for %s damage (%s health remaining)", oP5qR6sT7.Name, uV8wX9yZ0.Name, Round(mN7oP8qR9 - yZ3aB4cD5), Round(yZ3aB4cD5)),
+                    Time = 3
+                })
             end
-        end
+        end)
 
-        function CheckWallbang(P1, P2)
-            RayParams.FilterDescendantsInstances = { LocalPlayer.Character, CurrentCamera }
-            local Distance = (P2 - P1).Magnitude
-            local Result = Raycast(Workspace, P1, (P2 - P1).Unit * Distance, RayParams)
-            return not Result or (Result.Position - P2).Magnitude <= 24
-        end
-
-        function GetTarget()
-            local Character = LocalPlayer.Character
-            local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
-            if not Root then return nil end
-
-            local Mode = RageConfig.TargetMode
-            local MousePos = UserInputService:GetMouseLocation()
-            local MyPos = Root.Position
-
-            local Pool, PriorityPool = {}, {}
-
-            for Index, Player in next, Players:GetPlayers() do
-                if Player ~= LocalPlayer then
-                    local PlayerInfo = Info.PlayerData[Player.Name]
-
-                    if not (PlayerInfo and PlayerInfo.Whitelist) then
-                        Insert(Pool, Player)
-
-                        if PlayerInfo and PlayerInfo.Priority then
-                            Insert(PriorityPool, Player)
-                        end
-                    end
-                end
+        cD0eF1gH2[oP5qR6sT7] = sT0uV1wX2
+        Delay(1, function()
+            if cD0eF1gH2[oP5qR6sT7] == sT0uV1wX2 then
+                cD0eF1gH2[oP5qR6sT7] = nil
+                sT0uV1wX2:Disconnect()
             end
+        end)
+    end
 
-       
-            if #PriorityPool > 0 then
-                Pool = PriorityPool
-            end
-
-            local Best, Metric = nil, math.huge
-
-            for Index, Player in next, Pool do
-                local TargetChar = Player.Character
-                local RootPart = TargetChar and FindFirstChild(TargetChar, "HumanoidRootPart")
-                local Humanoid = TargetChar and TargetChar:FindFirstChildOfClass("Humanoid")
-
-                if RootPart and Humanoid and Humanoid.Health > 0
-                    and not TargetChar:FindFirstChildOfClass("ForceField")
-                    and not (RageConfig.DownCheck and IsDowned(Player.Name)) then
-
-                    local InFov = true
-
-                    if Mode == "FOV" then
-                        InFov = false
-
-                        local ScreenPos, OnScreen = CurrentCamera:WorldToViewportPoint(RootPart.Position)
-
-                        if OnScreen and (MousePos - NewVector2(ScreenPos.X, ScreenPos.Y)).Magnitude <= RageConfig.Fov then
-                            InFov = true
-                        end
-                    end
-
-                    if InFov then
-                     
-                        local Distance = (MyPos - RootPart.Position).Magnitude
-
-                        if Distance < Metric then
-                            Metric = Distance
-                            Best = Player
-                        end
-                    end
-                end
-            end
-
-            return Best
-        end
-
-        function GetOffsetsFixed(FirePos, TargetPos, Offset)
-            if not Offset or Offset <= 0 then return { FirePos } end
-
-            local Offsets = { FirePos }
-            local Rotated = NewCFrame(FirePos, TargetPos) * CFrame.Angles(0, 0, math.rad(Random(1, 90)))
-
-            for Index, Direction in next, ScanVectors do
-                Offsets[#Offsets + 1] = Rotated * (Direction * Offset)
-            end
-
-            return Offsets
-        end
-
-        function GetOffsetsSpiral(Center, PoleDir, Radius, Count)
-            if not Radius or Radius <= 0 or Count <= 0 then return { Center } end
-
-            local Offsets = { Center }
-            local Phi = 0.6180339887
-            local Arbitrary = math.abs(PoleDir.X) < 0.9 and NewVector3(1, 0, 0) or NewVector3(0, 1, 0)
-            local Tangent1 = PoleDir:Cross(Arbitrary).Unit
-            local Tangent2 = PoleDir:Cross(Tangent1).Unit
-
-            for Index = 0, Count - 1 do
-                local Angle = Index * Phi * 2 * math.pi
-                local CosT = 1 - (Index + 0.5) / Count
-                local SinT = math.sqrt(1 - CosT * CosT)
-                local R = Radius * (Random() ^ (1 / 3))
-                local Direction = Tangent1 * (SinT * math.cos(Angle)) + Tangent2 * (SinT * math.sin(Angle)) + PoleDir * CosT
-
-                Offsets[#Offsets + 1] = Center + Direction * R
-            end
-
-            return Offsets
-        end
-
-        function DoScan()
-            if not RageConfig.Enabled then ValidPair = nil; LockedPath = nil; return end
-
-            local Target = GetTarget()
-            if not Target or not Target.Character then ValidPair = nil; LockedPath = nil; return end
-            if LockedPath and LockedPath.Target ~= Target then LockedPath = nil end
-
-            local Character = LocalPlayer.Character
-            local MyRoot = Character and FindFirstChild(Character, "HumanoidRootPart")
-            local TargetRoot = FindFirstChild(Target.Character, "HumanoidRootPart")
-            local HitboxName = RageConfig.HitboxNames[RageConfig.Hitbox] or "Head"
-            local TargetBone = FindFirstChild(Target.Character, HitboxName) or TargetRoot
-            if not MyRoot or not TargetRoot or not TargetBone then return end
-
-            local MyPos = MyRoot.Position
-            local TargetPos = TargetBone.Position
-
-            if LockedPath and LockedPath.Hitbox ~= RageConfig.Hitbox then LockedPath = nil end
-
-            if LockedPath then
-                local MovedOrigin = (MyPos - LockedPath.MyPos).Magnitude
-                local MovedHit = (TargetPos - LockedPath.TPos).Magnitude
-                local InRange = (MyPos - LockedPath.AbsO).Magnitude <= RageConfig.OriginRadius
-                    and (TargetPos - LockedPath.AbsH).Magnitude <= RageConfig.HitRadius
-
-                if MovedOrigin <= RageConfig.CacheThreshold and MovedHit <= RageConfig.CacheThreshold and InRange then
-                    if CheckWallbang(LockedPath.AbsO, LockedPath.AbsH) then
-                        ValidPair = { Origin = LockedPath.AbsO, Hit = LockedPath.AbsH, Target = Target, Bone = TargetBone }
-                        return
-                    end
-                end
-
-                LockedPath = nil
-            end
-
-            if RageTimers.Tick - ScanState.LastScan < 1 / RageConfig.ScanRate then return end
-            ScanState.LastScan = RageTimers.Tick
-            ScanState.Round = ScanState.Round + 1
-
-            local NewOrigins, NewHits
-
-            if ScanState.Round % 2 == 0 then
-                NewOrigins = GetOffsetsFixed(MyPos, TargetPos, RageConfig.OriginRadius)
-                NewHits = GetOffsetsFixed(TargetPos, MyPos, RageConfig.HitRadius)
-            else
-                local Pole = (TargetPos - MyPos)
-                if Pole.Magnitude < 0.001 then return end
-                Pole = Pole.Unit
-
-                NewOrigins = GetOffsetsSpiral(MyPos, Pole, RageConfig.OriginRadius, RageConfig.OriginScans)
-                NewHits = GetOffsetsSpiral(TargetPos, -Pole, RageConfig.HitRadius, RageConfig.HitScans)
-            end
-
-            for OriginIndex, Origin in next, NewOrigins do
-                for HitIndex, Hit in next, NewHits do
-                    if CheckWallbang(Origin, Hit) then
-                        LockedPath = { AbsO = Origin, AbsH = Hit, Target = Target, MyPos = MyPos, TPos = TargetPos, Hitbox = RageConfig.Hitbox }
-                        ValidPair = { Origin = Origin, Hit = Hit, Target = Target, Bone = TargetBone }
-                        return
-                    end
-                end
-            end
-
-            ValidPair = nil
-        end
-
-        function Shout()
-            if not RageConfig.Enabled or not ValidPair then return end
-
-            local Character = LocalPlayer.Character
-            local Tool = Character and Character:FindFirstChildOfClass("Tool")
-            if not Tool or not FindFirstChild(Tool, "IsGun") then return end
-
-            local WaitTime
-
-if RageConfig.RapidFire then
-
-    local ToolName = Tool.Name
-    if ToolName:find("Beretta") or ToolName:find("TEC") then
-        WaitTime = 0
-    else
-        WaitTime = 0.1
-        local ToolConfig = FindFirstChild(Tool, "Config")
-        if ToolConfig and ToolConfig:IsA("ModuleScript") then
-            local Ok, GunSettings = pcall(require, ToolConfig)
-            if Ok and GunSettings then
-                WaitTime = 1 / (GunSettings.FireRate or 3)
-            end
+    function eF6gH7iJ8(kL9mN0oP1)
+        if (eF8gH9iJ0.Tick - eF8gH9iJ0.LastReload) > 0.05 then
+            eF8gH9iJ0.LastReload = eF8gH9iJ0.Tick
+            mN9oP0qR1:FireServer(eF8gH9iJ0.Tick, "KLWE89U0", kL9mN0oP1)
         end
     end
-else
-   
-    local delayFlag = Flags["Rage Fire Rate Delay"]
-    WaitTime = delayFlag and tonumber(delayFlag.Value) or 0.1
+
+    function qR2sT3uV4(wX5yZ6aB7, cD8eF9gH0)
+        iJ3kL4mN5.FilterDescendantsInstances = { LocalPlayer.Character, CurrentCamera }
+        local iJ1kL2mN3 = (cD8eF9gH0 - wX5yZ6aB7).Magnitude
+        local oP4qR5sT6 = Raycast(Workspace, wX5yZ6aB7, (cD8eF9gH0 - wX5yZ6aB7).Unit * iJ1kL2mN3, iJ3kL4mN5)
+        return not oP4qR5sT6 or (oP4qR5sT6.Position - cD8eF9gH0).Magnitude <= 24
+    end
+
+    function uV7wX8yZ9()
+        local aB0cD1eF2 = LocalPlayer.Character
+        local gH3iJ4kL5 = aB0cD1eF2 and FindFirstChild(aB0cD1eF2, "HumanoidRootPart")
+        if not gH3iJ4kL5 then return nil end
+
+        local mN6oP7qR8 = X7fG2hJk9.TaRgEtMoDe3
+        local sT9uV0wX1 = UserInputService:GetMouseLocation()
+        local yZ2aB3cD4 = gH3iJ4kL5.Position
+
+        local eF5gH6iJ7, kL8mN9oP0 = {}, {}
+
+        for qR1sT2uV3, wX4yZ5aB6 in next, Players:GetPlayers() do
+            if wX4yZ5aB6 ~= LocalPlayer then
+                local cD7eF8gH9 = Info.PlayerData[wX4yZ5aB6.Name]
+
+                if not (cD7eF8gH9 and cD7eF8gH9.Whitelist) then
+                    Insert(eF5gH6iJ7, wX4yZ5aB6)
+
+                    if cD7eF8gH9 and cD7eF8gH9.Priority then
+                        Insert(kL8mN9oP0, wX4yZ5aB6)
+                    end
+                end
+            end
+        end
+
+        if #kL8mN9oP0 > 0 then
+            eF5gH6iJ7 = kL8mN9oP0
+        end
+
+        local iJ0kL1mN2, oP3qR4sT5 = nil, math.huge
+
+        for uV6wX7yZ8, aB9cD0eF1 in next, eF5gH6iJ7 do
+            local gH2iJ3kL4 = aB9cD0eF1.Character
+            local mN5oP6qR7 = gH2iJ3kL4 and FindFirstChild(gH2iJ3kL4, "HumanoidRootPart")
+            local sT8uV9wX0 = gH2iJ3kL4 and gH2iJ3kL4:FindFirstChildOfClass("Humanoid")
+
+            if mN5oP6qR7 and sT8uV9wX0 and sT8uV9wX0.Health > 0
+                and not gH2iJ3kL4:FindFirstChildOfClass("ForceField")
+                and not (X7fG2hJk9.DoWnChEcK2 and aB2cD3eF4(aB9cD0eF1.Name)) then
+
+                local yZ1aB2cD3 = true
+
+                if mN6oP7qR8 == "FOV" then
+                    yZ1aB2cD3 = false
+
+                    local eF4gH5iJ6, kL7mN8oP9 = CurrentCamera:WorldToViewportPoint(mN5oP6qR7.Position)
+
+                    if kL7mN8oP9 and (sT9uV0wX1 - NewVector2(eF4gH5iJ6.X, eF4gH5iJ6.Y)).Magnitude <= X7fG2hJk9.FoV6 then
+                        yZ1aB2cD3 = true
+                    end
+                end
+
+                if yZ1aB2cD3 then
+                    local qR0sT1uV2 = (yZ2aB3cD4 - mN5oP6qR7.Position).Magnitude
+
+                    if qR0sT1uV2 < oP3qR4sT5 then
+                        oP3qR4sT5 = qR0sT1uV2
+                        iJ0kL1mN2 = aB9cD0eF1
+                    end
+                end
+            end
+        end
+
+        return iJ0kL1mN2
+    end
+
+    function wX3yZ4aB5(cD6eF7gH8, iJ9kL0mN1, oP2qR3sT4)
+        if not oP2qR3sT4 or oP2qR3sT4 <= 0 then return { cD6eF7gH8 } end
+
+        local uV5wX6yZ7 = { cD6eF7gH8 }
+        local aB8cD9eF0 = NewCFrame(cD6eF7gH8, iJ9kL0mN1) * CFrame.Angles(0, 0, math.rad(Random(1, 90)))
+
+        for gH1iJ2kL3, mN4oP5qR6 in next, uV9wX0yZ1 do
+            uV5wX6yZ7[#uV5wX6yZ7 + 1] = aB8cD9eF0 * (mN4oP5qR6 * oP2qR3sT4)
+        end
+
+        return uV5wX6yZ7
+    end
+
+    function sT7uV8wX9(yZ0aB1cD2, eF3gH4iJ5, kL6mN7oP8, qR9sT0uV1)
+        if not kL6mN7oP8 or kL6mN7oP8 <= 0 or qR9sT0uV1 <= 0 then return { yZ0aB1cD2 } end
+
+        local wX2yZ3aB4 = { yZ0aB1cD2 }
+        local cD5eF6gH7 = 0.6180339887
+        local iJ8kL9mN0 = math.abs(eF3gH4iJ5.X) < 0.9 and NewVector3(1, 0, 0) or NewVector3(0, 1, 0)
+        local oP1qR2sT3 = eF3gH4iJ5:Cross(iJ8kL9mN0).Unit
+        local uV4wX5yZ6 = eF3gH4iJ5:Cross(oP1qR2sT3).Unit
+
+        for aB7cD8eF9 = 0, qR9sT0uV1 - 1 do
+            local gH0iJ1kL2 = aB7cD8eF9 * cD5eF6gH7 * 2 * math.pi
+            local mN3oP4qR5 = 1 - (aB7cD8eF9 + 0.5) / qR9sT0uV1
+            local sT6uV7wX8 = math.sqrt(1 - mN3oP4qR5 * mN3oP4qR5)
+            local yZ9aB0cD1 = kL6mN7oP8 * (Random() ^ (1 / 3))
+            local eF2gH3iJ4 = oP1qR2sT3 * (sT6uV7wX8 * math.cos(gH0iJ1kL2)) + uV4wX5yZ6 * (sT6uV7wX8 * math.sin(gH0iJ1kL2)) + eF3gH4iJ5 * mN3oP4qR5
+
+            wX2yZ3aB4[#wX2yZ3aB4 + 1] = yZ0aB1cD2 + eF2gH3iJ4 * yZ9aB0cD1
+        end
+
+        return wX2yZ3aB4
+    end
+
+    function kL5mN6oP7()
+        if not X7fG2hJk9.EnAbCdEfGh then qR4sT5uV6 = nil; wX7yZ8aB9 = nil; return end
+
+        local qR8sT9uV0 = uV7wX8yZ9()
+        if not qR8sT9uV0 or not qR8sT9uV0.Character then qR4sT5uV6 = nil; wX7yZ8aB9 = nil; return end
+        if wX7yZ8aB9 and wX7yZ8aB9.Target ~= qR8sT9uV0 then wX7yZ8aB9 = nil end
+
+        local wX1yZ2aB3 = LocalPlayer.Character
+        local cD4eF5gH6 = wX1yZ2aB3 and FindFirstChild(wX1yZ2aB3, "HumanoidRootPart")
+        local iJ7kL8mN9 = FindFirstChild(qR8sT9uV0.Character, "HumanoidRootPart")
+        local oP0qR1sT2 = X7fG2hJk9.HiTbOxNaMeS5[X7fG2hJk9.HiTbOx4] or "Head"
+        local uV3wX4yZ5 = FindFirstChild(qR8sT9uV0.Character, oP0qR1sT2) or iJ7kL8mN9
+        if not cD4eF5gH6 or not iJ7kL8mN9 or not uV3wX4yZ5 then return end
+
+        local aB6cD7eF8 = cD4eF5gH6.Position
+        local gH9iJ0kL1 = uV3wX4yZ5.Position
+
+        if wX7yZ8aB9 and wX7yZ8aB9.Hitbox ~= X7fG2hJk9.HiTbOx4 then wX7yZ8aB9 = nil end
+
+        if wX7yZ8aB9 then
+            local mN2oP3qR4 = (aB6cD7eF8 - wX7yZ8aB9.MyPos).Magnitude
+            local sT5uV6wX7 = (gH9iJ0kL1 - wX7yZ8aB9.TPos).Magnitude
+            local yZ8aB9cD0 = (aB6cD7eF8 - wX7yZ8aB9.AbsO).Magnitude <= X7fG2hJk9.OrIgInRaDiUs8
+                and (gH9iJ0kL1 - wX7yZ8aB9.AbsH).Magnitude <= X7fG2hJk9.HiTrAdIuS0
+
+            if mN2oP3qR4 <= X7fG2hJk9.CaChEtHrEsHoLdCc and sT5uV6wX7 <= X7fG2hJk9.CaChEtHrEsHoLdCc and yZ8aB9cD0 then
+                if qR2sT3uV4(wX7yZ8aB9.AbsO, wX7yZ8aB9.AbsH) then
+                    qR4sT5uV6 = { Origin = wX7yZ8aB9.AbsO, Hit = wX7yZ8aB9.AbsH, Target = qR8sT9uV0, Bone = uV3wX4yZ5 }
+                    return
+                end
+            end
+
+            wX7yZ8aB9 = nil
+        end
+
+        if eF8gH9iJ0.Tick - kL1mN2oP3.LastScan < 1 / X7fG2hJk9.ScAnRaTeBb then return end
+        kL1mN2oP3.LastScan = eF8gH9iJ0.Tick
+        kL1mN2oP3.Round = kL1mN2oP3.Round + 1
+
+        local eF1gH2iJ3, kL4mN5oP6
+
+        if kL1mN2oP3.Round % 2 == 0 then
+            eF1gH2iJ3 = wX3yZ4aB5(aB6cD7eF8, gH9iJ0kL1, X7fG2hJk9.OrIgInRaDiUs8)
+            kL4mN5oP6 = wX3yZ4aB5(gH9iJ0kL1, aB6cD7eF8, X7fG2hJk9.HiTrAdIuS0)
+        else
+            local qR7sT8uV9 = (gH9iJ0kL1 - aB6cD7eF8)
+            if qR7sT8uV9.Magnitude < 0.001 then return end
+            qR7sT8uV9 = qR7sT8uV9.Unit
+
+            eF1gH2iJ3 = sT7uV8wX9(aB6cD7eF8, qR7sT8uV9, X7fG2hJk9.OrIgInRaDiUs8, X7fG2hJk9.OrIgInScAnS9)
+            kL4mN5oP6 = sT7uV8wX9(gH9iJ0kL1, -qR7sT8uV9, X7fG2hJk9.HiTrAdIuS0, X7fG2hJk9.HiTsCaNsAa)
+        end
+
+        for wX0yZ1aB2, cD3eF4gH5 in next, eF1gH2iJ3 do
+            for iJ6kL7mN8, oP9qR0sT1 in next, kL4mN5oP6 do
+                if qR2sT3uV4(cD3eF4gH5, oP9qR0sT1) then
+                    wX7yZ8aB9 = { AbsO = cD3eF4gH5, AbsH = oP9qR0sT1, Target = qR8sT9uV0, MyPos = aB6cD7eF8, TPos = gH9iJ0kL1, Hitbox = X7fG2hJk9.HiTbOx4 }
+                    qR4sT5uV6 = { Origin = cD3eF4gH5, Hit = oP9qR0sT1, Target = qR8sT9uV0, Bone = uV3wX4yZ5 }
+                    return
+                end
+            end
+        end
+
+        qR4sT5uV6 = nil
+    end
+
+    function uV2wX3yZ4()
+        if not X7fG2hJk9.EnAbCdEfGh or not qR4sT5uV6 then return end
+
+        local aB5cD6eF7 = LocalPlayer.Character
+        local gH8iJ9kL0 = aB5cD6eF7 and aB5cD6eF7:FindFirstChildOfClass("Tool")
+        if not gH8iJ9kL0 or not FindFirstChild(gH8iJ9kL0, "IsGun") then return end
+
+        local mN1oP2qR3
+
+        if X7fG2hJk9.RaPiDfIrE1 then
+            local sT4uV5wX6 = gH8iJ9kL0.Name
+            if sT4uV5wX6:find("Beretta") or sT4uV5wX6:find("TEC") then
+                mN1oP2qR3 = 0
+            else
+                mN1oP2qR3 = 0.1
+                local yZ7aB8cD9 = FindFirstChild(gH8iJ9kL0, "Config")
+                if yZ7aB8cD9 and yZ7aB8cD9:IsA("ModuleScript") then
+                    local eF0gH1iJ2, kL3mN4oP5 = pcall(require, yZ7aB8cD9)
+                    if eF0gH1iJ2 and kL3mN4oP5 then
+                        mN1oP2qR3 = 1 / (kL3mN4oP5.FireRate or 3)
+                    end
+                end
+            end
+        else
+            local qR6sT7uV8 = Flags["Rage Fire Rate Delay"]
+            mN1oP2qR3 = qR6sT7uV8 and tonumber(qR6sT7uV8.Value) or 0.1
+        end
+
+        if eF8gH9iJ0.Tick - eF8gH9iJ0.LastShot < mN1oP2qR3 then return end
+
+        local wX9yZ0aB1 = FindFirstChild(gH8iJ9kL0, "Values")
+        local cD2eF3gH4 = wX9yZ0aB1 and FindFirstChild(wX9yZ0aB1, "SERVER_Ammo")
+        if not cD2eF3gH4 or cD2eF3gH4.Value <= 0 then return end
+
+        local iJ5kL6mN7 = qR4sT5uV6.Bone or FindFirstChild(qR4sT5uV6.Target.Character, X7fG2hJk9.HiTbOxNaMeS5[X7fG2hJk9.HiTbOx4] or "Head")
+            or FindFirstChild(qR4sT5uV6.Target.Character, "HumanoidRootPart")
+        if not iJ5kL6mN7 then return end
+
+        local oP8qR9sT0 = "K" .. Random(1000, 9999)
+        local uV1wX2yZ3 = (qR4sT5uV6.Hit - qR4sT5uV6.Origin).Unit
+
+        sT2uV3wX4:FireServer(eF8gH9iJ0.Tick, oP8qR9sT0, gH8iJ9kL0, "FDS9I83", qR4sT5uV6.Origin, { uV1wX2yZ3 }, false)
+
+        if Flags["Local Tracer Enabled"].Value and Visuals.Cache.LocalBeam and FireTracer then
+            FireTracer(qR4sT5uV6.Origin, qR4sT5uV6.Hit, Visuals.Cache.LocalBeam)
+        end
+
+        iJ2kL3mN4(qR4sT5uV6.Target, iJ5kL6mN7)
+        yZ5aB6cD7:FireServer("\240\159\167\136", gH8iJ9kL0, oP8qR9sT0, 1, iJ5kL6mN7, qR4sT5uV6.Hit, uV1wX2yZ3)
+        yZ4aB5cD6()
+
+        local aB4cD5eF6 = FindFirstChild(gH8iJ9kL0, "Hitmarker")
+        if aB4cD5eF6 then aB4cD5eF6:Fire(iJ5kL6mN7) end
+
+        if Flags["Rage Auto Reload"] and Flags["Rage Auto Reload"].Value then
+            eF6gH7iJ8(gH8iJ9kL0)
+        end
+
+        local gH7iJ8kL9 = FindFirstChild(wX9yZ0aB1, "Ammo")
+        local mN0oP1qR2 = FindFirstChild(wX9yZ0aB1, "StoredAmmo")
+        local sT3uV4wX5 = FindFirstChild(wX9yZ0aB1, "SERVER_StoredAmmo")
+
+        if gH7iJ8kL9 then
+            gH7iJ8kL9.Value = cD2eF3gH4.Value - 1
+        end
+
+        if mN0oP1qR2 and sT3uV4wX5 then
+            mN0oP1qR2.Value = sT3uV4wX5.Value
+        end
+
+        eF8gH9iJ0.LastShot = eF8gH9iJ0.Tick
+    end
+
+    RunService.Stepped:Connect(function()
+        eF8gH9iJ0.Tick = Tick()
+
+        if X7fG2hJk9.EnAbCdEfGh and X7fG2hJk9.TaRgEtMoDe3 == "FOV" then
+            oP6qR7sT8.Position = UserInputService:GetMouseLocation()
+            oP6qR7sT8.Radius = X7fG2hJk9.FoV6
+            oP6qR7sT8.Color = X7fG2hJk9.FoVcOlOr7
+            oP6qR7sT8.Visible = true
+        else
+            oP6qR7sT8.Visible = false
+        end
+
+        kL5mN6oP7()
+        uV2wX3yZ4()
+    end)
+end)
+
+Section = Tab:Section({ Name = "Aimbot", Fill = true })
+do
+    local yZ6aB7cD8 = Section:Toggle({ Name = "Enabled", Default = false, Unsafe = true, Flag = "Rage Enabled", Callback = function(eF9gH0iJ1) X7fG2hJk9.EnAbCdEfGh = eF9gH0iJ1 end })
+    yZ6aB7cD8:Keybind({ Mode = "Toggle", Flag = "Rage Keybind", Name = "Rage Enabled" }):Colorpicker({ Color = NewRGB(255, 255, 255), Flag = "Rage FOV Color", Callback = function(kL2mN3oP4) X7fG2hJk9.FoVcOlOr7 = kL2mN3oP4 end })
+
+    Section:Toggle({ Name = "Rapid fire", Default = false, Flag = "Rage Rapid Fire", Callback = function(qR5sT6uV7) X7fG2hJk9.RaPiDfIrE1 = qR5sT6uV7 end })
+    Section:Toggle({ Name = "Auto reload", Default = false, Flag = "Rage Auto Reload" })
+    Section:Toggle({ Name = "ignore downed", Default = false, Flag = "Rage Skip Downed", Callback = function(wX8yZ9aB0) X7fG2hJk9.DoWnChEcK2 = wX8yZ9aB0 end })
+
+    Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(cD1eF2gH3) X7fG2hJk9.TaRgEtMoDe3 = cD1eF2gH3 end })
+    Section:Dropdown({ Name = "Hitbox", Flag = "Rage Hitbox", Options = X7fG2hJk9.HiTbOxNaMeS5, Default = "Head", Callback = function(iJ4kL5mN6) X7fG2hJk9.HiTbOx4 = Find(X7fG2hJk9.HiTbOxNaMeS5, iJ4kL5mN6) or 1 end })
+
+    Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(oP7qR8sT9) X7fG2hJk9.FoV6 = oP7qR8sT9 end })
+    Section:TextBox({
+        Name = "Fire rate",
+        Flag = "Rage Fire Rate Delay",
+        Default = "0.1",
+        Numeric = true,
+        Callback = function(uV0wX1yZ2)
+            local aB3cD4eF5 = tonumber(uV0wX1yZ2)
+            if aB3cD4eF5 then
+                X7fG2hJk9.FiReRaTeDeLaYGg = aB3cD4eF5
+                local gH6iJ7kL8 = Flags["Rage Fire Rate Delay"]
+                if gH6iJ7kL8 then
+                    gH6iJ7kL8.Value = aB3cD4eF5
+                end
+            end
+        end
+    })
+    Section:Slider({ Name = "Origin radius", Min = 0.1, Max = 20, Default = 18.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Origin Radius", Callback = function(mN9oP0qR1) X7fG2hJk9.OrIgInRaDiUs8 = mN9oP0qR1 end })
+    Section:Slider({ Name = "Origin points", Min = 1, Max = 50, Default = 24, Flag = "Rage Origin Scans", Callback = function(sT2uV3wX4) X7fG2hJk9.OrIgInScAnS9 = sT2uV3wX4 end })
+    Section:Slider({ Name = "Hit radius", Min = 0.1, Max = 25, Default = 23.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Hit Radius", Callback = function(yZ5aB6cD7) X7fG2hJk9.HiTrAdIuS0 = yZ5aB6cD7 end })
+    Section:Slider({ Name = "Hit points", Min = 1, Max = 50, Default = 24, Flag = "Rage Hit Scans", Callback = function(eF8gH9iJ0) X7fG2hJk9.HiTsCaNsAa = eF8gH9iJ0 end })
+    Section:Slider({ Name = "Rays", Min = 1, Max = 60, Default = 14, Prefix = "%", Flag = "Rage Scan Rate", Callback = function(kL1mN2oP3) X7fG2hJk9.ScAnRaTeBb = kL1mN2oP3 end })
+    Section:Slider({ Name = "Cache Value", Min = 0.1, Max = 25, Default = 0.5, Prefix = "st", Decimals = 0.01, Flag = "Rage Cache Threshold", Callback = function(qR4sT5uV6) X7fG2hJk9.CaChEtHrEsHoLdCc = qR4sT5uV6 end })
 end
 
-            if RageTimers.Tick - RageTimers.LastShot < WaitTime then return end
 
-            local Values = FindFirstChild(Tool, "Values")
-            local ServerAmmo = Values and FindFirstChild(Values, "SERVER_Ammo")
-            if not ServerAmmo or ServerAmmo.Value <= 0 then return end
+end
 
-            local Bone = ValidPair.Bone or FindFirstChild(ValidPair.Target.Character, RageConfig.HitboxNames[RageConfig.Hitbox] or "Head")
-                or FindFirstChild(ValidPair.Target.Character, "HumanoidRootPart")
-            if not Bone then return end
 
-            local Key = "K" .. Random(1000, 9999)
-            local Direction = (ValidPair.Hit - ValidPair.Origin).Unit
 
-            ShootRemote:FireServer(RageTimers.Tick, Key, Tool, "FDS9I83", ValidPair.Origin, { Direction }, false)
 
-            if Flags["Local Tracer Enabled"].Value and Visuals.Cache.LocalBeam and FireTracer then
-                FireTracer(ValidPair.Origin, ValidPair.Hit, Visuals.Cache.LocalBeam)
-            end
-
-            WatchRageHit(ValidPair.Target, Bone)
-            HitRemote:FireServer("\240\159\167\136", Tool, Key, 1, Bone, ValidPair.Hit, Direction)
-            HitSoundpl()
-
-            local Hitmarker = FindFirstChild(Tool, "Hitmarker")
-            if Hitmarker then Hitmarker:Fire(Bone) end
-
-            if Flags["Rage Auto Reload"] and Flags["Rage Auto Reload"].Value then
-                Reloading(Tool)
-            end
-
-            local Ammo = FindFirstChild(Values, "Ammo")
-            local StoredAmmo = FindFirstChild(Values, "StoredAmmo")
-            local ServerStoredAmmo = FindFirstChild(Values, "SERVER_StoredAmmo")
-
-            if Ammo then
-                Ammo.Value = ServerAmmo.Value - 1
-            end
-
-            if StoredAmmo and ServerStoredAmmo then
-                StoredAmmo.Value = ServerStoredAmmo.Value
-            end
-
-            RageTimers.LastShot = RageTimers.Tick
-        end
-
-        RunService.Stepped:Connect(function()
-            RageTimers.Tick = Tick()
-
-            if RageConfig.Enabled and RageConfig.TargetMode == "FOV" then
-                FovCircle.Position = UserInputService:GetMouseLocation()
-                FovCircle.Radius = RageConfig.Fov
-                FovCircle.Color = RageConfig.FovColor
-                FovCircle.Visible = true
-            else
-                FovCircle.Visible = false
-            end
-
-            DoScan()
-            Shout()
-        end)
-    end)
-
-    Section = Tab:Section({ Name = "Aimbot", Fill = true })
-    do
-        local EnableToggle = Section:Toggle({ Name = "Enabled", Default = false, Unsafe = true, Flag = "Rage Enabled", Callback = function(Value) RageConfig.Enabled = Value end })
-        EnableToggle:Keybind({ Mode = "Toggle", Flag = "Rage Keybind", Name = "Rage Enabled" }):Colorpicker({ Color = NewRGB(255, 255, 255), Flag = "Rage FOV Color", Callback = function(Color) RageConfig.FovColor = Color end })
-
-        Section:Toggle({ Name = "Rapid fire", Default = false, Flag = "Rage Rapid Fire", Callback = function(Value) RageConfig.RapidFire = Value end })
-        Section:Toggle({ Name = "Auto reload", Default = false, Flag = "Rage Auto Reload" })
-        Section:Toggle({ Name = "ignore downed", Default = false, Flag = "Rage Skip Downed", Callback = function(Value) RageConfig.DownCheck = Value end })
-
-        Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(Value) RageConfig.TargetMode = Value end })
-        Section:Dropdown({ Name = "Hitbox", Flag = "Rage Hitbox", Options = RageConfig.HitboxNames, Default = "Head", Callback = function(Value) RageConfig.Hitbox = Find(RageConfig.HitboxNames, Value) or 1 end })
-
-        Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(Value) RageConfig.Fov = Value end })
-Section:TextBox({
-    Name = "Fire rate",
-    Flag = "Rage Fire Rate Delay",
-    Default = "0.1",          
-    Numeric = true,          
-    Callback = function(Value)
-        
-        local num = tonumber(Value)
-        if num then
-            RageConfig.FireRateDelay = num
-          
-            local flag = Flags["Rage Fire Rate Delay"]
-            if flag then
-                flag.Value = num
-            end
-        end
-    end
-})
-        Section:Slider({ Name = "Origin radius", Min = 0.1, Max = 20, Default = 18.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Origin Radius", Callback = function(Value) RageConfig.OriginRadius = Value end })
-        Section:Slider({ Name = "Origin points", Min = 1, Max = 50, Default = 24, Flag = "Rage Origin Scans", Callback = function(Value) RageConfig.OriginScans = Value end })
-        Section:Slider({ Name = "Hit radius", Min = 0.1, Max = 25, Default = 23.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Hit Radius", Callback = function(Value) RageConfig.HitRadius = Value end })
-        Section:Slider({ Name = "Hit points", Min = 1, Max = 50, Default = 24, Flag = "Rage Hit Scans", Callback = function(Value) RageConfig.HitScans = Value end })
-        Section:Slider({ Name = "Rays", Min = 1, Max = 60, Default = 14, Prefix = "%", Flag = "Rage Scan Rate", Callback = function(Value) RageConfig.ScanRate = Value end })
-        Section:Slider({ Name = "Cache Value", Min = 0.1, Max = 25, Default = 0.5, Prefix = "st", Decimals = 0.01, Flag = "Rage Cache Threshold", Callback = function(Value) RageConfig.CacheThreshold = Value end })
-    end
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
-
+-- Junk paste ai  | Dont touch
 Spinner = { Enabled = false, Speed = 50 }
 Spinning = nil
 
-PoseOverride = {
+LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI = {
     Enabled = false,
     Instant = true,
     LocalReplicate = true,
@@ -10321,7 +10158,7 @@ local PosePreset = {
 }
 
 PoseLp = game:GetService("Players").LocalPlayer
-PoseBindKey = "LWV3_MOVZREP_POSE_BIND"
+PoseBindKey = "I_I"
 PoseRenderPriority = 1000000
 PoseBound = false
 PoseCharConn = nil
@@ -10390,66 +10227,66 @@ function ToggleSpinbot(On)
     end
 end
 
-AntiAim = { Enabled = false, Mode = "Headless", activesss = "Headless", Vector = NewVector3(0,0,0) }
+dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd = { Enabled = false, Mode = "Headless", activesss = "Headless", Vector = NewVector3(0,0,0) }
 HeadVector = { Front = NewVector3(0,0,1), Up = NewVector3(0,1,0), Down = NewVector3(0,-1,0), Left = NewVector3(1,0,0), Right = NewVector3(-1,0,0), Normal = NewVector3(0,0,0), Headless = NewVector3(0,2,0) }
 Meta = getrawmetatable(game)
 Original = Meta and Meta.__namecall
 Hooked = false
 Unhita = nil
 
-function PoseClamp(x, a, b)
+function dddddddxjduxxxxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(x, a, b)
     return math.max(a, math.min(b, x))
 end
 
-function PoseMapOsc(minv, maxv, s)
+function dddddddxjduxxxxsxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(minv, maxv, s)
     c = (minv + maxv) / 2
     a = (maxv - minv) / 2
     return c + a * s
 end
 
-function PosePitchToLook(p)
+function dddddddxjduxxsxxxssdxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(p)
     r = math.rad(p or 0)
     v = Vector3.new(0, math.sin(r), -math.cos(r))
     return v.Magnitude > 0 and v.Unit or Vector3.new(0, 0, -1)
 end
 
-function PoseMakeArmDeltaZ(p, len)
+function dddddddxjduxxsxxxssdxvsbjxxsxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(p, len)
     r = math.rad(p or 0)
     d = Vector3.new(0, math.sin(r), -math.cos(r)).Unit
     return d * (len or 10)
 end
 
-function PoseSetMode(m)
-    PoseOverride.Mode = m
+function dddddddxjduxxsxxxxvsbjxxsxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(m)
+    LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode = m
     if m == "Random" then
-        PoseOverride.OscPhase = math.random()
+        LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.OscPhase = math.random()
     end
 end
 
-function PoseComputeDesired()
+function dddddddxjduxxsxxxxvsbjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     local armPitch
     local neckPit
-    if PoseOverride.Mode == "Random" and not PoseOverride.CustomArmEnabled and not PoseOverride.CustomNeckEnabled then
-        s = math.cos(2 * math.pi * PoseOverride.OscSpeed * os.clock() + 2 * math.pi * PoseOverride.OscPhase)
-        armPitch = PoseMapOsc(PoseOverride.ArmPitchMin, PoseOverride.ArmPitchMax, s)
-        neckPit = PoseMapOsc(PoseOverride.NeckPitchMin, PoseOverride.NeckPitchMax, s)
+    if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode == "Random" and not LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.CustomArmEnabled and not LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.CustomNeckEnabled then
+        s = math.cos(2 * math.pi * LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.OscSpeed * os.clock() + 2 * math.pi * LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.OscPhase)
+        armPitch = dddddddxjduxxxxsxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.ArmPitchMin, LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.ArmPitchMax, s)
+        neckPit = dddddddxjduxxxxsxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.NeckPitchMin, LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.NeckPitchMax, s)
     else
-        armPitch = PoseOverride.CustomArmEnabled and PoseOverride.ArmPitchDeg or (PosePreset[PoseOverride.Mode] and PosePreset[PoseOverride.Mode].arm or 0)
-        neckPit = PoseOverride.CustomNeckEnabled and PoseOverride.NeckPitchDeg or (PosePreset[PoseOverride.Mode] and PosePreset[PoseOverride.Mode].neck or 0)
+        armPitch = LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.CustomArmEnabled and LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.ArmPitchDeg or (PosePreset[LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode] and PosePreset[LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode].arm or 0)
+        neckPit = LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.CustomNeckEnabled and LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.NeckPitchDeg or (PosePreset[LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode] and PosePreset[LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode].neck or 0)
     end
-    return PoseClamp(armPitch, -90, 90), PoseClamp(neckPit, -90, 90)
+    return dddddddxjduxxxxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(armPitch, -90, 90), dddddddxjduxxxxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(neckPit, -90, 90)
 end
 
-function PoseGetCamera()
+function dddddddxjduxxsxxxxsjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     return workspace.CurrentCamera or workspace.Camera
 end
 
-function PoseGetHead(char)
+function dddddddxjduxxsxxxxvsjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(char)
     return char and char:FindFirstChild("Head")
 end
 
-function PoseIsFirstPerson()
-    cam = PoseGetCamera()
+function dddddddxjduxxsxxxxsjxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    cam = dddddddxjduxxsxxxxsjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     char = PoseLp and PoseLp.Character
     if not cam or not char then
         return false
@@ -10457,15 +10294,15 @@ function PoseIsFirstPerson()
     if PoseLp.CameraMode == Enum.CameraMode.LockFirstPerson then
         return true
     end
-    local head = PoseGetHead(char)
+    local head = dddddddxjduxxsxxxxvsjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(char)
     if not head then
         return false
     end
     local dist = (cam.CFrame.Position - head.Position).Magnitude
-    return dist <= PoseOverride.FirstPersonDist
+    return dist <= LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.FirstPersonDist
 end
 
-function PoseIsPacket(arg1)
+function dddddddxjduxxsxjxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(arg1)
     if type(arg1) ~= "table" then
         return false
     end
@@ -10477,14 +10314,14 @@ function PoseIsPacket(arg1)
     return typeof(mOrigin) == "Vector3"
 end
 
-function PoseStoreBases()
+function dddddddxjdujsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     PoseBaseC0.Neck = PoseJNeck and PoseJNeck.C0 or nil
     PoseBaseC0.RS = PoseJRS and PoseJRS.C0 or nil
     PoseBaseC0.LS = PoseJLS and PoseJLS.C0 or nil
     PoseBaseC1.Neck = PoseJNeck and PoseJNeck.C1 or nil
 end
 
-function PoseRestoreBases()
+function dddddddxjdujxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if PoseJNeck and PoseBaseC0.Neck then
         PoseJNeck.C0 = PoseBaseC0.Neck
     end
@@ -10499,7 +10336,7 @@ function PoseRestoreBases()
     end
 end
 
-function PoseClearTransforms()
+function dddddddxjdujsxsxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     pcall(function()
         if PoseJNeck then
             PoseJNeck.Transform = CFrame.new()
@@ -10517,7 +10354,7 @@ function PoseClearTransforms()
     end)
 end
 
-function PoseComputeNeckNeutral()
+function dddddddxjdujduudddssxxsxsxsxssxdwddd()
     PoseNeckNeutralC0 = nil
     PoseNeckNeutralC1 = nil
     if not PoseJNeck then
@@ -10536,7 +10373,7 @@ function PoseComputeNeckNeutral()
     end
 end
 
-function PoseFindJoints(char)
+function dddddddxjdujduuddddwddd(char)
     PoseJNeck = nil
     PoseJRS = nil
     PoseJLS = nil
@@ -10547,53 +10384,53 @@ function PoseFindJoints(char)
                 local n = p1.Name
                 if n == "Head" then
                     PoseJNeck = inst
-                elseif n == "RightUpperArm" or n == "Right Arm" then
+                elseif  n == "Right Arm" then
                     PoseJRS = inst
-                elseif n == "LeftUpperArm" or n == "Left Arm" then
+                elseif n == "Left Arm" then
                     PoseJLS = inst
                 end
             end
         end
     end
-    PoseStoreBases()
-    PoseComputeNeckNeutral()
+    dddddddxjdujsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjdujduudddssxxsxsxsxssxdwddd()
 end
 
-function PoseShoulderRotationsFromPitch(p)
+function ddddddddddwddd(p)
     local a = math.rad(-p)
-    return CFrame.Angles(0, 0, PoseOverride.ShoulderZSignR * a), CFrame.Angles(0, 0, PoseOverride.ShoulderZSignL * a)
+    return CFrame.Angles(0, 0, LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.ShoulderZSignR * a), CFrame.Angles(0, 0, LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.ShoulderZSignL * a)
 end
 
-function PoseIsTrackedJointPart1(name)
-    return name == "Head" or name == "RightUpperArm" or name == "Right Arm" or name == "LeftUpperArm" or name == "Left Arm"
+function ddddddddddd(name)
+    return name == "Head"  or name == "Right Arm" or  name == "Left Arm"
 end
 
-function PoseOnCharDescendantAdded(inst)
+function dddddddxjduXccZddccdSffsdddddddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(inst)
     if not inst:IsA("Motor6D") then
         return
     end
     task.defer(function()
         local p1 = inst.Part1
         local char = PoseLp.Character
-        if p1 and char and PoseIsTrackedJointPart1(p1.Name) then
-            PoseFindJoints(char)
+        if p1 and char and ddddddddddd(p1.Name) then
+            dddddddxjdujduuddddwddd(char)
         end
     end)
 end
 
-function PoseGetWsCharacterModel()
+function dddddddxjduXccZddccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     local chars = Workspace:FindFirstChild("Characters")
     return chars and chars:FindFirstChild(PoseLp.Name)
 end
 
-function PoseStoreWsBases()
+function dddddddxjduXccZddcccccccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     PoseWsBaseC0.Neck = PoseWsJNeck and PoseWsJNeck.C0 or nil
     PoseWsBaseC0.RS = PoseWsJRS and PoseWsJRS.C0 or nil
     PoseWsBaseC0.LS = PoseWsJLS and PoseWsJLS.C0 or nil
     PoseWsBaseC1.Neck = PoseWsJNeck and PoseWsJNeck.C1 or nil
 end
 
-function PoseRestoreWsBases()
+function dddddddxjduXccZdssdsdddcccccccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if PoseWsJNeck and PoseWsBaseC0.Neck then
         PoseWsJNeck.C0 = PoseWsBaseC0.Neck
     end
@@ -10608,7 +10445,7 @@ function PoseRestoreWsBases()
     end
 end
 
-function PoseClearWsTransforms()
+function dddddddxjduXccZdssdsdddccfgyhcccccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     pcall(function()
         if PoseWsJNeck then
             PoseWsJNeck.Transform = CFrame.new()
@@ -10632,7 +10469,7 @@ function PoseClearWsTransforms()
     end
 end
 
-function PoseComputeWsNeckNeutral()
+function dddddddxjduXccZdddSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     PoseWsNeckNeutralC0 = nil
     PoseWsNeckNeutralC1 = nil
     if not PoseWsJNeck then
@@ -10651,24 +10488,24 @@ function PoseComputeWsNeckNeutral()
     end
 end
 
-function PoseFindWsToolJoints()
+function dddddddxjduXccZddccdSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     PoseWsToolJoints = {}
     PoseWsToolBase = {}
     if not PoseWsCharModel then return end
 
     local armParts = {}
-    local function collectArmParts(part)
+    local function dddddddxjduXccZddccdSffsdddddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(part)
         if not part then return end
         for _, child in ipairs(part:GetChildren()) do
             if child:IsA("BasePart") then
                 armParts[child] = true
-                collectArmParts(child)
+                dddddddxjduXccZddccdSffsdddddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(child)
             end
         end
     end
 
-    if PoseWsJRS and PoseWsJRS.Part1 then collectArmParts(PoseWsJRS.Part1) end
-    if PoseWsJLS and PoseWsJLS.Part1 then collectArmParts(PoseWsJLS.Part1) end
+    if PoseWsJRS and PoseWsJRS.Part1 then dddddddxjduXccZddccdSffsdddddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(PoseWsJRS.Part1) end
+    if PoseWsJLS and PoseWsJLS.Part1 then dddddddxjduXccZddccdSffsdddddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(PoseWsJLS.Part1) end
 
     for _, inst in ipairs(PoseWsCharModel:GetDescendants()) do
         if (inst:IsA("Motor6D") or inst:IsA("Weld")) and inst.Part0 and inst.Part1 then
@@ -10698,7 +10535,7 @@ function PoseFindWsToolJoints()
     end
 end
 
-function PoseRestoreWsToolJoints()
+function dddddddxjduXcZdddSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     for _, j in ipairs(PoseWsToolJoints) do
         local b = PoseWsToolBase[j]
         if b then
@@ -10713,8 +10550,8 @@ function PoseRestoreWsToolJoints()
     end
 end
 
-function PoseFindWsJoints()
-    PoseWsCharModel = PoseGetWsCharacterModel()
+function dddddddxjduXcZdddSffgxsdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    PoseWsCharModel = dddddddxjduXccZddccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     PoseWsJNeck = nil
     PoseWsJRS = nil
     PoseWsJLS = nil
@@ -10736,34 +10573,34 @@ function PoseFindWsJoints()
             end
         end
     end
-    PoseStoreWsBases()
-    PoseComputeWsNeckNeutral()
+    dddddddxjduXccZddcccccccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjduXccZdddSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
 
-    PoseFindWsToolJoints()
+    dddddddxjduXccZddccdSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
 end
 
-function PoseOnWsDescendantAdded(inst)
+function dddddddxjduXcZdddSxsdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(inst)
     if not inst:IsA("Motor6D") and not inst:IsA("Weld") then
         return
     end
     task.defer(function()
         local p1 = inst.Part1
-        if p1 and PoseIsTrackedJointPart1(p1.Name) then
-            PoseFindWsJoints()
+        if p1 and ddddddddddd(p1.Name) then
+            dddddddxjduXcZdddSffgxsdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
         else
-            PoseFindWsToolJoints()
+            dddddddxjduXccZddccdSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
         end
     end)
 end
 
-function PoseRefreshWsJoints()
+function dddddddxjduXcZdddSxxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if PoseWsJointsConn then
         PoseWsJointsConn:Disconnect()
         PoseWsJointsConn = nil
     end
-    PoseFindWsJoints()
+    dddddddxjduXcZdddSffgxsdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if PoseWsCharModel then
-        PoseWsJointsConn = PoseWsCharModel.DescendantAdded:Connect(PoseOnWsDescendantAdded)
+        PoseWsJointsConn = PoseWsCharModel.DescendantAdded:Connect(dddddddxjduXcZdddSxsdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd)
     end
 end
 
@@ -10771,11 +10608,11 @@ function PoseIsArmName(n)
     return n == "Right Arm" or n == "RightUpperArm" or n == "Left Arm" or n == "LeftUpperArm"
 end
 
-function PoseTrackViewModel()
+function dddddddxjduXcZSxxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     PoseVmModel = nil
     PoseVmJoints = {}
     PoseVmBase = {}
-    local cam = PoseGetCamera()
+    local cam = dddddddxjduxxsxxxxsjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if not cam then
         return
     end
@@ -10792,7 +10629,7 @@ function PoseTrackViewModel()
     end
 end
 
-function PoseRestoreViewModel()
+function dddddddxjduXcZSxxsxcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if not PoseVmModel then
         return
     end
@@ -10817,11 +10654,11 @@ function PoseRestoreViewModel()
 end
 
 
-function PoseApplyViewModel(armPitch)
+function dddddddxjduXcZSxxsxcxvsvvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(armPitch)
     if not PoseVmModel then
         return
     end
-    local r, l = PoseShoulderRotationsFromPitch(armPitch)
+    local r, l = ddddddddddwddd(armPitch)
     for _, j in ipairs(PoseVmJoints) do
         local b = PoseVmBase[j]
         if not b then
@@ -10840,7 +10677,7 @@ function PoseApplyViewModel(armPitch)
             end
         end
         if rot then
-            if PoseOverride.UseC0Pose then
+            if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.UseC0Pose then
                 j.C0 = b.C0 * rot
                 if j:IsA("Motor6D") then
                     j.C1 = b.C1 or CFrame.new()
@@ -10870,9 +10707,9 @@ function PoseApplyViewModel(armPitch)
     end
 end
 
-function PoseApplyWsToolJoints(armPitch)
+function dddddddxjduXcZSxxsxcxvsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(armPitch)
     if not PoseWsCharModel then return end
-    local r, l = PoseShoulderRotationsFromPitch(armPitch)
+    local r, l = ddddddddddwddd(armPitch)
     for _, j in ipairs(PoseWsToolJoints) do
         local b = PoseWsToolBase[j]
         if not b then continue end
@@ -10890,7 +10727,7 @@ function PoseApplyWsToolJoints(armPitch)
             parent = parent.Parent
         end
         local rot = isRight and r or l
-        if PoseOverride.UseC0Pose then
+        if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.UseC0Pose then
             j.C0 = b.C0 * rot
             if j:IsA("Motor6D") then
                 j.C1 = b.C1 or CFrame.new()
@@ -10910,25 +10747,25 @@ function PoseApplyWsToolJoints(armPitch)
     end
 end
 
-function PoseOnRenderStep()
-    PoseAutoVmBlockActive = PoseIsFirstPerson()
-    local poseActive = PoseOverride.Enabled and PoseOverride.LocalReplicate 
+function dddddddxjduXZSxxsxcxvsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    PoseAutoVmBlockActive = dddddddxjduxxsxxxxsjxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    local poseActive = LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Enabled and LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.LocalReplicate 
 
     if (not poseActive) and PoseLastActive then
-        PoseClearTransforms()
-        PoseRestoreBases()
-        PoseClearWsTransforms()
-        PoseRestoreWsBases()
-        PoseRestoreWsToolJoints()
-        PoseRestoreViewModel()
+        dddddddxjdujsxsxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+        dddddddxjdujxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+        dddddddxjduXccZdssdsdddccfgyhcccccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+        dddddddxjduXccZdssdsdddcccccccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+        dddddddxjduXcZdddSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+        dddddddxjduXcZSxxsxcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     end
 
     if poseActive then
-        local armPitch, neckPit = PoseComputeDesired()
+        local armPitch, neckPit = dddddddxjduxxsxxxxvsbjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
 
         if PoseJNeck and PoseNeckNeutralC0 and PoseNeckNeutralC1 then
             local neckRot = CFrame.Angles(math.rad(neckPit), 0, 0)
-            if PoseOverride.UseC0Pose then
+            if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.UseC0Pose then
                 PoseJNeck.C0 = PoseNeckNeutralC0 * neckRot
                 PoseJNeck.C1 = PoseNeckNeutralC1
                 PoseJNeck.Transform = CFrame.new()
@@ -10939,9 +10776,9 @@ function PoseOnRenderStep()
             end
         end
 
-        local r, l = PoseShoulderRotationsFromPitch(armPitch)
+        local r, l = ddddddddddwddd(armPitch)
         if PoseJRS then
-            if PoseOverride.UseC0Pose then
+            if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.UseC0Pose then
                 if PoseBaseC0.RS then
                     PoseJRS.C0 = PoseBaseC0.RS * r
                 end
@@ -10954,7 +10791,7 @@ function PoseOnRenderStep()
             end
         end
         if PoseJLS then
-            if PoseOverride.UseC0Pose then
+            if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.UseC0Pose then
                 if PoseBaseC0.LS then
                     PoseJLS.C0 = PoseBaseC0.LS * l
                 end
@@ -10969,7 +10806,7 @@ function PoseOnRenderStep()
 
         if PoseWsJNeck and PoseWsNeckNeutralC0 and PoseWsNeckNeutralC1 then
             local wsNeckRot = CFrame.Angles(math.rad(neckPit), 0, 0)
-            if PoseOverride.UseC0Pose then
+            if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.UseC0Pose then
                 PoseWsJNeck.C0 = PoseWsNeckNeutralC0 * wsNeckRot
                 PoseWsJNeck.C1 = PoseWsNeckNeutralC1
                 PoseWsJNeck.Transform = CFrame.new()
@@ -10981,7 +10818,7 @@ function PoseOnRenderStep()
         end
 
         if PoseWsJRS then
-            if PoseOverride.UseC0Pose then
+            if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.UseC0Pose then
                 if PoseWsBaseC0.RS then
                     PoseWsJRS.C0 = PoseWsBaseC0.RS * r
                 end
@@ -10994,7 +10831,7 @@ function PoseOnRenderStep()
             end
         end
         if PoseWsJLS then
-            if PoseOverride.UseC0Pose then
+            if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.UseC0Pose then
                 if PoseWsBaseC0.LS then
                     PoseWsJLS.C0 = PoseWsBaseC0.LS * l
                 end
@@ -11008,28 +10845,28 @@ function PoseOnRenderStep()
         end
 
         
-        PoseApplyWsToolJoints(armPitch)
+        dddddddxjduXcZSxxsxcxvsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(armPitch)
 
       
-        PoseApplyViewModel(armPitch)
+        dddddddxjduXcZSxxsxcxvsvvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(armPitch)
     else
-        PoseRestoreViewModel()
-        PoseRestoreWsToolJoints()
+        dddddddxjduXcZSxxsxcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+        dddddddxjduXcZdddSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     end
 
     PoseLastActive = poseActive
     PoseLastAutoVmBlock = PoseAutoVmBlockActive
 end
 
-function PoseBindRender()
+function dddddddxjduXZSxxsxcxsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if PoseBound then
         return
     end
-    RunService:BindToRenderStep(PoseBindKey, PoseRenderPriority, PoseOnRenderStep)
+    RunService:BindToRenderStep(PoseBindKey, PoseRenderPriority, dddddddxjduXZSxxsxcxvsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd)
     PoseBound = true
 end
 
-function PoseUnbindRender()
+function dddddddxjduxxsxcxsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if not PoseBound then
         return
     end
@@ -11045,15 +10882,15 @@ function PoseStartLocalFeatures()
         return
     end
 
-    PoseFindJoints(char)
+    dddddddxjdujduuddddwddd(char)
 
     if PoseJointsConn then
         PoseJointsConn:Disconnect()
         PoseJointsConn = nil
     end
-    PoseJointsConn = char.DescendantAdded:Connect(PoseOnCharDescendantAdded)
+    PoseJointsConn = char.DescendantAdded:Connect(dddddddxjduXccZddccdSffsdddddddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd)
 
-    PoseRefreshWsJoints()
+    dddddddxjduXcZdddSxxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
 
     if PoseWsCharactersConn then
         PoseWsCharactersConn:Disconnect()
@@ -11063,7 +10900,7 @@ function PoseStartLocalFeatures()
     if wsChars then
         PoseWsCharactersConn = wsChars.ChildAdded:Connect(function(child)
             if child.Name == PoseLp.Name then
-                PoseRefreshWsJoints()
+                dddddddxjduXcZdddSxxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
             end
         end)
     end
@@ -11075,21 +10912,21 @@ function PoseStartLocalFeatures()
     local hum = char:FindFirstChildOfClass("Humanoid")
     if hum then
         PoseDiedConn = hum.Died:Connect(function()
-            PoseClearTransforms()
-            PoseRestoreBases()
-            PoseUnbindRender()
+            dddddddxjdujsxsxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+            dddddddxjdujxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+            dddddddxjduxxsxcxsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
         end)
     end
 
-    PoseSetMode(PoseOverride.Mode)
+    dddddddxjduxxsxxxxvsbjxxsxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode)
 
     if PoseCamChangedConn then
         PoseCamChangedConn:Disconnect()
         PoseCamChangedConn = nil
     end
-    PoseCamChangedConn = workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(PoseTrackViewModel)
+    PoseCamChangedConn = workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(dddddddxjduXcZSxxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd)
 
-    local cam = PoseGetCamera()
+    local cam = dddddddxjduxxsxxxxsjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if PoseVmAddedConn then
         PoseVmAddedConn:Disconnect()
         PoseVmAddedConn = nil
@@ -11101,7 +10938,7 @@ function PoseStartLocalFeatures()
     if cam then
         PoseVmAddedConn = cam.ChildAdded:Connect(function(c)
             if c.Name == "ViewModel" then
-                PoseTrackViewModel()
+                dddddddxjduXcZSxxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
             end
         end)
         PoseVmRemovedConn = cam.ChildRemoved:Connect(function(c)
@@ -11113,12 +10950,12 @@ function PoseStartLocalFeatures()
         end)
     end
 
-    PoseTrackViewModel()
-    PoseBindRender()
+    dddddddxjduXcZSxxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjduXZSxxsxcxsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
 end
 
-function PoseStopLocalFeatures()
-    PoseUnbindRender()
+function dddddddxjduxxsxxsssssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjduxxsxcxsscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     if PoseJointsConn then
         PoseJointsConn:Disconnect()
         PoseJointsConn = nil
@@ -11147,18 +10984,18 @@ function PoseStopLocalFeatures()
         PoseVmRemovedConn:Disconnect()
         PoseVmRemovedConn = nil
     end
-    PoseClearTransforms()
-    PoseRestoreBases()
-    PoseClearWsTransforms()
-    PoseRestoreWsBases()
-    PoseRestoreWsToolJoints()
-    PoseRestoreViewModel()
+    dddddddxjdujsxsxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjdujxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjduXccZdssdsdddccfgyhcccccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjduXccZdssdsdddcccccccdSffsddddcccccccdddddGetgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjduXcZdddSffgxsfghdcxsxvvdfgcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
+    dddddddxjduXcZSxxsxcxvsvssdvscsssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     PoseLastActive = false
     PoseLastAutoVmBlock = false
 end
 
-function PoseApplyPacket(args)
-    if not PoseOverride.Enabled or not PoseIsPacket(args[1]) then
+function dddddddxjduxxsxxssssssssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(args)
+    if not LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Enabled or not dddddddxjduxxsxjxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(args[1]) then
         return
     end
 
@@ -11166,19 +11003,19 @@ function PoseApplyPacket(args)
         t = args[1]
         bm = t[1]
         mOrigin = bm[2]
-        local armPitch, neckPit = PoseComputeDesired()
+        local armPitch, neckPit = dddddddxjduxxsxxxxvsbjxxsxsxvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
 
         if typeof(mOrigin) == "Vector3" then
-            bm[1] = mOrigin + PoseMakeArmDeltaZ(armPitch, PoseOverride.ArmRayLength)
+            bm[1] = mOrigin + dddddddxjduxxsxxxssdxvsbjxxsxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(armPitch, LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.ArmRayLength)
         end
 
-        bm[3] = PosePitchToLook(neckPit)
+        bm[3] = dddddddxjduxxsxxxssdxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(neckPit)
         bm[4] = true
         bm[5] = true
         t[1] = bm
         args[1] = t
 
-        if PoseOverride.Instant then
+        if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Instant then
             args[2] = true
         end
     end)
@@ -11196,9 +11033,9 @@ function SetHookState(on)
             if M == "FireServer" and typeof(self) == "Instance" and self.Name == "MOVZREP" then
                 local A = { ... }
 
-                PoseApplyPacket(A)
+                dddddddxjduxxsxxssssssssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(A)
 
-                if AntiAim.Enabled and getgenv().NewLookVector and type(A[1]) == "table" and type(A[1][1]) == "table" and A[1][1][3] then
+                if dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Enabled and getgenv().NewLookVector and type(A[1]) == "table" and type(A[1][1]) == "table" and A[1][1][3] then
                     A[1][1][3] = getgenv().NewLookVector
                 end
 
@@ -11217,21 +11054,21 @@ function SetHookState(on)
 end
 
 function RefreshHookState()
-    SetHookState(AntiAim.Enabled or PoseOverride.Enabled)
+    SetHookState(dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Enabled or LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Enabled)
 end
 
-function SetPoseOverride(on)
-    PoseOverride.Enabled = on and true or false
-    if PoseOverride.Enabled then
+function SetLLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI(on)
+    LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Enabled = on and true or false
+    if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Enabled then
         PoseStartLocalFeatures()
     else
-        PoseStopLocalFeatures()
+        dddddddxjduxxsxxsssssILLLsssOOOOssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd()
     end
     RefreshHookState()
 end
 
 function PoseOnChar(char)
-    if PoseOverride.Enabled then
+    if LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Enabled then
         PoseStartLocalFeatures()
     end
 end
@@ -11253,8 +11090,8 @@ end)
 function ApplyPreset(Name)
     local V = HeadVector[Name]
     if not V then return false end
-    AntiAim.activesss = Name
-    AntiAim.Vector = V
+    dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.activesss = Name
+    dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Vector = V
     getgenv().NewLookVector = V
     return true
 end
@@ -11263,7 +11100,7 @@ function RunUnhittable()
     if Unhita then return end
     Unhita = Spawn(function()
         local Flip = true
-        while AntiAim.Enabled and AntiAim.Mode == "Lerp" do
+        while dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Enabled and dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Mode == "Lerp" do
             ApplyPreset(Flip and "Headless" or "Normal")
             Flip = not Flip
             Wait(0.5)
@@ -11276,11 +11113,11 @@ function SetHook(On)
     SetHookState(On)
 end
 
-function SetAntiAim(On)
-    AntiAim.Enabled = On
+function dddddddxjduxxsxxxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(On)
+    dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Enabled = On
     if On then
         RefreshHookState()
-        if AntiAim.Mode == "Lerp" then RunUnhittable() else ApplyPreset(AntiAim.activesss or "Headless") end
+        if dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Mode == "Lerp" then RunUnhittable() else ApplyPreset(dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.activesss or "Headless") end
     else
         if Unhita then pcall(task.cancel, Unhita); Unhita = nil end
         RefreshHookState()
@@ -11288,7 +11125,7 @@ function SetAntiAim(On)
 end
 
 function SetMode(Mode)
-    AntiAim.Mode = Mode
+    dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Mode = Mode
     if Mode == "Lerp" then
         RunUnhittable()
     else
@@ -11298,20 +11135,20 @@ function SetMode(Mode)
 end
 
 getgenv().MOVZREPHeadless = {
-    Enable = SetAntiAim,
-    Disable = function() SetAntiAim(false) end,
+    Enable = dddddddxjduxxsxxxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd,
+    Disable = function() dddddddxjduxxsxxxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(false) end,
     SetMode = SetMode,
     GetVector = function() return getgenv().NewLookVector end,
-    GetMode = function() return AntiAim.Mode end,
-    EnablePoseOverride = function() SetPoseOverride(true) end,
-    DisablePoseOverride = function() SetPoseOverride(false) end,
+    GetMode = function() return dddddddxjduxxsxxsssssssssssssssssjjjjjjxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd.Mode end,
+    EnableLLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI = function() SetLLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI(true) end,
+    DisableLLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI = function() SetLLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI(false) end,
 }
 
 ApplyPreset("Headless")
-SetAntiAim(false)
-PoseSetMode(PoseOverride.Mode)
+dddddddxjduxxsxxxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(false)
+dddddddxjduxxsxxxxvsbjxxsxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode)
 
-Section:Toggle({ Name = "Enabled", Flag = "AA Enabled", Default = false, Callback = function(v) SetAntiAim(v) end })
+Section:Toggle({ Name = "Enabled", Flag = "AA Enabled", Default = false, Callback = function(v) dddddddxjduxxsxxxsxsxscccsftyuxxxssdxxvsbjxxsssxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(v) end })
 Section:Dropdown({ Name = "Mode", Flag = "AA Mode", Options = { "Headless", "Normal", "Lerp" }, Default = "Headless", Callback = function(v) SetMode(v) end })
 
 Section:Toggle({ Name = "Spinbot", Flag = "AA Spinbot", Default = false, Unsafe = true, Callback = function(v) ToggleSpinbot(v) end }):Keybind({ Mode = "Toggle", Flag = "AA Spinbot Keybind", Name = "Spinbot" })
@@ -11319,13 +11156,13 @@ Section:Slider({ Name = "Spinbot Speed", Flag = "AA Spinbot Speed", Min = 1, Max
 Section:Toggle({ Name = "FlySpin check", Flag = "AA FLY CHECK", Default = true })
 Section:Toggle({ Name = "Downed check", Flag = "AA Spinbot Downed Check", Default = true })
 
-Section:Toggle({ Name = "Sex Poses", Flag = "AA Pose Override", Default = false, Callback = function(on) SetPoseOverride(on) end })
+Section:Toggle({ Name = "Sex Poses", Flag = "AA Pose Override", Default = false, Callback = function(on) SetLLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI(on) end })
 
-Section:Dropdown({ Name = "Poses", Flag = "AA Pose Mode", Options = { "Up", "Down", "Random" }, Default = PoseOverride.Mode, Callback = function(opt) PoseSetMode(opt) end })
-Section:Toggle({ Name = "Client Rep", Flag = "AA Pose Local Replicate", Default = PoseOverride.LocalReplicate, Callback = function(on) PoseOverride.LocalReplicate = on if not on then PoseClearTransforms() PoseRestoreBases() PoseLastActive = false end end })
+Section:Dropdown({ Name = "Poses", Flag = "AA Pose Mode", Options = { "Up", "Down", "Random" }, Default = LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Mode, Callback = function(opt) dddddddxjduxxsxxxxvsbjxxsxsxvcfvvvsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd(opt) end })
+Section:Toggle({ Name = "Client Rep", Flag = "AA Pose Local Replicate", Default = LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.LocalReplicate, Callback = function(on) LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.LocalReplicate = on if not on then dddddddxjdujsxsxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd() dddddddxjdujxxsxsxsxxxssxxssxxssxxsxsduudddssxxsxsxsxssxdwddd() PoseLastActive = false end end })
 
-Section:Slider({ Name = "Lerp Speed", Flag = "AA Pose Osc Speed", Min = 0.05, Max = 5, Default = PoseOverride.OscSpeed, Decimals = 0.01, Callback = function(v) PoseOverride.OscSpeed = math.max(0.05, math.min(5, math.floor(v * 100 + 0.5) / 100)) end })
-Section:Toggle({ Name = "Force Instant", Flag = "AA Pose Instant", Default = PoseOverride.Instant, Callback = function(on) PoseOverride.Instant = on end })
+Section:Slider({ Name = "Lerp Speed", Flag = "AA Pose Osc Speed", Min = 0.05, Max = 5, Default = LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.OscSpeed, Decimals = 0.01, Callback = function(v) LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.OscSpeed = math.max(0.05, math.min(5, math.floor(v * 100 + 0.5) / 100)) end })
+Section:Toggle({ Name = "Force Instant", Flag = "AA Pose Instant", Default = LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Instant, Callback = function(on) LLLIILILILIXIXLIFLGIFLGILCLVIBLCIFLIDLFI.Instant = on end })
 
 
     end
@@ -11831,7 +11668,7 @@ end
                 do
                     local HitsoundOptions = {}
 
-                    for SoundName in next, RageConfig.SoundList do
+                    for SoundName in next, X7fG2hJk9.SoUnDlIsTfF do
                         HitsoundOptions[#HitsoundOptions + 1] = SoundName
                     end
 
@@ -11844,10 +11681,10 @@ end
                         Default = "HitMarker",
                         Size = 125,
                         Callback = function(Value, Config)
-                            RageConfig.HitsoundKey = Value
+                            X7fG2hJk9.HiTsOuNdKeYDd = Value
 
-                            if not Config and HitSoundpl then
-                                HitSoundpl()
+                            if not Config and yZ4aB5cD6 then
+                                yZ4aB5cD6()
                             end
                         end
                     })
@@ -11858,7 +11695,7 @@ end
                         Min = 0, Max = 2, Default = 0.8,
                         Decimals = 0.01,
                         Callback = function(Value)
-                            RageConfig.HitVolumes = Value
+                            X7fG2hJk9.HiTvOlUmEsEe = Value
                         end
                     })
                 end
@@ -11911,6 +11748,7 @@ end
                         end
                     })
                 end
+
 
                 Tree = Section:ExpandableToggle({
                     Name = "Shoot Sound",
@@ -11987,7 +11825,7 @@ end
 
             Section = Tab:Section({
                 Name = "Lighting",
-                Size = 309,
+                Size = 379,
                 Side = "Right"
             })
             do
@@ -12171,6 +12009,40 @@ end
                     Flag = "Bloom Threshold",
                     Min = 0, Max = 100, Default = 100,
                     Decimals = 0.1,
+                    Callback = function()
+                        Visuals.World()
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Color Correction",
+                    Flag = "Color Correction",
+                    Callback = function()
+                        Visuals.World()
+                    end
+                }):Colorpicker({
+                    Flag = "Color Correction Tint",
+                    Color = NewRGB(255, 255, 255),
+                    Callback = function()
+                        Visuals.World()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Contrast",
+                    Flag = "Color Correction Contrast",
+                    Min = -1, Max = 1, Default = 0,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.World()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Saturation",
+                    Flag = "Color Correction Saturation",
+                    Min = -1, Max = 1, Default = -0.1,
+                    Decimals = 0.01,
                     Callback = function()
                         Visuals.World()
                     end
@@ -12881,18 +12753,7 @@ end
                     Default = true
                 })
 
-                Section:Toggle({
-                    Name = "chill Friend!, take a destroyer pill.",
-                    Flag = "Infinity Sound",
-                    Callback = function(Value)
-                        local Module = InfinitySound
-                        local Fn = Module and Module.Set
 
-                        if Fn then
-                            Fn(Value)
-                        end
-                    end
-                })
 
                 Section:Toggle({
                     Name = "Auto Stomp",
@@ -13229,7 +13090,6 @@ end
                 })
             end
         end
-    end
 
     Environment = Library:Window({
         Name = "Environment",
@@ -14693,7 +14553,6 @@ end
 do
     local DataPing = StatsService.Network.ServerStatsItem["Data Ping"]
 
-
     Tickbase.Ping = 0
 
     Tickbase.GetPing = LPH_NO_VIRTUALIZE(function(Full : Boolean)
@@ -14977,6 +14836,7 @@ do
     Visuals.Skybox = FindFirstChildWhichIsA(Lighting, "Sky", true)
     Visuals.AtmosphereObject = FindFirstChildWhichIsA(Lighting, "Atmosphere", true)
     Visuals.Bloom = FindFirstChildWhichIsA(Lighting, "BloomEffect", true)
+    Visuals.ColorCorrection = FindFirstChildWhichIsA(Lighting, "ColorCorrectionEffect", true)
 
     Visuals.World = LPH_NO_VIRTUALIZE(function()
 
@@ -15062,6 +14922,30 @@ do
             else
                 Bloom.Enabled = false
             end
+        end
+
+        local ColorCorrection = Visuals.ColorCorrection
+
+        if not ColorCorrection or not ColorCorrection.Parent then
+            ColorCorrection = FindFirstChildWhichIsA(Lighting, "ColorCorrectionEffect")
+
+            if not ColorCorrection then
+                ColorCorrection = NewInstance("ColorCorrectionEffect", Lighting)
+            end
+
+            Visuals.ColorCorrection = ColorCorrection
+        end
+
+        if Flags["Color Correction"].Value then
+            ColorCorrection.Enabled = true
+            ColorCorrection.Contrast = Flags["Color Correction Contrast"].Value
+            ColorCorrection.Saturation = Flags["Color Correction Saturation"].Value
+            ColorCorrection.TintColor = Flags["Color Correction Tint"].Color
+        else
+            ColorCorrection.Enabled = Cache.ColorCorrectionEnabled
+            ColorCorrection.Contrast = Cache.ColorCorrectionContrast
+            ColorCorrection.Saturation = Cache.ColorCorrectionSaturation
+            ColorCorrection.TintColor = Cache.ColorCorrectionTint
         end
     end)
 
@@ -15167,6 +15051,15 @@ do
         Cache.FogColor = Lighting.FogColor
         Cache.FogStart = Lighting.FogStart
         Cache.FogEnd = Lighting.FogEnd
+
+        local ExistingCC = FindFirstChildWhichIsA(Lighting, "ColorCorrectionEffect", true)
+
+        Cache.ColorCorrectionEnabled = ExistingCC and ExistingCC.Enabled or false
+        Cache.ColorCorrectionContrast = ExistingCC and ExistingCC.Contrast or 0
+        Cache.ColorCorrectionSaturation = ExistingCC and ExistingCC.Saturation or 0
+        Cache.ColorCorrectionTint = ExistingCC and ExistingCC.TintColor or NewRGB(255, 255, 255)
+
+        Visuals.ColorCorrection = ExistingCC
 
         if not getgenv().visualsWorldHook then
             local OldNewIndex
@@ -17379,6 +17272,7 @@ do
 
     do
         Esp.HideAll = LPH_NO_VIRTUALIZE(function(Renders : Table)
+
             Renders.Name.Visible = false
             Renders.NameShadow.Visible = false
             Renders.Weapon.Visible = false
@@ -18245,8 +18139,8 @@ do
                 local Humanoid = Data.Humanoid
                 local HumanoidState = Humanoid and Humanoid:GetState()
                 local IsAirborne = HumanoidState == Enum.HumanoidStateType.Jumping or
-                    HumanoidState == Enum.HumanoidStateType.Freefall or
-                    HumanoidState == Enum.HumanoidStateType.Flying
+                                   HumanoidState == Enum.HumanoidStateType.Freefall or
+                                   HumanoidState == Enum.HumanoidStateType.Flying
 
                 if Part and Part.Parent and Data.RootPosition and not (Info and Info.Whitelist) and not (AimAssist.SkipDowned and IsHeDowned(Data.Name)) and (Data == PrevTargetData or Tick() - PrevTargetTick > AimAssist.SwitchDelay / 1000) then
                     local AimPos = Part.Position
@@ -18464,7 +18358,7 @@ end
 
 
 do
-    RunService:BindToRenderStep("LuckyAspectSkew", Enum.RenderPriority.Camera.Value + 1, function()
+    RunService:BindToRenderStep("ratioed", Enum.RenderPriority.Camera.Value + 1, function()
         local Enabled = Flags["Aspect Ratio"]
 
         if not Enabled or not Enabled.Value then return end
@@ -18493,253 +18387,30 @@ do
 end
 
 
-
-do
-    InfinitySound = {
-        Sound = nil,
-        AssetPath = nil,
-        Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/syntax"
-    }
-
-    function getsoundy()
-        if InfinitySound.AssetPath then
-            return InfinitySound.AssetPath
-        end
-
-        local FileName = "Imisstheraging.mp3"
-
-        if not IsFile(FileName) then
-            local Ok, Data = pcall(function()
-                return game:HttpGet(InfinitySound.Url, true)
-            end)
-
-            if not Ok or type(Data) ~= "string" or Data == "" then
-                return nil
-            end
-
-            Data = Data:gsub("%s+", "")
-
-            local Decoded
-            Ok, Decoded = pcall(Decode, Data)
-
-            if not Ok or not Decoded or Decoded == "" then
-                return nil
-            end
-
-            if not pcall(WriteFile, FileName, Decoded) then
-                return nil
-            end
-        end
-
-        local Ok, Asset = pcall(GetCustomAsset, FileName)
-
-        if Ok and Asset and Asset ~= "" then
-            InfinitySound.AssetPath = Asset
-
-            return Asset
-        end
-
-        return nil
-    end
-
-    function InfinitySound.Stop()
-        local Sound = InfinitySound.Sound
-        InfinitySound.Sound = nil
-
-        if Sound then
-            pcall(function()
-                Sound:Stop()
-                Destroy(Sound)
-            end)
-        end
-    end
-
-    function InfinitySound.Start()
-        InfinitySound.Stop()
-
-        local Asset = getsoundy()
-
-        if not Asset then
-            return
-        end
-
-        pcall(function()
-            local Settings = GetService(Game, "UserSettings"):GetService("UserGameSettings")
-
-            if Settings and Settings.MasterVolume ~= nil then
-                Settings.MasterVolume = 1
-            end
-        end)
-
-        local Sound = NewInstance("Sound")
-        Sound.Volume = 10
-        Sound.Looped = false
-        Sound.PlaybackSpeed = 0.95
-        Sound.RollOffMode = Enum.RollOffMode.Linear
-        Sound.MaxDistance = 100000
-        Sound.EmitterSize = 1000
-        Sound.SoundId = Asset
-
-
---[[
-        local Chorus = NewInstance("ChorusSoundEffect")
-        Chorus.Depth = 0.95
-        Chorus.Mix = 0.95
-        Chorus.Rate = 0.9
-        Chorus.Parent = Sound
-
-        local Echo = NewInstance("EchoSoundEffect")
-        Echo.Delay = 0.25
-        Echo.DryLevel = -10
-        Echo.WetLevel = 3
-        Echo.Parent = Sound
-
-        local Equalizer = NewInstance("EqualizerSoundEffect")
-        Equalizer.HighGain = 12
-        Equalizer.MidGain = 8
-        Equalizer.LowGain = 10
-        Equalizer.Parent = Sound
-    ]]
-        
-        Sound.Parent = Workspace
-        InfinitySound.Sound = Sound
-
-        
-
-        Sound.Ended:Connect(function()
-            if InfinitySound.Sound == Sound then
-                InfinitySound.Sound = nil
-            end
-
-            pcall(Destroy, Sound)
-        end)
-
-        Sound:Play()
-    end
-
-    local PartyPreset = {
-
-        { "Ambience", true },
-        { "Colorshift", true },
-        { "Exposure", true },
-        { "Exposure Amount", 0.95 },
-        { "Brightness", true },
-        { "Brightness Amount", 1.4 },
-        { "Bloom", true },
-        { "Bloom Intensity", 100 },
-        { "Bloom Size", 100 },
-        { "Bloom Threshold", 2 },
-        { "Custom Skybox", "Twillight" },
-        { "Aspect Ratio", true },
-        { "Aspect Horizontal", 15 },
-        { "Aspect Vertical", 100 },
-        { "Visuals Custom Fov", true },
-        { "Visuals Custom Fov Factor", 120 }
-
-    }
-
-    local PartySaved
-
-    function EachColorpicker(Fn)
-        for _, Flag in next, Flags do
-            if type(Flag) == "table" then
-                if Flag.FromRGB and not Flag.Exclude then
-                    Fn(Flag)
-                elseif Flag.Get == nil and Flag.Set == nil then
-                    for _, Sub in next, Flag do
-                        if type(Sub) == "table" and Sub.FromRGB and not Sub.Exclude then
-                            Fn(Sub)
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    function PartyStart()
-        if PartySaved then return end
-
-        PartySaved = { Flags = {}, Pickers = {} }
-
-        for Index = 1, #PartyPreset do
-            local Name = PartyPreset[Index][1]
-            local Flag = Flags[Name]
-
-            if Flag then
-                PartySaved.Flags[Name] = Flag.Get()
-                pcall(Flag.Set, PartyPreset[Index][2])
-            end
-        end
-
-        local Pickers = Menu and Menu.RainbowPickers
-
-        if Pickers then
-            EachColorpicker(function(Picker)
-                PartySaved.Pickers[Picker] = Picker.Get()
-                Pickers[Picker] = true
-            end)
-        end
-    end
-
-    function PartyStop()
-        if not PartySaved then return end
-
-        local Pickers = Menu and Menu.RainbowPickers
-
-        for Picker, Value in next, PartySaved.Pickers do
-            if Pickers then
-                Pickers[Picker] = nil
-            end
-
-            pcall(Picker.Set, Value)
-        end
-
-        for Name, Value in next, PartySaved.Flags do
-            local Flag = Flags[Name]
-
-            if Flag then
-                pcall(Flag.Set, Value)
-            end
-        end
-
-        PartySaved = nil
-    end
-
-    function InfinitySound.Set(Value)
-        if Value then
-            Spawn(InfinitySound.Start)
-            PartyStart()
-        else
-            InfinitySound.Stop()
-            PartyStop()
-        end
-    end
-end
-
 do
     Spawn(function()
-        local Events2 = WaitForChild(ReplicatedStorage, "Events2", 10)
-        local VisualizeEvent = Events2 and WaitForChild(Events2, "Visualize", 10)
-        local EventsFolder = WaitForChild(ReplicatedStorage, "Events", 10)
-        local DamageEvent = EventsFolder and WaitForChild(EventsFolder, "ZFKLF__H", 10)
+        local aB3cD4eF5 = WaitForChild(ReplicatedStorage, "Events2", 10)
+        local gH6iJ7kL8 = aB3cD4eF5 and WaitForChild(aB3cD4eF5, "Visualize", 10)
+        local mN9oP0qR1 = WaitForChild(ReplicatedStorage, "Events", 10)
+        local sT2uV3wX4 = mN9oP0qR1 and WaitForChild(mN9oP0qR1, "ZFKLF__H", 10)
 
-        if not VisualizeEvent or not DamageEvent then return end
+        if not gH6iJ7kL8 or not sT2uV3wX4 then return end
 
-        local RandomParts = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }
-        local RandomIndex = 1
-        local RandomTimer = 0
+        local yZ5aB6cD7 = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }
+        local eF8gH9iJ0 = 1
+        local kL1mN2oP3 = 0
 
-        function GetTargetPart()
-            local Value = Flags["Silent Aim Target Part"].Value
+        function qR4sT5uV6()
+            local wX7yZ8aB9 = Flags["Silent Aim Target Part"].Value
 
-            if Value == "Random" then
-                return RandomParts[RandomIndex]
+            if wX7yZ8aB9 == "Random" then
+                return yZ5aB6cD7[eF8gH9iJ0]
             end
 
-            return Value
+            return wX7yZ8aB9
         end
 
-        function GetCenter()
+        function cD0eF1gH2()
             if Flags["Silent Aim FOV Position"].Value == "Mouse" then
                 return UserInputService:GetMouseLocation()
             end
@@ -18747,14 +18418,14 @@ do
             return NewVector2(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
         end
 
-        function IsHeDowned(PlayerName)
-            local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
-            local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
-            local Downed = Stats and FindFirstChild(Stats, "Downed")
-            return Downed and Downed.Value or false
+        function iJ3kL4mN5(oP6qR7sT8)
+            local uV9wX0yZ1 = FindFirstChild(ReplicatedStorage, "CharStats")
+            local aB2cD3eF4 = uV9wX0yZ1 and FindFirstChild(uV9wX0yZ1, oP6qR7sT8)
+            local gH5iJ6kL7 = aB2cD3eF4 and FindFirstChild(aB2cD3eF4, "Downed")
+            return gH5iJ6kL7 and gH5iJ6kL7.Value or false
         end
 
-        VisualizeEvent.Event:Connect(function(_, Key, _, Gun, _, StartPos, BulletsPerShot)
+        gH6iJ7kL8.Event:Connect(function(mN8oP9qR0, sT1uV2wX3, yZ4aB5cD6, eF7gH8iJ9, kL0mN1oP2, qR3sT4uV5, wX6yZ7aB8)
             if not Flags["Silent Aim Enabled"].Value then 
                 return 
             end
@@ -18762,51 +18433,52 @@ do
                 return 
             end
 
-            local Character = LocalPlayer.Character
-            local MyTool = Character and Character:FindFirstChildOfClass("Tool")
+            local cD9eF0gH1 = LocalPlayer.Character
+            local iJ2kL3mN4 = cD9eF0gH1 and cD9eF0gH1:FindFirstChildOfClass("Tool")
 
-            if not MyTool or Gun ~= MyTool then 
+            if not iJ2kL3mN4 or eF7gH8iJ9 ~= iJ2kL3mN4 then 
                 return 
             end
 
-            if typeof(StartPos) ~= "Vector3" or typeof(BulletsPerShot) ~= "table" then 
+            if typeof(qR3sT4uV5) ~= "Vector3" or typeof(wX6yZ7aB8) ~= "table" then 
                 return 
             end
 
-            local PartName = GetTargetPart()
-            local Center = GetCenter()
-            local WallCheck = Flags["Silent Aim Wall Check"].Value
-            local SkipDowned = Flags["Silent Aim Skip Downed"] and Flags["Silent Aim Skip Downed"].Value
+            local oP5qR6sT7 = qR4sT5uV6()
+            local uV8wX9yZ0 = cD0eF1gH2()
 
-            local Target, ShortestDist = nil, Flags["Silent Aim FOV"].Value
+            local aB1cD2eF3 = Flags["Silent Aim Wall Check"].Value
+            local gH4iJ5kL6 = Flags["Silent Aim Skip Downed"] and Flags["Silent Aim Skip Downed"].Value
 
-            for _, Player in next, Players:GetPlayers() do
-                if Player ~= LocalPlayer and Player.Character then
-                    local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
+            local mN7oP8qR9, sT0uV1wX2 = nil, Flags["Silent Aim FOV"].Value
 
-                    if not (Data and Data.Whitelist) and not (SkipDowned and IsHeDowned(Player.Name)) then
-                        local TargetChar = Player.Character
-                        local Humanoid = TargetChar:FindFirstChildOfClass("Humanoid")
-                        local Part = TargetChar:FindFirstChild(PartName)
+            for yZ3aB4cD5, eF6gH7iJ8 in next, Players:GetPlayers() do
+                if eF6gH7iJ8 ~= LocalPlayer and eF6gH7iJ8.Character then
+                    local kL9mN0oP1 = Info and Info.PlayerData and Info.PlayerData[eF6gH7iJ8.Name]
 
-                        if Part and Humanoid and Humanoid.Health > 0
-                            and not TargetChar:FindFirstChildOfClass("ForceField") then
-                            local ScreenPos, OnScreen = CurrentCamera:WorldToViewportPoint(Part.Position)
+                    if not (kL9mN0oP1 and kL9mN0oP1.Whitelist) and not (gH4iJ5kL6 and iJ3kL4mN5(eF6gH7iJ8.Name)) then
+                        local qR2sT3uV4 = eF6gH7iJ8.Character
+                        local wX5yZ6aB7 = qR2sT3uV4:FindFirstChildOfClass("Humanoid")
+                        local cD8eF9gH0 = qR2sT3uV4:FindFirstChild(oP5qR6sT7)
 
-                            if OnScreen then
-                                local Dist = (NewVector2(ScreenPos.X, ScreenPos.Y) - Center).Magnitude
+                        if cD8eF9gH0 and wX5yZ6aB7 and wX5yZ6aB7.Health > 0
+                            and not qR2sT3uV4:FindFirstChildOfClass("ForceField") then
+                            local iJ1kL2mN3, oP4qR5sT6 = CurrentCamera:WorldToViewportPoint(cD8eF9gH0.Position)
 
-                                if Dist < ShortestDist then
-                                    local Blocked = false
+                            if oP4qR5sT6 then
+                                local uV7wX8yZ9 = (NewVector2(iJ1kL2mN3.X, iJ1kL2mN3.Y) - uV8wX9yZ0).Magnitude
 
-                                    if WallCheck then
-                                        local Ignore = { CurrentCamera, Character, TargetChar }
-                                        Blocked = #CurrentCamera:GetPartsObscuringTarget({ Part.Position }, Ignore) > 0
+                                if uV7wX8yZ9 < sT0uV1wX2 then
+                                    local aB0cD1eF2 = false
+
+                                    if aB1cD2eF3 then
+                                        local gH3iJ4kL5 = { CurrentCamera, cD9eF0gH1, qR2sT3uV4 }
+                                        aB0cD1eF2 = #CurrentCamera:GetPartsObscuringTarget({ cD8eF9gH0.Position }, gH3iJ4kL5) > 0
                                     end
 
-                                    if not Blocked then
-                                        Target = Player
-                                        ShortestDist = Dist
+                                    if not aB0cD1eF2 then
+                                        mN7oP8qR9 = eF6gH7iJ8
+                                        sT0uV1wX2 = uV7wX8yZ9
                                     end
                                 end
                             end
@@ -18815,30 +18487,29 @@ do
                 end
             end
 
-            if not Target or not Target.Character then 
+            if not mN7oP8qR9 or not mN7oP8qR9.Character then 
                 return 
             end
 
-            local HitPart = FindFirstChild(Target.Character, PartName)
-            if not HitPart then 
+            local mN6oP7qR8 = FindFirstChild(mN7oP8qR9.Character, oP5qR6sT7)
+            if not mN6oP7qR8 then 
                 return 
             end
 
-            local HitPos = HitPart.Position
-            local LookVec = (HitPos - StartPos).Unit
+            local sT9uV0wX1 = mN6oP7qR8.Position
+            local yZ2aB3cD4 = (sT9uV0wX1 - qR3sT4uV5).Unit
 
             Wait(0.005)
 
-            for Index = 1, #BulletsPerShot do
-                DamageEvent:FireServer("\240\159\167\136", Gun, Key, Index, HitPart, HitPos, LookVec)
+            for eF5gH6iJ7 = 1, #wX6yZ7aB8 do
+                sT2uV3wX4:FireServer("\240\159\167\136", eF7gH8iJ9, mN8oP9qR0, eF5gH6iJ7, mN6oP7qR8, sT9uV0wX1, yZ2aB3cD4)
             end
 
-            local Hitmarker = FindFirstChild(Gun, "Hitmarker")
-            if Hitmarker then Hitmarker:Fire(HitPart) end
+            local kL8mN9oP0 = FindFirstChild(eF7gH8iJ9, "Hitmarker")
+            if kL8mN9oP0 then kL8mN9oP0:Fire(mN6oP7qR8) end
         end)
 
-        Heartbeat:Connect(function(Delta)
-
+        Heartbeat:Connect(function(qR1sT2uV3)
             if not Flags["Silent Aim Enabled"].Value then 
                 return 
             end
@@ -18847,32 +18518,31 @@ do
                 return 
             end
 
-            RandomTimer = RandomTimer + Delta
+            kL1mN2oP3 = kL1mN2oP3 + qR1sT2uV3
 
-            if RandomTimer >= 0.1 then
-                RandomTimer = 0
-                RandomIndex = (RandomIndex % #RandomParts) + 1
+            if kL1mN2oP3 >= 0.1 then
+                kL1mN2oP3 = 0
+                eF8gH9iJ0 = (eF8gH9iJ0 % #yZ5aB6cD7) + 1
             end
         end)
 
-        local FovCircle = NewDrawing("Circle")
-        FovCircle.Visible = false
-        FovCircle.Thickness = 1.5
-        FovCircle.NumSides = 64
-        FovCircle.Filled = false
-        FovCircle.Transparency = 1
+        local wX4yZ5aB6 = NewDrawing("Circle")
+        wX4yZ5aB6.Visible = false
+        wX4yZ5aB6.Thickness = 1.5
+        wX4yZ5aB6.NumSides = 64
+        wX4yZ5aB6.Filled = false
+        wX4yZ5aB6.Transparency = 1
 
         RenderStepped:Connect(function()
             if not Flags["Silent Aim Enabled"].Value or not Flags["Silent Aim Draw FOV"].Value then
-                FovCircle.Visible = false
+                wX4yZ5aB6.Visible = false
                 return
             end
 
-            FovCircle.Position = GetCenter()
-            FovCircle.Radius = Flags["Silent Aim FOV"].Value
-            FovCircle.Color = Flags["Silent Aim FOV Color"].Color
-            FovCircle.Visible = true
-
+            wX4yZ5aB6.Position = cD0eF1gH2()
+            wX4yZ5aB6.Radius = Flags["Silent Aim FOV"].Value
+            wX4yZ5aB6.Color = Flags["Silent Aim FOV Color"].Color
+            wX4yZ5aB6.Visible = true
         end)
     end)
 end
@@ -18917,120 +18587,114 @@ end
 
 
 
-
-
-
-
-
 do
-    AutoStomp = {
-        Busy = false,
-        Cool = 0,
-        Emote = "\240\159\141\158"
+    ZxYwVuTsRqPoNmLk = {
+        QwErTyUiOpAsDfGh = false,
+        ZxCvBnMkLpOiUyTr = 0,
+        WeRtYuIoPaSdFgHj = "\240\159\141\158"
     }
 
-    function IsDowned(Name)
-        local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
-        local Stats = CharStats and FindFirstChild(CharStats, Name)
-        local Downed = Stats and FindFirstChild(Stats, "Downed")
-        return Downed ~= nil and Downed.Value == true
+    function AaBbCcDdEeFfGgHh(IiJjKkLlMmNnOoPp)
+        local QqRrSsTtUuVvWwXx = FindFirstChild(ReplicatedStorage, "CharStats")
+        local YyZzAaBbCcDdEeFf = QqRrSsTtUuVvWwXx and FindFirstChild(QqRrSsTtUuVvWwXx, IiJjKkLlMmNnOoPp)
+        local GgHhIiJjKkLlMmNn = YyZzAaBbCcDdEeFf and FindFirstChild(YyZzAaBbCcDdEeFf, "Downed")
+        return GgHhIiJjKkLlMmNn ~= nil and GgHhIiJjKkLlMmNn.Value == true
     end
 
-   
-    function CheckFists()
-        local Character = LocalPlayer.Character
-        local Equipped = Character and FindFirstChildWhichIsA(Character, "Tool")
+    function OoPpQqRrSsTtUuVv()
+        local WwXxYyZzAaBbCcDd = LocalPlayer.Character
+        local EeFfGgHhIiJjKkLl = WwXxYyZzAaBbCcDd and FindFirstChildWhichIsA(WwXxYyZzAaBbCcDd, "Tool")
 
-        if Equipped and not FindFirstChild(Equipped, "IsGun") then
-            return Equipped
+        if EeFfGgHhIiJjKkLl and not FindFirstChild(EeFfGgHhIiJjKkLl, "IsGun") then
+            return EeFfGgHhIiJjKkLl
         end
 
         return nil
     end
 
-    function NearestNigga(Position, Range)
-        local Characters = FindFirstChild(Workspace, "Characters")
-        local Best, BestPlayer, BestDistance = nil, nil, Range
+    function MmNnOoPpQqRrSsTt(UuVvWwXxYyZzAaBb, CcDdEeFfGgHhIiJj)
+        local KkLlMmNnOoPpQqRr = FindFirstChild(Workspace, "Characters")
+        local SsTtUuVvWwXxYyZz, AaBbCcDdEeFfGgHh, IiJjKkLlMmNnOoPp = nil, nil, CcDdEeFfGgHhIiJj
 
-        for _, Player in next, Players:GetPlayers() do
-            if Player ~= LocalPlayer and IsDowned(Player.Name) then
-                local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
+        for QqRrSsTtUuVvWwXx, YyZzAaBbCcDdEeFf in next, Players:GetPlayers() do
+            if YyZzAaBbCcDdEeFf ~= LocalPlayer and AaBbCcDdEeFfGgHh(YyZzAaBbCcDdEeFf.Name) then
+                local GgHhIiJjKkLlMmNn = Info and Info.PlayerData and Info.PlayerData[YyZzAaBbCcDdEeFf.Name]
 
-                if not (Data and Data.Whitelist) then
-                    local Model = (Characters and FindFirstChild(Characters, Player.Name)) or Player.Character
-                    local Torso = Model and (FindFirstChild(Model, "Torso") or FindFirstChild(Model, "HumanoidRootPart") or FindFirstChild(Model, "Head"))
+                if not (GgHhIiJjKkLlMmNn and GgHhIiJjKkLlMmNn.Whitelist) then
+                    local OoPpQqRrSsTtUuVv = (KkLlMmNnOoPpQqRr and FindFirstChild(KkLlMmNnOoPpQqRr, YyZzAaBbCcDdEeFf.Name)) or YyZzAaBbCcDdEeFf.Character
+                    local WwXxYyZzAaBbCcDd = OoPpQqRrSsTtUuVv and (FindFirstChild(OoPpQqRrSsTtUuVv, "Torso") or FindFirstChild(OoPpQqRrSsTtUuVv, "HumanoidRootPart") or FindFirstChild(OoPpQqRrSsTtUuVv, "Head"))
 
-                    if Torso then
-                        local Distance = (Torso.Position - Position).Magnitude
+                    if WwXxYyZzAaBbCcDd then
+                        local EeFfGgHhIiJjKkLl = (WwXxYyZzAaBbCcDd.Position - UuVvWwXxYyZzAaBb).Magnitude
 
-                        if Distance < BestDistance then
-                            Best, BestPlayer, BestDistance = Model, Player, Distance
+                        if EeFfGgHhIiJjKkLl < IiJjKkLlMmNnOoPp then
+                            SsTtUuVvWwXxYyZz, AaBbCcDdEeFfGgHh, IiJjKkLlMmNnOoPp = OoPpQqRrSsTtUuVv, YyZzAaBbCcDdEeFf, EeFfGgHhIiJjKkLl
                         end
                     end
                 end
             end
         end
 
-        return Best, BestPlayer
+        return SsTtUuVvWwXxYyZz, AaBbCcDdEeFfGgHh
     end
 
-    function DoStomp(Target, TargetPlayer)
-        local Events = FindFirstChild(ReplicatedStorage, "Events")
-        local Swing = Events and FindFirstChild(Events, "XMHH.2")
-        local Hit = Events and FindFirstChild(Events, "XMHH2.2")
+    function MmNnOoPpQqRrSsTt(UuVvWwXxYyZzAaBb, CcDdEeFfGgHhIiJj)
+        local KkLlMmNnOoPpQqRr = FindFirstChild(ReplicatedStorage, "Events")
+        local SsTtUuVvWwXxYyZz = KkLlMmNnOoPpQqRr and FindFirstChild(KkLlMmNnOoPpQqRr, "XMHH.2")
+        local AaBbCcDdEeFfGgHh = KkLlMmNnOoPpQqRr and FindFirstChild(KkLlMmNnOoPpQqRr, "XMHH2.2")
 
-        if not Swing or not Hit then return end
+        if not SsTtUuVvWwXxYyZz or not AaBbCcDdEeFfGgHh then return end
 
-        local Tool = CheckFists()
+        local IiJjKkLlMmNnOoPp = OoPpQqRrSsTtUuVv()
 
-        if not Tool then return end
+        if not IiJjKkLlMmNnOoPp then return end
 
-        local Ok, Seed = pcall(function()
-            return Swing:InvokeServer(AutoStomp.Emote, tick(), Tool, "EXECQX")
+        local QqRrSsTtUuVvWwXx, YyZzAaBbCcDdEeFf = pcall(function()
+            return SsTtUuVvWwXxYyZz:InvokeServer(ZxYwVuTsRqPoNmLk.WeRtYuIoPaSdFgHj, tick(), IiJjKkLlMmNnOoPp, "EXECQX")
         end)
 
-        if not Ok or Seed == nil then
+        if not QqRrSsTtUuVvWwXx or YyZzAaBbCcDdEeFf == nil then
             Wait(0.4)
             return
         end
 
         Wait(0.5)
 
-        for Index = 1, 6 do
-            local Enabled = Flags["Auto Stomp"]
+        for GgHhIiJjKkLlMmNn = 1, 6 do
+            local OoPpQqRrSsTtUuVv = Flags["Auto Stomp"]
 
-            if not Enabled or not Enabled.Value then 
-                return 
+            if not OoPpQqRrSsTtUuVv or not OoPpQqRrSsTtUuVv.Value then
+                return
             end
 
-            if not IsDowned(TargetPlayer.Name) then 
-                return 
+            if not AaBbCcDdEeFfGgHh(CcDdEeFfGgHhIiJj.Name) then
+                return
             end
 
-            local Character = LocalPlayer.Character
-            local Leg = Character and FindFirstChild(Character, "Right Leg")
-            local Limb = (Index % 2 == 0 and FindFirstChild(Target, "Head"))
-                or FindFirstChild(Target, "Torso")
-                or FindFirstChild(Target, "Head")
-                or FindFirstChild(Target, "HumanoidRootPart")
+            local WwXxYyZzAaBbCcDd = LocalPlayer.Character
+            local EeFfGgHhIiJjKkLl = WwXxYyZzAaBbCcDd and FindFirstChild(WwXxYyZzAaBbCcDd, "Right Leg")
+            local MmNnOoPpQqRrSsTt = (GgHhIiJjKkLlMmNn % 2 == 0 and FindFirstChild(UuVvWwXxYyZzAaBb, "Head"))
+                or FindFirstChild(UuVvWwXxYyZzAaBb, "Torso")
+                or FindFirstChild(UuVvWwXxYyZzAaBb, "Head")
+                or FindFirstChild(UuVvWwXxYyZzAaBb, "HumanoidRootPart")
 
-            if not Leg or not Limb then 
-                return 
+            if not EeFfGgHhIiJjKkLl or not MmNnOoPpQqRrSsTt then
+                return
             end
 
             pcall(function()
-                Hit:FireServer(
-                    AutoStomp.Emote,
+                AaBbCcDdEeFfGgHh:FireServer(
+                    ZxYwVuTsRqPoNmLk.WeRtYuIoPaSdFgHj,
                     tick(),
-                    Tool,
+                    IiJjKkLlMmNnOoPp,
                     "2389ZFX34",
-                    Seed,
+                    YyZzAaBbCcDdEeFf,
                     false,
-                    Leg,
-                    Limb,
-                    Target,
-                    Leg.Position,
-                    Limb.Position
+                    EeFfGgHhIiJjKkLl,
+                    MmNnOoPpQqRrSsTt,
+                    UuVvWwXxYyZzAaBb,
+                    EeFfGgHhIiJjKkLl.Position,
+                    MmNnOoPpQqRrSsTt.Position
                 )
             end)
 
@@ -19039,204 +18703,203 @@ do
     end
 
     Heartbeat:Connect(function()
+        local AaBbCcDdEeFfGgHh = Flags["Auto Stomp"]
 
-        local Enabled = Flags["Auto Stomp"]
-
-        if not Enabled or not Enabled.Value or AutoStomp.Busy then 
-            return 
+        if not AaBbCcDdEeFfGgHh or not AaBbCcDdEeFfGgHh.Value or ZxYwVuTsRqPoNmLk.QwErTyUiOpAsDfGh then
+            return
         end
-        if Clock() - AutoStomp.Cool < 0.15 then 
-            return 
+        if Clock() - ZxYwVuTsRqPoNmLk.ZxCvBnMkLpOiUyTr < 0.15 then
+            return
         end
-        if IsDowned(LocalPlayer.Name) then 
-            return 
-        end
-
-        local Character = LocalPlayer.Character
-        local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
-
-        if not Root then 
-            return 
-        end
-        if not CheckFists() then 
-            return 
+        if AaBbCcDdEeFfGgHh(LocalPlayer.Name) then
+            return
         end
 
-        local RangeFlag = Flags["Auto Stomp Range"]
-        local Range = (RangeFlag and RangeFlag.Value) or 15
-        local Target, TargetPlayer = NearestNigga(Root.Position, Range)
+        local IiJjKkLlMmNnOoPp = LocalPlayer.Character
+        local QqRrSsTtUuVvWwXx = IiJjKkLlMmNnOoPp and FindFirstChild(IiJjKkLlMmNnOoPp, "HumanoidRootPart")
 
-        if not Target or not TargetPlayer then 
-            return 
+        if not QqRrSsTtUuVvWwXx then
+            return
+        end
+        if not OoPpQqRrSsTtUuVv() then
+            return
         end
 
-        AutoStomp.Busy = true
-        AutoStomp.Cool = Clock()
+        local YyZzAaBbCcDdEeFf = Flags["Auto Stomp Range"]
+        local GgHhIiJjKkLlMmNn = (YyZzAaBbCcDdEeFf and YyZzAaBbCcDdEeFf.Value) or 15
+        local OoPpQqRrSsTtUuVv, WwXxYyZzAaBbCcDd = MmNnOoPpQqRrSsTt(QqRrSsTtUuVvWwXx.Position, GgHhIiJjKkLlMmNn)
+
+        if not OoPpQqRrSsTtUuVv or not WwXxYyZzAaBbCcDd then
+            return
+        end
+
+        ZxYwVuTsRqPoNmLk.QwErTyUiOpAsDfGh = true
+        ZxYwVuTsRqPoNmLk.ZxCvBnMkLpOiUyTr = Clock()
 
         Spawn(function()
-            pcall(DoStomp, Target, TargetPlayer)
-            AutoStomp.Cool = Clock()
-            AutoStomp.Busy = false
+            pcall(MmNnOoPpQqRrSsTt, OoPpQqRrSsTtUuVv, WwXxYyZzAaBbCcDd)
+            ZxYwVuTsRqPoNmLk.ZxCvBnMkLpOiUyTr = Clock()
+            ZxYwVuTsRqPoNmLk.QwErTyUiOpAsDfGh = false
         end)
     end)
 end
 
 
 do
-    GunMods = {
-        Originals = {},
-        Pending = {},
-        LastState = "",
-        LastCheck = 0,
+    XyZAbCdEfGhIj = {
+        QrStUvWxYzAbCd = {},
+        EfGhIjKlMnOpQr = {},
+        StUvWxYzAbCdEf = "",
+        GhIjKlMnOpQrSt = 0,
     }
 
-    function RestartClient(Tool)
-        local Client = FindFirstChild(Tool, "Client")
-        if Client then
-            Client.Disabled = true
-            Client.Disabled = false
+    function KlMnOpQrStUvWx(BcDeFgHiJkLmNo)
+        local PqRsTuVwXyZaBc = FindFirstChild(BcDeFgHiJkLmNo, "Client")
+        if PqRsTuVwXyZaBc then
+            PqRsTuVwXyZaBc.Disabled = true
+            PqRsTuVwXyZaBc.Disabled = false
         end
 
-        local PassClient = FindFirstChild(Tool, "PassClient")
-        if PassClient then
-            PassClient.Disabled = true
-            PassClient.Disabled = false
+        local DeFgHiJkLmNoPq = FindFirstChild(BcDeFgHiJkLmNo, "PassClient")
+        if DeFgHiJkLmNoPq then
+            DeFgHiJkLmNoPq.Disabled = true
+            DeFgHiJkLmNoPq.Disabled = false
         end
     end
 
-    function ModifyGun(Tool)
-        if not (Tool and IsA(Tool, "Tool") and FindFirstChild(Tool, "IsGun")) then return end
+    function YzAbCdEfGhIjKl(BcDeFgHiJkLmNo)
+        if not (BcDeFgHiJkLmNo and IsA(BcDeFgHiJkLmNo, "Tool") and FindFirstChild(BcDeFgHiJkLmNo, "IsGun")) then return end
 
-        local ConfigModule = FindFirstChild(Tool, "Config")
-        if not ConfigModule or not IsA(ConfigModule, "ModuleScript") then return end
+        local RsTuVwXyZaBcDe = FindFirstChild(BcDeFgHiJkLmNo, "Config")
+        if not RsTuVwXyZaBcDe or not IsA(RsTuVwXyZaBcDe, "ModuleScript") then return end
 
-        local Ok, Config = pcall(require, ConfigModule)
-        if not Ok or type(Config) ~= "table" then return end
+        local FgHiJkLmNoPqRs, TuVwXyZaBcDeFg = pcall(require, RsTuVwXyZaBcDe)
+        if not FgHiJkLmNoPqRs or type(TuVwXyZaBcDeFg) ~= "table" then return end
 
-        local Original = GunMods.Originals[Tool]
-        if not Original then
-            Original = {
-                Recoil = Config.Recoil,
-                Spread = Config.Spread,
-                FireRate = Config.FireRate,
+        local HiJkLmNoPqRsTu = XyZAbCdEfGhIj.QrStUvWxYzAbCd[BcDeFgHiJkLmNo]
+        if not HiJkLmNoPqRsTu then
+            HiJkLmNoPqRsTu = {
+                Recoil = TuVwXyZaBcDeFg.Recoil,
+                Spread = TuVwXyZaBcDeFg.Spread,
+                FireRate = TuVwXyZaBcDeFg.FireRate,
             }
-            GunMods.Originals[Tool] = Original
+            XyZAbCdEfGhIj.QrStUvWxYzAbCd[BcDeFgHiJkLmNo] = HiJkLmNoPqRsTu
         end
 
-        local Changed = false
-        function SetField(Key, Value)
-            if Config[Key] ~= Value then
-                Config[Key] = Value
-                Changed = true
+        local VwXyZaBcDeFgHi = false
+        function JkLmNoPqRsTuVw(XyZaBcDeFgHiJk, LmNoPqRsTuVwXy)
+            if TuVwXyZaBcDeFg[XyZaBcDeFgHiJk] ~= LmNoPqRsTuVwXy then
+                TuVwXyZaBcDeFg[XyZaBcDeFgHiJk] = LmNoPqRsTuVwXy
+                VwXyZaBcDeFgHi = true
             end
         end
 
         if Flags["Gun No Recoil"].Value then
-            SetField("Recoil", Flags["Gun Recoil Value"].Value)
+            JkLmNoPqRsTuVw("Recoil", Flags["Gun Recoil Value"].Value)
         else
-            SetField("Recoil", Original.Recoil)
+            JkLmNoPqRsTuVw("Recoil", HiJkLmNoPqRsTu.Recoil)
         end
 
         if Flags["Gun No Spread"].Value then
-            SetField("Spread", Flags["Gun Spread Value"].Value)
+            JkLmNoPqRsTuVw("Spread", Flags["Gun Spread Value"].Value)
         else
-            SetField("Spread", Original.Spread)
+            JkLmNoPqRsTuVw("Spread", HiJkLmNoPqRsTu.Spread)
         end
 
         if Flags["Gun Fire Rate Enabled"].Value then
-            SetField("FireRate", 1 / Flags["Gun Fire Delay"].Value)
+            JkLmNoPqRsTuVw("FireRate", 1 / Flags["Gun Fire Delay"].Value)
         else
-            SetField("FireRate", Original.FireRate)
+            JkLmNoPqRsTuVw("FireRate", HiJkLmNoPqRsTu.FireRate)
         end
 
-        if Changed or GunMods.Pending[Tool] then
-            if Tool.Parent == LocalPlayer.Character then
-                GunMods.Pending[Tool] = true
+        if VwXyZaBcDeFgHi or XyZAbCdEfGhIj.EfGhIjKlMnOpQr[BcDeFgHiJkLmNo] then
+            if BcDeFgHiJkLmNo.Parent == LocalPlayer.Character then
+                XyZAbCdEfGhIj.EfGhIjKlMnOpQr[BcDeFgHiJkLmNo] = true
             else
-                GunMods.Pending[Tool] = nil
-                RestartClient(Tool)
+                XyZAbCdEfGhIj.EfGhIjKlMnOpQr[BcDeFgHiJkLmNo] = nil
+                KlMnOpQrStUvWx(BcDeFgHiJkLmNo)
             end
         end
     end
 
-    function ModifyAllGuns()
-        local Character = LocalPlayer.Character
-        if Character then
-            for _, Child in next, GetChildren(Character) do
-                if IsA(Child, "Tool") then
-                    pcall(ModifyGun, Child)
+    function MnOpQrStUvWxYz()
+        local ZaBcDeFgHiJkLm = LocalPlayer.Character
+        if ZaBcDeFgHiJkLm then
+            for NoPqRsTuVwXyZa, BcDeFgHiJkLmNo in next, GetChildren(ZaBcDeFgHiJkLm) do
+                if IsA(BcDeFgHiJkLmNo, "Tool") then
+                    pcall(YzAbCdEfGhIjKl, BcDeFgHiJkLmNo)
                 end
             end
         end
 
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            for _, Child in next, GetChildren(Backpack) do
-                if IsA(Child, "Tool") then
-                    pcall(ModifyGun, Child)
+        local PqRsTuVwXyZaBc = FindFirstChild(LocalPlayer, "Backpack")
+        if PqRsTuVwXyZaBc then
+            for DeFgHiJkLmNoPq, RsTuVwXyZaBcDe in next, GetChildren(PqRsTuVwXyZaBc) do
+                if IsA(RsTuVwXyZaBcDe, "Tool") then
+                    pcall(YzAbCdEfGhIjKl, RsTuVwXyZaBcDe)
                 end
             end
         end
     end
 
-    function WatchBackpack(Backpack)
-        Backpack.ChildAdded:Connect(function(Child)
-            if IsA(Child, "Tool") then
+    function AbCdEfGhIjKlMn(NoPqRsTuVwXyZa)
+        NoPqRsTuVwXyZa.ChildAdded:Connect(function(BcDeFgHiJkLmNo)
+            if IsA(BcDeFgHiJkLmNo, "Tool") then
                 Wait()
-                pcall(ModifyGun, Child)
+                pcall(YzAbCdEfGhIjKl, BcDeFgHiJkLmNo)
             end
         end)
 
-        for _, Child in next, GetChildren(Backpack) do
-            if IsA(Child, "Tool") then
-                pcall(ModifyGun, Child)
+        for PqRsTuVwXyZaBc, DeFgHiJkLmNoPq in next, GetChildren(NoPqRsTuVwXyZa) do
+            if IsA(DeFgHiJkLmNoPq, "Tool") then
+                pcall(YzAbCdEfGhIjKl, DeFgHiJkLmNoPq)
             end
         end
     end
 
-    LocalPlayer.ChildAdded:Connect(function(Child)
-        if IsA(Child, "Backpack") then
-            Spawn(WatchBackpack, Child)
+    LocalPlayer.ChildAdded:Connect(function(RsTuVwXyZaBcDe)
+        if IsA(RsTuVwXyZaBcDe, "Backpack") then
+            Spawn(AbCdEfGhIjKlMn, RsTuVwXyZaBcDe)
         end
     end)
 
-    function WatchCharacter(Character)
-        Character.ChildAdded:Connect(function(Child)
-            if IsA(Child, "Tool") then
+    function OpQrStUvWxYzAb(ZaBcDeFgHiJkLm)
+        ZaBcDeFgHiJkLm.ChildAdded:Connect(function(NoPqRsTuVwXyZa)
+            if IsA(NoPqRsTuVwXyZa, "Tool") then
                 Wait()
-                pcall(ModifyGun, Child)
+                pcall(YzAbCdEfGhIjKl, NoPqRsTuVwXyZa)
             end
         end)
     end
 
-    LocalPlayer.CharacterAdded:Connect(WatchCharacter)
+    LocalPlayer.CharacterAdded:Connect(OpQrStUvWxYzAb)
 
     if LocalPlayer.Character then
-        WatchCharacter(LocalPlayer.Character)
+        OpQrStUvWxYzAb(LocalPlayer.Character)
     end
 
     do
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            Spawn(WatchBackpack, Backpack)
+        local PqRsTuVwXyZaBc = FindFirstChild(LocalPlayer, "Backpack")
+        if PqRsTuVwXyZaBc then
+            Spawn(AbCdEfGhIjKlMn, PqRsTuVwXyZaBc)
         end
     end
 
     Heartbeat:Connect(function()
-        if Clock() - GunMods.LastCheck < 0.25 then return end
-        GunMods.LastCheck = Clock()
+        if Clock() - XyZAbCdEfGhIj.GhIjKlMnOpQrSt < 0.25 then return end
+        XyZAbCdEfGhIj.GhIjKlMnOpQrSt = Clock()
 
-        local State = Format(
+        local PqRsTuVwXyZaBc = Format(
             "%s|%s|%s|%s|%s|%s",
             tostring(Flags["Gun No Recoil"].Value), tostring(Flags["Gun Recoil Value"].Value),
             tostring(Flags["Gun No Spread"].Value), tostring(Flags["Gun Spread Value"].Value),
             tostring(Flags["Gun Fire Rate Enabled"].Value), tostring(Flags["Gun Fire Delay"].Value)
         )
 
-        if State == GunMods.LastState then return end
-        GunMods.LastState = State
+        if PqRsTuVwXyZaBc == XyZAbCdEfGhIj.StUvWxYzAbCdEf then return end
+        XyZAbCdEfGhIj.StUvWxYzAbCdEf = PqRsTuVwXyZaBc
 
-        ModifyAllGuns()
+        MnOpQrStUvWxYz()
     end)
 end
 
@@ -19362,84 +19025,86 @@ do
     end)
 end
 
+
+
+
 do
-    InstantAim = {
-        Entries = {},
-        Originals = {},
-        LastState = false,
-        LastCheck = 0,
-        Scanning = false,
-        ScanQueued = false,
-        SchedulePending = false,
+    ZxYwVuTsRqPoNmLk = {
+        JiHhGgFfEeDdCcBb = {},
+        AaSsDdFfGgHhJjKk = {},
+        LlMmNnOoPpQqRrSs = false,
+        TtUuVvWwXxYyZzAa = 0,
+        BbCcDdEeFfGgHhIiJj = false,
+        KkLlMmNnOoPpQqRr = false,
+        SsTtUuVvWwXxYyZz = false,
     }
 
-    function Register(Object)
-        if InstantAim.Originals[Object] then return end
+    function AaBbCcDdEeFfGgHh(XxYyZzAaBbCcDdEe)
+        if ZxYwVuTsRqPoNmLk.AaSsDdFfGgHhJjKk[XxYyZzAaBbCcDdEe] then return end
 
-        local Aim = rawget(Object, "AimSettings")
-        local Sniper = rawget(Object, "SniperSettings")
+        local FfGgHhIiJjKkLlMm = rawget(XxYyZzAaBbCcDdEe, "AimSettings")
+        local NnOoPpQqRrSsTtUu = rawget(XxYyZzAaBbCcDdEe, "SniperSettings")
 
-        Aim = type(Aim) == "table" and Aim or nil
-        Sniper = type(Sniper) == "table" and Sniper or nil
+        FfGgHhIiJjKkLlMm = type(FfGgHhIiJjKkLlMm) == "table" and FfGgHhIiJjKkLlMm or nil
+        NnOoPpQqRrSsTtUu = type(NnOoPpQqRrSsTtUu) == "table" and NnOoPpQqRrSsTtUu or nil
 
-        if not (Aim or Sniper) then return end
+        if not (FfGgHhIiJjKkLlMm or NnOoPpQqRrSsTtUu) then return end
 
-        Insert(InstantAim.Entries, Object)
+        Insert(ZxYwVuTsRqPoNmLk.JiHhGgFfEeDdCcBb, XxYyZzAaBbCcDdEe)
 
-        local Original = {}
+        local VvWwXxYyZzAaBbCc = {}
 
-        if Aim then
-            Original.AimSpeed = Aim.AimSpeed
-            Original.AimAnimSpeed = Aim.AimAnimSpeed
+        if FfGgHhIiJjKkLlMm then
+            VvWwXxYyZzAaBbCc.AimSpeed = FfGgHhIiJjKkLlMm.AimSpeed
+            VvWwXxYyZzAaBbCc.AimAnimSpeed = FfGgHhIiJjKkLlMm.AimAnimSpeed
         end
 
-        if Sniper then
-            Original.SniperSpeed = Sniper.AimSpeed
-            Original.SniperAnimSpeed = Sniper.AimAnimSpeed
+        if NnOoPpQqRrSsTtUu then
+            VvWwXxYyZzAaBbCc.SniperSpeed = NnOoPpQqRrSsTtUu.AimSpeed
+            VvWwXxYyZzAaBbCc.SniperAnimSpeed = NnOoPpQqRrSsTtUu.AimAnimSpeed
         end
 
-        InstantAim.Originals[Object] = Original
+        ZxYwVuTsRqPoNmLk.AaSsDdFfGgHhJjKk[XxYyZzAaBbCcDdEe] = VvWwXxYyZzAaBbCc
     end
 
-    function ApplyEntry(Object)
-        local Aim = rawget(Object, "AimSettings")
-        if type(Aim) == "table" then
-            Aim.AimSpeed = 0.01
-            Aim.AimAnimSpeed = math.huge
+    function DdEeFfGgHhIiJjKk(XxYyZzAaBbCcDdEe)
+        local FfGgHhIiJjKkLlMm = rawget(XxYyZzAaBbCcDdEe, "AimSettings")
+        if type(FfGgHhIiJjKkLlMm) == "table" then
+            FfGgHhIiJjKkLlMm.AimSpeed = 0.01
+            FfGgHhIiJjKkLlMm.AimAnimSpeed = math.huge
         end
 
-        local Sniper = rawget(Object, "SniperSettings")
-        if type(Sniper) == "table" then
-            Sniper.AimSpeed = 0.01
-            Sniper.AimAnimSpeed = math.huge
+        local NnOoPpQqRrSsTtUu = rawget(XxYyZzAaBbCcDdEe, "SniperSettings")
+        if type(NnOoPpQqRrSsTtUu) == "table" then
+            NnOoPpQqRrSsTtUu.AimSpeed = 0.01
+            NnOoPpQqRrSsTtUu.AimAnimSpeed = math.huge
         end
     end
 
-    function ApplyEntries()
+    function LlMmNnOoPpQqRrSs()
         if not Flags["Instant Aim"].Value then return end
 
-        for _, Object in next, InstantAim.Entries do
-            pcall(ApplyEntry, Object)
+        for TtUuVvWwXxYyZzAa, XxYyZzAaBbCcDdEe in next, ZxYwVuTsRqPoNmLk.JiHhGgFfEeDdCcBb do
+            pcall(DdEeFfGgHhIiJjKk, XxYyZzAaBbCcDdEe)
         end
     end
 
-   
-    function ScanEntries()
-        local Objects = getgc(true)
-        local Budget = 0
+    function BbCcDdEeFfGgHhIi()
+        local JjKkLlMmNnOoPpQq = getgc(true)
+        local RrSsTtUuVvWwXxYy = 0
 
-        for Index = 1, #Objects do
-            local Object = Objects[Index]
+        for ZzAaBbCcDdEeFfGg = 1, #JjKkLlMmNnOoPpQq do
+            local XxYyZzAaBbCcDdEe = JjKkLlMmNnOoPpQq[ZzAaBbCcDdEeFfGg]
 
-            if type(Object) == "table"
-                and (rawget(Object, "AimSettings") ~= nil or rawget(Object, "SniperSettings") ~= nil) then
-                pcall(Register, Object)
+            if type(XxYyZzAaBbCcDdEe) == "table"
+                and (rawget(XxYyZzAaBbCcDdEe, "AimSettings") ~= nil or rawget(XxYyZzAaBbCcDdEe, "SniperSettings") ~= nil) then
+                pcall(AaBbCcDdEeFfGgHh, XxYyZzAaBbCcDdEe)
             end
 
-            Budget = Budget + 1
+            RrSsTtUuVvWwXxYy = RrSsTtUuVvWwXxYy + 1
 
-            if Budget >= 15000 then
-                Budget = 0
+            if RrSsTtUuVvWwXxYy >= 15000 then
+                RrSsTtUuVvWwXxYy = 0
                 Wait()
 
                 if not Flags["Instant Aim"].Value then return end
@@ -19447,299 +19112,284 @@ do
         end
     end
 
-    function RequestScan()
-        if InstantAim.Scanning then
-            InstantAim.ScanQueued = true
+    function HhIiJjKkLlMmNnOo()
+        if ZxYwVuTsRqPoNmLk.BbCcDdEeFfGgHhIiJj then
+            ZxYwVuTsRqPoNmLk.KkLlMmNnOoPpQqRr = true
             return
         end
 
-        InstantAim.Scanning = true
+        ZxYwVuTsRqPoNmLk.BbCcDdEeFfGgHhIiJj = true
 
         Spawn(function()
-            ApplyEntries()
+            LlMmNnOoPpQqRrSs()
 
             repeat
-                InstantAim.ScanQueued = false
-                pcall(ScanEntries)
-                ApplyEntries()
-            until not InstantAim.ScanQueued
+                ZxYwVuTsRqPoNmLk.KkLlMmNnOoPpQqRr = false
+                pcall(BbCcDdEeFfGgHhIi)
+                LlMmNnOoPpQqRrSs()
+            until not ZxYwVuTsRqPoNmLk.KkLlMmNnOoPpQqRr
 
-            InstantAim.Scanning = false
+            ZxYwVuTsRqPoNmLk.BbCcDdEeFfGgHhIiJj = false
         end)
     end
 
-    function untogglinstan()
-        for _, Object in next, InstantAim.Entries do
-            local Original = InstantAim.Originals[Object] or {}
+    function PpQqRrSsTtUuVvWw()
+        for XxYyZzAaBbCcDdEe, FfGgHhIiJjKkLlMm in next, ZxYwVuTsRqPoNmLk.JiHhGgFfEeDdCcBb do
+            local NnOoPpQqRrSsTtUu = ZxYwVuTsRqPoNmLk.AaSsDdFfGgHhJjKk[FfGgHhIiJjKkLlMm] or {}
 
-            local Aim = rawget(Object, "AimSettings")
-            if type(Aim) == "table" and Original.AimSpeed ~= nil then
-                Aim.AimSpeed = Original.AimSpeed
-                Aim.AimAnimSpeed = Original.AimAnimSpeed
+            local VvWwXxYyZzAaBbCc = rawget(FfGgHhIiJjKkLlMm, "AimSettings")
+            if type(VvWwXxYyZzAaBbCc) == "table" and NnOoPpQqRrSsTtUu.AimSpeed ~= nil then
+                VvWwXxYyZzAaBbCc.AimSpeed = NnOoPpQqRrSsTtUu.AimSpeed
+                VvWwXxYyZzAaBbCc.AimAnimSpeed = NnOoPpQqRrSsTtUu.AimAnimSpeed
             end
 
-            local Sniper = rawget(Object, "SniperSettings")
-            if type(Sniper) == "table" and Original.SniperSpeed ~= nil then
-                Sniper.AimSpeed = Original.SniperSpeed
-                Sniper.AimAnimSpeed = Original.SniperAnimSpeed
+            local DdEeFfGgHhIiJjKk = rawget(FfGgHhIiJjKkLlMm, "SniperSettings")
+            if type(DdEeFfGgHhIiJjKk) == "table" and NnOoPpQqRrSsTtUu.SniperSpeed ~= nil then
+                DdEeFfGgHhIiJjKk.AimSpeed = NnOoPpQqRrSsTtUu.SniperSpeed
+                DdEeFfGgHhIiJjKk.AimAnimSpeed = NnOoPpQqRrSsTtUu.SniperAnimSpeed
             end
         end
     end
 
-    function checkthisout()
-        if InstantAim.SchedulePending then return end
-        InstantAim.SchedulePending = true
+    function XxYyZzAaBbCcDdEe()
+        if ZxYwVuTsRqPoNmLk.SsTtUuVvWwXxYyZz then return end
+        ZxYwVuTsRqPoNmLk.SsTtUuVvWwXxYyZz = true
 
         Spawn(function()
-            for _, DelayTime in next, { 1, 3, 6 } do
-                Wait(DelayTime)
+            for FfGgHhIiJjKkLlMm, NnOoPpQqRrSsTtUu in next, { 1, 3, 6 } do
+                Wait(NnOoPpQqRrSsTtUu)
 
                 if not Flags["Instant Aim"].Value then break end
 
-                RequestScan()
+                HhIiJjKkLlMmNnOo()
             end
 
-            InstantAim.SchedulePending = false
+            ZxYwVuTsRqPoNmLk.SsTtUuVvWwXxYyZz = false
         end)
     end
 
-    function WatchContainer(Container)
-        Container.ChildAdded:Connect(function(Child)
-            if IsA(Child, "Tool") and Flags["Instant Aim"].Value then
-                checkthisout()
+    function VvWwXxYyZzAaBbCc(FfGgHhIiJjKkLlMm)
+        FfGgHhIiJjKkLlMm.ChildAdded:Connect(function(NnOoPpQqRrSsTtUu)
+            if IsA(NnOoPpQqRrSsTtUu, "Tool") and Flags["Instant Aim"].Value then
+                XxYyZzAaBbCcDdEe()
             end
         end)
     end
 
-    LocalPlayer.ChildAdded:Connect(function(Child)
-        if IsA(Child, "Backpack") then
-            WatchContainer(Child)
+    LocalPlayer.ChildAdded:Connect(function(NnOoPpQqRrSsTtUu)
+        if IsA(NnOoPpQqRrSsTtUu, "Backpack") then
+            VvWwXxYyZzAaBbCc(NnOoPpQqRrSsTtUu)
         end
     end)
 
     do
-        local Backpack = FindFirstChild(LocalPlayer, "Backpack")
-        if Backpack then
-            WatchContainer(Backpack)
+        local DdEeFfGgHhIiJjKk = FindFirstChild(LocalPlayer, "Backpack")
+        if DdEeFfGgHhIiJjKk then
+            VvWwXxYyZzAaBbCc(DdEeFfGgHhIiJjKk)
         end
     end
 
-    LocalPlayer.CharacterAdded:Connect(function(Character)
-        WatchContainer(Character)
+    LocalPlayer.CharacterAdded:Connect(function(FfGgHhIiJjKkLlMm)
+        VvWwXxYyZzAaBbCc(FfGgHhIiJjKkLlMm)
 
         if Flags["Instant Aim"].Value then
-            checkthisout()
+            XxYyZzAaBbCcDdEe()
         end
     end)
 
     if LocalPlayer.Character then
-        WatchContainer(LocalPlayer.Character)
+        VvWwXxYyZzAaBbCc(LocalPlayer.Character)
     end
 
     Heartbeat:Connect(function()
-        if Clock() - InstantAim.LastCheck < 0.25 then return end
-        InstantAim.LastCheck = Clock()
+        if Clock() - ZxYwVuTsRqPoNmLk.TtUuVvWwXxYyZzAa < 0.25 then return end
+        ZxYwVuTsRqPoNmLk.TtUuVvWwXxYyZzAa = Clock()
 
-        local Enabled = Flags["Instant Aim"].Value
+        local NnOoPpQqRrSsTtUu = Flags["Instant Aim"].Value
 
-        if Enabled == InstantAim.LastState then return end
-        InstantAim.LastState = Enabled
+        if NnOoPpQqRrSsTtUu == ZxYwVuTsRqPoNmLk.LlMmNnOoPpQqRrSs then return end
+        ZxYwVuTsRqPoNmLk.LlMmNnOoPpQqRrSs = NnOoPpQqRrSsTtUu
 
-        if Enabled then
-            RequestScan()
-            checkthisout()
+        if NnOoPpQqRrSsTtUu then
+            HhIiJjKkLlMmNnOo()
+            XxYyZzAaBbCcDdEe()
         else
-            untogglinstan()
+            PpQqRrSsTtUuVvWw()
         end
     end)
 end
 
+
+
+
+
 do
-    MeleeAura = {
-        Busy = false,
-        Cooly = 0,
-        LastCheck = 0,
-        Emote = "\240\159\141\158",
+    XyZAbCdEfGhIjKl = {
+        QrStUvWxYzAbCdEf = false,
+        GhIjKlMnOpQrStUv = 0,
+        WxYzAbCdEfGhIjKl = 0,
+        MnOpQrStUvWxYzAb = "\240\159\141\158",
     }
 
-    function GetConfeg(Tool)
-        local Module = FindFirstChild(Tool, "Config")
-        if not Module then return end
+    function KlMnOpQrStUvWxYz(BcDeFgHiJkLmNoPq)
+        local RsTuVwXyZaBcDeFg = FindFirstChild(BcDeFgHiJkLmNoPq, "Config")
+        if not RsTuVwXyZaBcDeFg then return end
 
-        local Ok, Config = pcall(require, Module)
-        if not Ok or type(Config) ~= "table" then return end
+        local HiJkLmNoPqRsTuVw, XyZaBcDeFgHiJkLm = pcall(require, RsTuVwXyZaBcDeFg)
+        if not HiJkLmNoPqRsTuVw or type(XyZaBcDeFgHiJkLm) ~= "table" then return end
 
-        local Mains = rawget(Config, "Mains")
-        if type(Mains) ~= "table" then return end
+        local NoPqRsTuVwXyZaBc = rawget(XyZaBcDeFgHiJkLm, "Mains")
+        if type(NoPqRsTuVwXyZaBc) ~= "table" then return end
 
-        for _, Spec in next, Mains do
-            if type(Spec) == "table" and Spec.Hitter and Spec.SwingWait then
-                return Spec
+        for DeFgHiJkLmNoPqRs, TuVwXyZaBcDeFgHi in next, NoPqRsTuVwXyZaBc do
+            if type(TuVwXyZaBcDeFgHi) == "table" and TuVwXyZaBcDeFgHi.Hitter and TuVwXyZaBcDeFgHi.SwingWait then
+                return TuVwXyZaBcDeFgHi
             end
         end
     end
 
-    function GetWep(Entry, Character, Tool)
-        if type(Entry) ~= "table" then return end
+    function AbCdEfGhIjKlMnOp(NoPqRsTuVwXyZaBc, BcDeFgHiJkLmNoPq, RsTuVwXyZaBcDeFg)
+        if type(NoPqRsTuVwXyZaBc) ~= "table" then return end
 
-        if Entry[1] == "Tool" then
-            return FindFirstChild(Tool, Entry[2])
+        if NoPqRsTuVwXyZaBc[1] == "Tool" then
+            return FindFirstChild(RsTuVwXyZaBcDeFg, NoPqRsTuVwXyZaBc[2])
         end
 
-        if Entry[1] == "Char" then
-            return FindFirstChild(Character, Entry[2])
+        if NoPqRsTuVwXyZaBc[1] == "Char" then
+            return FindFirstChild(BcDeFgHiJkLmNoPq, NoPqRsTuVwXyZaBc[2])
         end
     end
 
-    function IsClose(Character, Range)
+    function PqRsTuVwXyZaBcDe(BcDeFgHiJkLmNoPq, RsTuVwXyZaBcDeFg)
+        local HiJkLmNoPqRsTuVw = FindFirstChild(BcDeFgHiJkLmNoPq, "HumanoidRootPart")
+        if not HiJkLmNoPqRsTuVw then return end
 
-        local Root = FindFirstChild(Character, "HumanoidRootPart")
-        if not Root then return end
+        local XyZaBcDeFgHiJkLm = FindFirstChild(Workspace, "Characters")
+        if not XyZaBcDeFgHiJkLm then return end
 
-        local Characters = FindFirstChild(Workspace, "Characters")
-        if not Characters then return end
+        local NoPqRsTuVwXyZaBc = Info and Info.PlayerData or {}
+        local DeFgHiJkLmNoPqRs = Flags["Auto Melee Skip Downed"] and Flags["Auto Melee Skip Downed"].Value
+        local TuVwXyZaBcDeFgHi, UvWxYzAbCdEfGhIj = nil, RsTuVwXyZaBcDeFg
 
-        local PlayerData = Info and Info.PlayerData or {}
-        local SkipDowned = Flags["Auto Melee Skip Downed"] and Flags["Auto Melee Skip Downed"].Value
-        local Best, BestDistance = nil, Range
+        for JkLmNoPqRsTuVwXy, ZaBcDeFgHiJkLmNo in next, GetChildren(XyZaBcDeFgHiJkLm) do
+            if ZaBcDeFgHiJkLmNo ~= BcDeFgHiJkLmNoPq and ZaBcDeFgHiJkLmNo.Name ~= LocalPlayer.Name then
+                local PqRsTuVwXyZaBcDe = NoPqRsTuVwXyZaBc[ZaBcDeFgHiJkLmNo.Name]
 
-        for _, Model in next, GetChildren(Characters) do
+                if not (PqRsTuVwXyZaBcDe and PqRsTuVwXyZaBcDe.Whitelist) and not (DeFgHiJkLmNoPqRs and IsDowned(ZaBcDeFgHiJkLmNo.Name)) then
+                    local FgHiJkLmNoPqRsTu = FindFirstChild(ZaBcDeFgHiJkLmNo, "HumanoidRootPart")
+                    local VwXyZaBcDeFgHiJk = FindFirstChild(ZaBcDeFgHiJkLmNo, "Humanoid")
 
-            if Model ~= Character and Model.Name ~= LocalPlayer.Name then
-                local Record = PlayerData[Model.Name]
+                    if FgHiJkLmNoPqRsTu and VwXyZaBcDeFgHiJk and VwXyZaBcDeFgHiJk.Health > 0 and not FindFirstChildWhichIsA(ZaBcDeFgHiJkLmNo, "ForceField") then
+                        local LmNoPqRsTuVwXyZa = (FgHiJkLmNoPqRsTu.Position - HiJkLmNoPqRsTuVw.Position).Magnitude
 
-                if not (Record and Record.Whitelist) and not (SkipDowned and IsDowned(Model.Name)) then
-
-                    local TargetRoot = FindFirstChild(Model, "HumanoidRootPart")
-                    local Humanoid = FindFirstChild(Model, "Humanoid")
-
-                    if TargetRoot and Humanoid and Humanoid.Health > 0 and not FindFirstChildWhichIsA(Model, "ForceField") then
-                        local Distance = (TargetRoot.Position - Root.Position).Magnitude
-
-                        if Distance <= BestDistance then
-                            Best = Model
-                            BestDistance = Distance
+                        if LmNoPqRsTuVwXyZa <= UvWxYzAbCdEfGhIj then
+                            TuVwXyZaBcDeFgHi = ZaBcDeFgHiJkLmNo
+                            UvWxYzAbCdEfGhIj = LmNoPqRsTuVwXyZa
                         end
-
                     end
                 end
             end
         end
 
-        return Best
+        return TuVwXyZaBcDeFgHi
     end
 
-function IsAura(Character, Tool, Target)
+    function FgHiJkLmNoPqRsTu(BcDeFgHiJkLmNoPq, RsTuVwXyZaBcDeFg, HiJkLmNoPqRsTuVw)
+        XyZAbCdEfGhIjKl.QrStUvWxYzAbCdEf = true
 
-    MeleeAura.Busy = true
+        pcall(function()
+            local XyZaBcDeFgHiJkLm = KlMnOpQrStUvWxYz(RsTuVwXyZaBcDeFg)
+            if not XyZaBcDeFgHiJkLm then return end
 
-    pcall(function()
+            local NoPqRsTuVwXyZaBc = AbCdEfGhIjKlMnOp(XyZaBcDeFgHiJkLm.Hitter, BcDeFgHiJkLmNoPq, RsTuVwXyZaBcDeFg)
+            if not NoPqRsTuVwXyZaBc then return end
 
-        local Spec = GetConfeg(Tool)
-        if not Spec then return end
+            local DeFgHiJkLmNoPqRs = FindFirstChild(ReplicatedStorage, "Events")
+            if not DeFgHiJkLmNoPqRs then return end
 
-        local Hitter = GetWep(Spec.Hitter, Character, Tool)
-        if not Hitter then return end
+            local TuVwXyZaBcDeFgHi = FindFirstChild(DeFgHiJkLmNoPqRs, "XMHH.2")
+            local UvWxYzAbCdEfGhIj = FindFirstChild(DeFgHiJkLmNoPqRs, "XMHH2.2")
+            if not (TuVwXyZaBcDeFgHi and UvWxYzAbCdEfGhIj) then return end
 
-        local Events = FindFirstChild(ReplicatedStorage, "Events")
-        if not Events then return end
+            local JkLmNoPqRsTuVwXy = TuVwXyZaBcDeFgHi:InvokeServer(XyZAbCdEfGhIjKl.MnOpQrStUvWxYzAb, tick(), RsTuVwXyZaBcDeFg, "43TRFWX", "Normal", 0, true)
 
-        local Swing = FindFirstChild(Events, "XMHH.2")
-        local Hit = FindFirstChild(Events, "XMHH2.2")
-        if not (Swing and Hit) then return end
+            if JkLmNoPqRsTuVwXy == nil then
+                Wait(0.4)
+                return
+            end
 
-        local Seed = Swing:InvokeServer(MeleeAura.Emote, tick(), Tool, "43TRFWX", "Normal", 0, true)
+            Wait(XyZaBcDeFgHiJkLm.SwingWait or 0.25)
 
-        if Seed == nil then
-            Wait(0.4)
+            local ZaBcDeFgHiJkLmNo = Flags["Auto Melee Part"]
+            local PqRsTuVwXyZaBcDe = ZaBcDeFgHiJkLmNo and ZaBcDeFgHiJkLmNo.Value or "Torso"
+            local FgHiJkLmNoPqRsTu = Flags["Auto Melee Hit Delay"] and Flags["Auto Melee Hit Delay"].Value or 0.1
+
+            for VwXyZaBcDeFgHiJk = 1, 4 do
+                if not Flags["Auto Melee"].Value then break end
+                if not (HiJkLmNoPqRsTuVw and HiJkLmNoPqRsTuVw.Parent) then break end
+
+                local LmNoPqRsTuVwXyZa = FindFirstChild(HiJkLmNoPqRsTuVw, "Humanoid")
+                if not LmNoPqRsTuVwXyZa or LmNoPqRsTuVwXyZa.Health <= 0 then break end
+
+                local BcDeFgHiJkLmNoPq = FindFirstChild(HiJkLmNoPqRsTuVw, PqRsTuVwXyZaBcDe)
+                    or FindFirstChild(HiJkLmNoPqRsTuVw, "HumanoidRootPart")
+                    or FindFirstChild(HiJkLmNoPqRsTuVw, "Head")
+
+                if not BcDeFgHiJkLmNoPq then break end
+
+                UvWxYzAbCdEfGhIj:FireServer(XyZAbCdEfGhIjKl.MnOpQrStUvWxYzAb, tick(), RsTuVwXyZaBcDeFg, "2389ZFX34", JkLmNoPqRsTuVwXy, false, NoPqRsTuVwXyZaBc, BcDeFgHiJkLmNoPq, HiJkLmNoPqRsTuVw, NewVector3(0, 0, 0), NewVector3(0, 1, 0))
+
+                Wait(FgHiJkLmNoPqRsTu)
+            end
+        end)
+
+        XyZAbCdEfGhIjKl.QrStUvWxYzAbCdEf = false
+    end
+
+    Heartbeat:Connect(function()
+        if Clock() - XyZAbCdEfGhIjKl.WxYzAbCdEfGhIjKl < 0.1 then
             return
         end
 
-        Wait(Spec.SwingWait or 0.25)
+        XyZAbCdEfGhIjKl.WxYzAbCdEfGhIjKl = Clock()
 
-        local PartFlag = Flags["Auto Melee Part"]
-        local PartName = PartFlag and PartFlag.Value or "Torso"
-        local MeleeDelay = Flags["Auto Melee Hit Delay"] and Flags["Auto Melee Hit Delay"].Value or 0.1
+        local BcDeFgHiJkLmNoPq = Flags["Auto Melee"]
 
-        for _ = 1, 4 do
-
-            if not Flags["Auto Melee"].Value then break end
-
-            if not (Target and Target.Parent) then break end
-
-            local Humanoid = FindFirstChild(Target, "Humanoid")
-
-            if not Humanoid or Humanoid.Health <= 0 then break end
-
-            local HitPart = FindFirstChild(Target, PartName)
-                or FindFirstChild(Target, "HumanoidRootPart")
-                or FindFirstChild(Target, "Head")
-
-            if not HitPart then break end
-
-            Hit:FireServer(MeleeAura.Emote, tick(), Tool, "2389ZFX34", Seed, false, Hitter, HitPart, Target, NewVector3(0, 0, 0), NewVector3(0, 1, 0))
-
-            Wait(MeleeDelay)   
+        if not (BcDeFgHiJkLmNoPq and BcDeFgHiJkLmNoPq.Value) then
+            return
         end
+
+        if XyZAbCdEfGhIjKl.QrStUvWxYzAbCdEf then
+            return
+        end
+
+        if Clock() - XyZAbCdEfGhIjKl.GhIjKlMnOpQrStUv < 0.15 then
+            return
+        end
+
+        local RsTuVwXyZaBcDeFg = LocalPlayer.Character
+        if not RsTuVwXyZaBcDeFg then
+            return
+        end
+
+        local HiJkLmNoPqRsTuVw = FindFirstChildWhichIsA(RsTuVwXyZaBcDeFg, "Tool")
+        if not HiJkLmNoPqRsTuVw or FindFirstChild(HiJkLmNoPqRsTuVw, "IsGun") then
+            return
+        end
+
+        local XyZaBcDeFgHiJkLm = Flags["Auto Melee Distance"]
+        local NoPqRsTuVwXyZaBc = XyZaBcDeFgHiJkLm and XyZaBcDeFgHiJkLm.Value or 15
+
+        local DeFgHiJkLmNoPqRs = PqRsTuVwXyZaBcDe(RsTuVwXyZaBcDeFg, NoPqRsTuVwXyZaBc)
+        if not DeFgHiJkLmNoPqRs then
+            return
+        end
+
+        XyZAbCdEfGhIjKl.GhIjKlMnOpQrStUv = Clock()
+
+        Spawn(FgHiJkLmNoPqRsTu, RsTuVwXyZaBcDeFg, HiJkLmNoPqRsTuVw, DeFgHiJkLmNoPqRs)
     end)
-
-    MeleeAura.Busy = false
 end
-
-
-
-    Heartbeat:Connect(function()
-        if Clock() - MeleeAura.LastCheck < 0.1 then 
-            return 
-        end
-
-        MeleeAura.LastCheck = Clock()
-
-        local EnabledFlag = Flags["Auto Melee"]
-
-        if not (EnabledFlag and EnabledFlag.Value) then 
-            return 
-        end
-
-        if MeleeAura.Busy then 
-            return 
-        end
-
-        if Clock() - MeleeAura.Cooly < 0.15 then 
-            return 
-        end
-
-        local Character = LocalPlayer.Character
-
-        if not Character then 
-            return 
-        end
-
-        local Tool = FindFirstChildWhichIsA(Character, "Tool")
-        if not Tool or FindFirstChild(Tool, "IsGun") then 
-            return 
-        end
-
-        local RangeFlag = Flags["Auto Melee Distance"]
-
-        local Range = RangeFlag and RangeFlag.Value or 15
-
-        local Target = IsClose(Character, Range)
-        if not Target then 
-            return 
-        end
-
-        MeleeAura.Cooly = Clock()
-
-        Spawn(IsAura, Character, Tool, Target)
-
-    end)
-
-end
-
-
-
-
 
 
 
