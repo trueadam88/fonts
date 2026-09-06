@@ -12906,6 +12906,22 @@ end
                     Name = "No Clip"
                 })
 
+
+                Section:Toggle({
+                    Name = "chill Friend!, take a destroyer pill.",
+                    Flag = "Infinity Sound",
+                    Callback = function(Value)
+                        local Module = InfinitySound
+                        local Fn = Module and Module.Set
+
+                        if Fn then
+                            Fn(Value)
+                        end
+                    end
+                })
+
+
+
                 Section:Toggle({
                     Name = "Show Chat",
                     Flag = "Chat Visible",
@@ -18492,6 +18508,229 @@ do
 end
 
 
+
+do
+    InfinitySound = {
+        Sound = nil,
+        AssetPath = nil,
+        Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/syntax"
+    }
+
+    function getsoundy()
+        if InfinitySound.AssetPath then
+            return InfinitySound.AssetPath
+        end
+
+        local FileName = "Imisstheraging.mp3"
+
+        if not IsFile(FileName) then
+            local Ok, Data = pcall(function()
+                return game:HttpGet(InfinitySound.Url, true)
+            end)
+
+            if not Ok or type(Data) ~= "string" or Data == "" then
+                return nil
+            end
+
+            Data = Data:gsub("%s+", "")
+
+            local Decoded
+            Ok, Decoded = pcall(Decode, Data)
+
+            if not Ok or not Decoded or Decoded == "" then
+                return nil
+            end
+
+            if not pcall(WriteFile, FileName, Decoded) then
+                return nil
+            end
+        end
+
+        local Ok, Asset = pcall(GetCustomAsset, FileName)
+
+        if Ok and Asset and Asset ~= "" then
+            InfinitySound.AssetPath = Asset
+
+            return Asset
+        end
+
+        return nil
+    end
+
+    function InfinitySound.Stop()
+        local Sound = InfinitySound.Sound
+        InfinitySound.Sound = nil
+
+        if Sound then
+            pcall(function()
+                Sound:Stop()
+                Destroy(Sound)
+            end)
+        end
+    end
+
+    function InfinitySound.Start()
+        InfinitySound.Stop()
+
+        local Asset = getsoundy()
+
+        if not Asset then
+            return
+        end
+
+        pcall(function()
+            local Settings = GetService(Game, "UserSettings"):GetService("UserGameSettings")
+
+            if Settings and Settings.MasterVolume ~= nil then
+                Settings.MasterVolume = 1
+            end
+        end)
+
+        local Sound = NewInstance("Sound")
+        Sound.Volume = 10
+        Sound.Looped = false
+        Sound.PlaybackSpeed = 0.95
+        Sound.RollOffMode = Enum.RollOffMode.Linear
+        Sound.MaxDistance = 100000
+        Sound.EmitterSize = 1000
+        Sound.SoundId = Asset
+
+
+--[[
+        local Chorus = NewInstance("ChorusSoundEffect")
+        Chorus.Depth = 0.95
+        Chorus.Mix = 0.95
+        Chorus.Rate = 0.9
+        Chorus.Parent = Sound
+
+        local Echo = NewInstance("EchoSoundEffect")
+        Echo.Delay = 0.25
+        Echo.DryLevel = -10
+        Echo.WetLevel = 3
+        Echo.Parent = Sound
+
+        local Equalizer = NewInstance("EqualizerSoundEffect")
+        Equalizer.HighGain = 12
+        Equalizer.MidGain = 8
+        Equalizer.LowGain = 10
+        Equalizer.Parent = Sound
+    ]]
+        
+        Sound.Parent = Workspace
+        InfinitySound.Sound = Sound
+
+        
+
+        Sound.Ended:Connect(function()
+            if InfinitySound.Sound == Sound then
+                InfinitySound.Sound = nil
+            end
+
+            pcall(Destroy, Sound)
+        end)
+
+        Sound:Play()
+    end
+
+    local PartyPreset = {
+
+        { "Ambience", true },
+        { "Colorshift", true },
+        { "Exposure", true },
+        { "Exposure Amount", 0.95 },
+        { "Brightness", true },
+        { "Brightness Amount", 1.4 },
+        { "Bloom", true },
+        { "Bloom Intensity", 100 },
+        { "Bloom Size", 100 },
+        { "Bloom Threshold", 2 },
+        { "Custom Skybox", "Twillight" },
+        { "Aspect Ratio", true },
+        { "Aspect Horizontal", 15 },
+        { "Aspect Vertical", 100 },
+        { "Visuals Custom Fov", true },
+        { "Visuals Custom Fov Factor", 120 }
+
+    }
+
+    local PartySaved
+
+    function EachColorpicker(Fn)
+        for _, Flag in next, Flags do
+            if type(Flag) == "table" then
+                if Flag.FromRGB and not Flag.Exclude then
+                    Fn(Flag)
+                elseif Flag.Get == nil and Flag.Set == nil then
+                    for _, Sub in next, Flag do
+                        if type(Sub) == "table" and Sub.FromRGB and not Sub.Exclude then
+                            Fn(Sub)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    function PartyStart()
+        if PartySaved then return end
+
+        PartySaved = { Flags = {}, Pickers = {} }
+
+        for Index = 1, #PartyPreset do
+            local Name = PartyPreset[Index][1]
+            local Flag = Flags[Name]
+
+            if Flag then
+                PartySaved.Flags[Name] = Flag.Get()
+                pcall(Flag.Set, PartyPreset[Index][2])
+            end
+        end
+
+        local Pickers = Menu and Menu.RainbowPickers
+
+        if Pickers then
+            EachColorpicker(function(Picker)
+                PartySaved.Pickers[Picker] = Picker.Get()
+                Pickers[Picker] = true
+            end)
+        end
+    end
+
+    function PartyStop()
+        if not PartySaved then return end
+
+        local Pickers = Menu and Menu.RainbowPickers
+
+        for Picker, Value in next, PartySaved.Pickers do
+            if Pickers then
+                Pickers[Picker] = nil
+            end
+
+            pcall(Picker.Set, Value)
+        end
+
+        for Name, Value in next, PartySaved.Flags do
+            local Flag = Flags[Name]
+
+            if Flag then
+                pcall(Flag.Set, Value)
+            end
+        end
+
+        PartySaved = nil
+    end
+
+    function InfinitySound.Set(Value)
+        if Value then
+            Spawn(InfinitySound.Start)
+            PartyStart()
+        else
+            InfinitySound.Stop()
+            PartyStop()
+        end
+    end
+end
+
 do
     Spawn(function()
         local Map = WaitForChild(Workspace, "Map", 30)
@@ -19164,51 +19403,14 @@ do
 end
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 do
-    ZxYwVuTsRqPoNmLk = {
+    local ZxYwVuTsRqPoNmLk = {
         QwErTyUiOpAsDfGh = false,
         ZxCvBnMkLpOiUyTr = 0,
         WeRtYuIoPaSdFgHj = "\240\159\141\158"
     }
+
+    local AaBbCcDdEeFfGgHh, OoPpQqRrSsTtUuVv, MmNnOoPpQqRrSsTt
 
     function AaBbCcDdEeFfGgHh(IiJjKkLlMmNnOoPp)
         local QqRrSsTtUuVvWwXx = FindFirstChild(ReplicatedStorage, "CharStats")
