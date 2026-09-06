@@ -307,6 +307,7 @@ local Clock = os.clock
 
 local FindFirstChild = Game.FindFirstChild
 local FindFirstChildWhichIsA = Game.FindFirstChildWhichIsA
+local FindFirstChildOfClass = Game.FindFirstChildOfClass
 local GetDescendants = Game.GetDescendants
 local WaitForChild = Game.WaitForChild
 local GetChildren = Game.GetChildren
@@ -11185,7 +11186,7 @@ end
                         Flag = "Esp Enabled",
                         Category = "Player",
                         Opened = true,
-                        Size = 331
+                        Size = 464
                     })
                     do
                         Tree:Keybind({
@@ -11242,6 +11243,18 @@ end
                             Flag = "Esp Weapon Color"
                         })
 
+                        
+                        Tree:Toggle({
+                            Name = "Weapon Icon",
+                            Category = "Player",
+                            Flag = "Esp Weapon Icon"
+                        }):Colorpicker({
+                            Color = NewRGB(255, 255, 255),
+                            Transparency = 0,
+                            Category = "Player",
+                            Flag = "Esp Weapon Icon Color"
+                        })
+
 
 
                         Tree:Toggle({
@@ -11281,17 +11294,9 @@ end
                             Flag = "Esp Box Fill Color 2"
                         })
 
-                        Tree:Toggle({
-                            Name = "Bounding Box Glow",
-                            Category = "Player",
-                            Flag = "Esp Box Glow"
-                        })
+          
 
-                        Tree:Toggle({
-                            Name = "Spin Box Fill",
-                            Category = "Player",
-                            Flag = "Esp Box Fill Spin"
-                        })
+                      
 
                         Tree:Toggle({
                             Name = "Health Bar",
@@ -11329,15 +11334,75 @@ end
                         })
 
                         Tree:Toggle({
-                            Name = "Flags",
+                            Name = "Ammo Bar",
                             Category = "Player",
-                            Flag = "Esp Flags"
+                            Flag = "Esp Ammo Bar"
+                        }):Colorpicker({
+                            Color = NewRGB(0, 170, 255),
+                            Category = "Player",
+                            Flag = "Esp Ammo Bar Color"
+                        }):Colorpicker({
+                            Color = NewRGB(0, 0, 0),
+                            Transparency = 0.8,
+                            Category = "Player",
+                            Flag = "Esp Ammo Bar Outline Color"
+                        })
+
+                        Tree:Toggle({
+                            Name = "Ammo Text",
+                            Category = "Player",
+                            Flag = "Esp Ammo Text"
                         }):Colorpicker({
                             Color = NewRGB(255, 255, 255),
                             Transparency = 0,
                             Category = "Player",
-                            Flag = "Esp Flags Color"
+                            Flag = "Esp Ammo Text Color"
                         })
+
+                        Tree:Toggle({
+                            Name = "Level",
+                            Category = "Player",
+                            Flag = "Esp Level"
+                        }):Colorpicker({
+                            Color = NewRGB(255, 255, 255),
+                            Transparency = 0,
+                            Category = "Player",
+                            Flag = "Esp Level Color"
+                        })
+
+                        Tree:Toggle({
+                            Name = "Forcefield",
+                            Category = "Player",
+                            Flag = "Esp Forcefield"
+                        }):Colorpicker({
+                            Color = NewRGB(255, 255, 255),
+                            Transparency = 0,
+                            Category = "Player",
+                            Flag = "Esp Forcefield Color"
+                        })
+
+                        Tree:Toggle({
+                            Name = "Reloading",
+                            Category = "Player",
+                            Flag = "Esp Reloading"
+                        }):Colorpicker({
+                            Color = NewRGB(255, 200, 0),
+                            Transparency = 0,
+                            Category = "Player",
+                            Flag = "Esp Reloading Color"
+                        })
+
+                        Tree:Toggle({
+                            Name = "Downed",
+                            Category = "Player",
+                            Flag = "Esp Downed"
+                        }):Colorpicker({
+                            Color = NewRGB(255, 0, 0),
+                            Transparency = 0,
+                            Category = "Player",
+                            Flag = "Esp Downed Color"
+                        })
+
 
                         Tree:Toggle({
                             Name = "Priority Only",
@@ -11377,68 +11442,6 @@ end
                         })
                     end
 
-                    Tree = Section:ExpandableToggle({
-                        Name = "Out of View",
-                        Flag = "Esp Oov",
-                        Size = 178
-                    })
-                    do
-                        Tree:Colorpicker({
-                            Color = NewRGB(255, 255, 255),
-                            Transparency = 0,
-                            Flag = "Esp Oov Color"
-                        })
-
-                        Tree:Dropdown({
-                            Name = "Elements",
-                            Flag = "Esp Oov Elements",
-                            Options = { "Name", "Health Bar", "Distance", "Weapon" },
-                            Default = {},
-                            Min = 0
-                        })
-
-                        Tree:Dropdown({
-                            Name = "Style",
-                            Flag = "Esp Oov Style",
-                            Options = { "Normal", "Concave" },
-                            Default = "Concave"
-                        })
-
-                        Tree:Toggle({
-                            Name = "Dynamic Distance",
-                            Flag = "Esp Oov Dynamic Distance"
-                        })
-
-                        Tree:Toggle({
-                            Name = "Dynamic Size",
-                            Flag = "Esp Oov Dynamic Size"
-                        })
-
-                        Tree:Toggle({
-                            Name = "Arrow Blinking",
-                            Flag = "Esp Oov Blink"
-                        })
-
-                        Tree:Slider({
-                            Name = "Blinking Speed",
-                            Flag = "Esp Oov Blink Speed",
-                            Min = 1, Max = 4, Default = 1
-                        })
-
-                        Tree:Slider({
-                            Name = "Arrow Distance",
-                            Flag = "Esp Oov Distance",
-                            Min = 10, Max = 100, Default = 40,
-                            Prefix = "%"
-                        })
-
-                        Tree:Slider({
-                            Name = "Arrow Size",
-                            Flag = "Esp Oov Size",
-                            Prefix = "px",
-                            Min = 10, Max = 50, Default = 13
-                        })
-                    end
 
                     Tree = Section:ExpandableToggle({
                         Name = "Chams",
@@ -11592,6 +11595,13 @@ end
                     })
 
                     Section:Slider({
+                        Name = "Weapon Icon Size",
+                        Category = "Player",
+                        Flag = "Esp Weapon Icon Size",
+                        Min = 16, Max = 72, Default = 36
+                    })
+
+                    Section:Slider({
                         Name = "Distance Size",
                         Category = "Player",
                         Flag = "Esp Distance Size",
@@ -11649,6 +11659,176 @@ end
                         Color = NewRGB(0, 0, 0),
                         Transparency = 0,
                         Flag = "Esp Health Outline Color"
+                    })
+
+                    Section:Slider({
+                        Name = "Level Size",
+                        Category = "Player",
+                        Flag = "Esp Level Size",
+                        Min = 8, Max = 30, Default = 9
+                    })
+
+                    Section:Dropdown({
+                        Name = "Level Case",
+                        Category = "Player",
+                        Flag = "Esp Level Case",
+                        Options = { "none", "lowercase", "UPPERCASE" },
+                        Default = "UPPERCASE"
+                    })
+
+                    Section:Dropdown({
+                        Name = "Level Font",
+                        Category = "Player",
+                        Flag = "Esp Level Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tiny5"
+                    })
+
+                    Section:Toggle({
+                        Name = "Level Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Level Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Level Outline Color"
+                    })
+
+                    Section:Slider({
+                        Name = "Forcefield Size",
+                        Category = "Player",
+                        Flag = "Esp Forcefield Size",
+                        Min = 8, Max = 30, Default = 9
+                    })
+
+                    Section:Dropdown({
+                        Name = "Forcefield Case",
+                        Category = "Player",
+                        Flag = "Esp Forcefield Case",
+                        Options = { "none", "lowercase", "UPPERCASE" },
+                        Default = "UPPERCASE"
+                    })
+
+                    Section:Dropdown({
+                        Name = "Forcefield Font",
+                        Category = "Player",
+                        Flag = "Esp Forcefield Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tiny5"
+                    })
+
+                    Section:Toggle({
+                        Name = "Forcefield Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Forcefield Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Forcefield Outline Color"
+                    })
+
+                    Section:Slider({
+                        Name = "Reloading Size",
+                        Category = "Player",
+                        Flag = "Esp Reloading Size",
+                        Min = 8, Max = 30, Default = 9
+                    })
+
+                    Section:Dropdown({
+                        Name = "Reloading Case",
+                        Category = "Player",
+                        Flag = "Esp Reloading Case",
+                        Options = { "none", "lowercase", "UPPERCASE" },
+                        Default = "UPPERCASE"
+                    })
+
+                    Section:Dropdown({
+                        Name = "Reloading Font",
+                        Category = "Player",
+                        Flag = "Esp Reloading Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tiny5"
+                    })
+
+                    Section:Toggle({
+                        Name = "Reloading Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Reloading Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Reloading Outline Color"
+                    })
+
+                    Section:Slider({
+                        Name = "Downed Size",
+                        Category = "Player",
+                        Flag = "Esp Downed Size",
+                        Min = 8, Max = 30, Default = 9
+                    })
+
+                    Section:Dropdown({
+                        Name = "Downed Case",
+                        Category = "Player",
+                        Flag = "Esp Downed Case",
+                        Options = { "none", "lowercase", "UPPERCASE" },
+                        Default = "UPPERCASE"
+                    })
+
+                    Section:Dropdown({
+                        Name = "Downed Font",
+                        Category = "Player",
+                        Flag = "Esp Downed Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tiny5"
+                    })
+
+                    Section:Toggle({
+                        Name = "Downed Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Downed Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Downed Outline Color"
+                    })
+
+                    Section:Slider({
+                        Name = "Ammo Text Size",
+                        Category = "Player",
+                        Flag = "Esp Ammo Text Size",
+                        Min = 8, Max = 30, Default = 9
+                    })
+
+                    Section:Dropdown({
+                        Name = "Ammo Text Case",
+                        Category = "Player",
+                        Flag = "Esp Ammo Text Case",
+                        Options = { "none", "lowercase", "UPPERCASE" },
+                        Default = "none"
+                    })
+
+                    Section:Dropdown({
+                        Name = "Ammo Text Font",
+                        Category = "Player",
+                        Flag = "Esp Ammo Text Font",
+                        Options = { "Sevasto", "Tahoma", "Tahoma Bold", "Consolas Bold", "Tiny5" },
+                        Default = "Tiny5"
+                    })
+
+                    Section:Toggle({
+                        Name = "Ammo Text Dropshadow",
+                        Category = "Player",
+                        Flag = "Esp Ammo Text Dropshadow"
+                    }):Colorpicker({
+                        Category = "Player",
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Esp Ammo Text Outline Color"
                     })
                 end
             end
@@ -12297,21 +12477,21 @@ end
                     })
 
                     Section:Toggle({
-    Name = "Camera Teleport",
-    Flag = "Camera Teleport",
-    Callback = function(Value)
+                         Name = "Camera Teleport",
+                         Flag = "Camera Teleport",
+                         Callback = function(Value)
 
-        local freecamFlag = Flags["Freecam"]
-        if not (freecamFlag and freecamFlag.Value) then
-            return
-        end
+                         local freecamFlag = Flags["Freecam"]
+                         if not (freecamFlag and freecamFlag.Value) then
+                             return
+                         end
 
-        local Character = LocalPlayer.Character
-        local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
+                        local Character = LocalPlayer.Character
+                        local Root = Character and FindFirstChild(Character, "HumanoidRootPart")
 
-        if not Root then return end
+                        if not Root then return end
 
-        local TargetPosition
+                        local TargetPosition
 
         if Flags["Camera Teleport Mode"].Value == "Mouse" then
             local Hit = Mouse.Hit
@@ -16577,38 +16757,37 @@ do
     local OldNamecall
 
     OldNamecall = hookmetamethod(game, "__namecall", function(Self, ...)
-        local Args = { ... }
-
         if GetNamecallMethod() == "FireServer" and not CheckCaller() and Flags["Disablers Enabled"].Value then
             local Name = tostring(Self)
             local Disabled = Flags["Disablers"].Value or {}
+            local Arg1, Arg2 = ...
 
-            if Name == "TK_DGM" and Args[2] == "Drown" and Find(Disabled, "Drowning") then
+            if Name == "TK_DGM" and Arg2 == "Drown" and Find(Disabled, "Drowning") then
                 return
             end
 
-            if Name == "__RZDONL" and Args[1] == "G_Gh" and Find(Disabled, "Grinders") then
+            if Name == "__RZDONL" and Arg1 == "G_Gh" and Find(Disabled, "Grinders") then
                 return
             end
 
-            if Name == "__RZDONL" and Args[1] == "BHHh" and Find(Disabled, "Barbwires") then
+            if Name == "__RZDONL" and Arg1 == "BHHh" and Find(Disabled, "Barbwires") then
                 return
             end
 
-            if Name == "__RZDONL" and (Args[1] == "__---r" or Args[1] == "HITRGP") and Find(Disabled, "Ragdoll") then
+            if Name == "__RZDONL" and (Arg1 == "__---r" or Arg1 == "HITRGP") and Find(Disabled, "Ragdoll") then
                 return
             end
 
-            if Name == "__RZDONL" and Args[1] == "SSsH" and Find(Disabled, "Spikes") then
+            if Name == "__RZDONL" and Arg1 == "SSsH" and Find(Disabled, "Spikes") then
                 return
             end
 
-            if Name == "__RZDONL" and (Args[1] == "FlllD" or Args[1] == "FllH") and Find(Disabled, "Fall Damage") then
+            if Name == "__RZDONL" and (Arg1 == "FlllD" or Arg1 == "FllH") and Find(Disabled, "Fall Damage") then
                 return
             end
         end
 
-        return OldNamecall(Self, Unpack(Args))
+        return OldNamecall(Self, ...)
     end)
 end
 
@@ -16801,6 +16980,100 @@ do
     local EspFontName = EspFonts["Tahoma Bold"]
     local EspFontTiny = EspFonts["Tiny5"]
 
+    local WeaponIcons = {
+        ["SABRE"] = "rbxassetid://18398208185", ["MUSKET"] = "rbxassetid://18398204800",
+        ["ERADICATOR"] = "rbxassetid://18398202965", ["ERADICATOR II"] = "rbxassetid://18398202965",
+        ["R700"] = "rbxassetid://18306916832", ["MK23"] = "rbxassetid://18306918089",
+        ["HL-MK2"] = "rbxassetid://16600914824", ["SBL-MK2"] = "rbxassetid://16600913093",
+        ["SBL-MK3"] = "rbxassetid://16600910826", ["SBL-MK1"] = "rbxassetid://16600907792",
+        ["UMP-45"] = "rbxassetid://16453257299", ["METAL-BAT"] = "rbxassetid://16453237275",
+        ["FIRE-AXE"] = "rbxassetid://16453246633", ["GOLF-CLUB"] = "rbxassetid://16453248110",
+        ["WRENCH"] = "rbxassetid://16453258223", ["BALISONG"] = "rbxassetid://16453236126",
+        ["SLAYERSWORD"] = "rbxassetid://16453253528", ["FALLEN-SWORD"] = "rbxassetid://16453245012",
+        ["LONGSWORD"] = "rbxassetid://16453245012", ["_FALLENBLADE"] = "rbxassetid://16453245012",
+        ["NUNCHUCKS"] = "rbxassetid://16453249948", ["SAVAGE"] = "rbxassetid://16453252231",
+        ["TAIGA"] = "rbxassetid://16453254534", ["CHAINSAW"] = "rbxassetid://16453241880",
+        ["CURSEDDAGGER"] = "rbxassetid://16453243985", ["BATON"] = "rbxassetid://16453238973",
+        ["BBATON"] = "rbxassetid://16453238973", ["BAT"] = "rbxassetid://16453237275",
+        ["CROWBAR"] = "rbxassetid://16453242964", ["TEC-9"] = "rbxassetid://16453255860",
+        ["SHOVEL"] = "rbxassetid://16453793023", ["HAMMER"] = "rbxassetid://16453792211",
+        ["UTS-15"] = "rbxassetid://16057580424", ["TOMMY"] = "rbxassetid://16057579477",
+        ["TOMMY-GUN"] = "rbxassetid://16057579477", ["SCOUT"] = "rbxassetid://16057578067",
+        ["SAWEDOFF"] = "rbxassetid://16057576404", ["SAWED-OFF"] = "rbxassetid://16057576404",
+        ["SAWNOFF"] = "rbxassetid://16057576404", ["SAWN-OFF"] = "rbxassetid://16057576404",
+        ["MP7"] = "rbxassetid://16057575232", ["MARE"] = "rbxassetid://16057574228",
+        ["MAGNUM"] = "rbxassetid://16057573220", ["MACHETE"] = "rbxassetid://16057572342",
+        ["M320"] = "rbxassetid://16057571337", ["M60"] = "rbxassetid://16057570317",
+        ["ITHACA"] = "rbxassetid://16057569300", ["ITHACA-37"] = "rbxassetid://16057569300",
+        ["HAWKEYE"] = "rbxassetid://16057568173", ["BFG50"] = "rbxassetid://16057562279",
+        ["BFG"] = "rbxassetid://16057562279", ["BFG-50"] = "rbxassetid://16057562279",
+        ["BFG-1"] = "rbxassetid://16057562279", ["M24"] = "rbxassetid://16057225098",
+        ["GL06"] = "rbxassetid://16057226421", ["GL-06"] = "rbxassetid://16057226421",
+        ["MAC10"] = "rbxassetid://16057228244", ["MAC-10"] = "rbxassetid://16057228244",
+        ["MAC11"] = "rbxassetid://16057228244", ["MAC 11"] = "rbxassetid://16057228244",
+        ["SPAS12"] = "rbxassetid://16057229801", ["SPAS"] = "rbxassetid://16057229801",
+        ["UZI"] = "rbxassetid://16057231171", ["SAR"] = "rbxassetid://16057232685",
+        ["HANDMADE AK"] = "rbxassetid://16057233966", ["ZENITCO AK"] = "rbxassetid://16057235588",
+        ["SPAS 12"] = "rbxassetid://16057229801", ["MAC 10"] = "rbxassetid://16057228244",
+        ["CROSSBOW"] = "rbxassetid://16057223969", ["CUTLASS"] = "rbxassetid://15145588731",
+        ["AI4"] = "rbxassetid://15135074460", ["AI2"] = "rbxassetid://15135074460",
+        ["BANDAGE"] = "rbxassetid://15135072205", ["AA2"] = "rbxassetid://15135070561",
+        ["WOUNDDRESSING"] = "rbxassetid://15135072205", ["LIGHTER"] = "rbxassetid://15134129301",
+        ["GOLDENLIGHTER"] = "rbxassetid://15134129301", ["M84"] = "rbxassetid://15133286887",
+        ["RGD5"] = "rbxassetid://15133291099", ["F1"] = "rbxassetid://15133288479",
+        ["RGO"] = "rbxassetid://15133289999", ["RGN"] = "rbxassetid://15133289999",
+        ["ANARCHYTOMAHAWK"] = "rbxassetid://15132321974", ["DV2"] = "rbxassetid://15132318244",
+        ["BAYONET"] = "rbxassetid://15132318244", ["RAMBO"] = "rbxassetid://15132318244",
+        ["GOLDEN DV2"] = "rbxassetid://15132318244", ["PLASMA NINJATO"] = "rbxassetid://15132313399",
+        ["ICE AXE"] = "rbxassetid://15132319892", ["ICEAXE"] = "rbxassetid://15132319892",
+        ["ICEDAGGER"] = "rbxassetid://15132316845", ["KARAMBIT"] = "rbxassetid://15132314888",
+        ["M4A1"] = "rbxassetid://16010744928", ["M4A1-1"] = "rbxassetid://16010744928",
+        ["M4A1-S"] = "rbxassetid://16600641613", ["FN-FAL-S"] = "rbxassetid://16600638582",
+        ["MAC-10-S"] = "rbxassetid://16600643762", ["G-18-X"] = "rbxassetid://16600639884",
+        ["SCAR-H-X"] = "rbxassetid://16600647212", ["TOMMY-S"] = "rbxassetid://16600648391",
+        ["UZI-S"] = "rbxassetid://16600651239", ["UMP-45-S"] = "rbxassetid://16600649968",
+        ["AKS-74U-X"] = "rbxassetid://16600636969", ["MP7-S"] = "rbxassetid://16600645489",
+        ["AR15"] = "rbxassetid://15132722044", ["M4"] = "rbxassetid://16010744928",
+        ["AKMN"] = "rbxassetid://15134247522", ["AK47"] = "rbxassetid://15134247522",
+        ["AK-47"] = "rbxassetid://15134247522", ["AKMI"] = "rbxassetid://16010739382",
+        ["AKM"] = "rbxassetid://16010739382", ["AK74"] = "rbxassetid://14263834351",
+        ["AK12"] = "rbxassetid://16029043870", ["AKS74U"] = "rbxassetid://15134245314",
+        ["AKS-74U"] = "rbxassetid://15134245314", ["AK74U"] = "rbxassetid://14263839613",
+        ["TFZ98S"] = "rbxassetid://16010752330", ["SAIGA12"] = "rbxassetid://15134954196",
+        ["SVD"] = "rbxassetid://15131751887", ["ASVAL"] = "rbxassetid://16010740504",
+        ["MOSIN"] = "rbxassetid://16010747400", ["MP5SD"] = "rbxassetid://16010750737",
+        ["MP5"] = "rbxassetid://15571376653", ["GLOCK"] = "rbxassetid://15571376124",
+        ["G17"] = "rbxassetid://15571376124", ["G-17"] = "rbxassetid://15571376124",
+        ["G3"] = "rbxassetid://16010742164", ["DEAGLE"] = "rbxassetid://15571372887",
+        ["DESERT EAGLE"] = "rbxassetid://15571372887", ["M9"] = "rbxassetid://14263861394",
+        ["M9A3"] = "rbxassetid://15571371452", ["BERETTA"] = "rbxassetid://15571371452",
+        ["AWP"] = "rbxassetid://15571370776", ["AWM"] = "rbxassetid://15571370776",
+        ["G18"] = "rbxassetid://15571376124", ["G-18"] = "rbxassetid://15571376124",
+        ["IZH81"] = "rbxassetid://16010743888", ["IZH12"] = "rbxassetid://16010743013",
+        ["SKS"] = "rbxassetid://16010751529", ["TOMAHAWK"] = "rbxassetid://15571463242",
+        ["TACTICALKNIFE"] = "rbxassetid://15571461776", ["TACTICAL KNIFE"] = "rbxassetid://15571461776",
+        ["TAC-14"] = "rbxassetid://15571461009", ["TAC14"] = "rbxassetid://15571461009",
+        ["SLEDGE"] = "rbxassetid://15571460414", ["SLEDGEHAMMER"] = "rbxassetid://15571460414",
+        ["SERBU"] = "rbxassetid://15571459878", ["SUPER-SHORTY"] = "rbxassetid://15571459878",
+        ["SCARH"] = "rbxassetid://15571458948", ["SCAR-H"] = "rbxassetid://15571458948",
+        ["SCAR-H-1"] = "rbxassetid://15571458948", ["KATANA"] = "rbxassetid://15571458303",
+        ["FNP-45"] = "rbxassetid://15571457566", ["MOSSBERG 500"] = "rbxassetid://15131758602",
+        ["725"] = "rbxassetid://16057576404", ["MG3"] = "rbxassetid://14264302427",
+        ["RPD"] = "rbxassetid://14264298328", ["AT4"] = "rbxassetid://14264104216",
+        ["VZ61"] = "rbxassetid://16029077541", ["TT33"] = "rbxassetid://16029076040",
+        ["STG44"] = "rbxassetid://14263901605", ["RPK"] = "rbxassetid://14263895964",
+        ["RPG"] = "rbxassetid://15132676121", ["RPG7"] = "rbxassetid://15132676121",
+        ["RPG-7"] = "rbxassetid://15132676121", ["PPSH"] = "rbxassetid://16029075001",
+        ["PKM"] = "rbxassetid://16051300262", ["MP443"] = "rbxassetid://16029073381",
+        ["MP40"] = "rbxassetid://14263883187", ["MAKAROV"] = "rbxassetid://16029072524",
+        ["TFZ0"] = "rbxassetid://15146652920", ["M1911"] = "rbxassetid://14263873943",
+        ["M249"] = "rbxassetid://14263872160", ["M240"] = "rbxassetid://14263869986",
+        ["HK416"] = "rbxassetid://15134346644", ["M27"] = "rbxassetid://15134346644",
+        ["M18"] = "rbxassetid://14263866439", ["M16"] = "rbxassetid://16029046069",
+        ["L2A3"] = "rbxassetid://14263855011", ["FAL"] = "rbxassetid://16029045136",
+        ["FN-FAL"] = "rbxassetid://16029045136", ["DPM"] = "rbxassetid://14263843261"
+    }
+
     local function ApplyTextCase(Text : String, CaseValue : String)
         if CaseValue == "lowercase" then
             return Lower(Text)
@@ -16845,6 +17118,82 @@ do
         else
             Shadow.Visible = false
         end
+    end
+
+    local function GetToolValues(Character : Instance, PlayerName : String, Tool : Instance)
+        local CharsFolder = FindFirstChild(Workspace, "Characters")
+        local CharModel = CharsFolder and FindFirstChild(CharsFolder, PlayerName)
+        local GunModel = CharModel and Tool and FindFirstChild(CharModel, Tool.Name)
+
+        local Values = GunModel and (FindFirstChild(GunModel, "Values") or FindFirstChild(GunModel, "Configuration"))
+
+        if not Values and Tool then
+            Values = FindFirstChild(Tool, "Values") or FindFirstChild(Tool, "Configuration")
+        end
+
+        return Values
+    end
+
+    local function ReadAmmoValue(AmmoObj : Instance)
+        if not AmmoObj then return nil, nil end
+
+        local OkVal, Val = pcall(function() return AmmoObj.Value end)
+        local OkMax, MaxVal = pcall(function() return AmmoObj.MaxValue end)
+
+        if OkVal and typeof(Val) == "number" then
+            if OkMax and typeof(MaxVal) == "number" then
+                return Val, MaxVal
+            end
+
+            local MaxChild = FindFirstChild(AmmoObj, "MaxValue")
+
+            if MaxChild and typeof(MaxChild.Value) == "number" then
+                return Val, MaxChild.Value
+            end
+        end
+
+        return nil, nil
+    end
+
+    local function ReadReloading(ReloadObj : Instance)
+        if not ReloadObj then return false end
+
+        local Ok, Val = pcall(function() return ReloadObj.Value end)
+
+        return Ok and Val == true
+    end
+
+    local function GetHasForcefield(Character : Instance, PlayerName : String)
+        if FindFirstChildOfClass(Character, "ForceField") then return true end
+
+        local function CheckFlags(Root : Instance)
+            if not Root then return false end
+
+            local SpawnFF = FindFirstChild(Root, "SpawnFF")
+            local ProtectionFF = FindFirstChild(Root, "ProtectionFF")
+
+            if SpawnFF and ((IsA(SpawnFF, "BoolValue") and SpawnFF.Value) or not IsA(SpawnFF, "BoolValue")) then
+                return true
+            elseif ProtectionFF and ((IsA(ProtectionFF, "BoolValue") and ProtectionFF.Value) or not IsA(ProtectionFF, "BoolValue")) then
+                return true
+            end
+
+            return false
+        end
+
+        if CheckFlags(Character) then return true end
+
+        local CharsFolder = FindFirstChild(Workspace, "Characters")
+
+        return CheckFlags(CharsFolder and FindFirstChild(CharsFolder, PlayerName))
+    end
+
+    local function GetIsDowned(PlayerName : String)
+        local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
+        local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
+        local Downed = Stats and FindFirstChild(Stats, "Downed")
+
+        return Downed and Downed.Value == true or false
     end
 
     Esp.Flags = {}
@@ -17178,6 +17527,21 @@ do
             This.HealthBarValueShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
             This.HealthBarValue       = Esp.Render("Text", { Text = "100", Visible = false, Size = 14, Center = true, Color = NewRGB(0, 255, 0), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
 
+            This.AmmoBarOutline = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 0, 0) }, true)
+            This.AmmoBarInline  = Esp.Render("Square", { Thickness = 1, Visible = false, Filled = true, Color = NewRGB(0, 170, 255) }, true)
+
+            This.AmmoBarValueShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.AmmoBarValue       = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = true, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+
+            This.LevelShadow      = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = false, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.Level            = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = false, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+            This.ForcefieldShadow = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = false, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.Forcefield       = Esp.Render("Text", { Text = "FF", Visible = false, Size = 14, Center = false, Color = NewRGB(255, 255, 255), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+            This.ReloadingShadow  = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = false, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.Reloading        = Esp.Render("Text", { Text = "Reloading", Visible = false, Size = 14, Center = false, Color = NewRGB(255, 200, 0), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+            This.DownedShadow     = Esp.Render("Text", { Text = "", Visible = false, Size = 14, Center = false, Color = NewRGB(0, 0, 0), Outline = false, Font = EspFontTiny }, true)
+            This.Downed           = Esp.Render("Text", { Text = "Downed", Visible = false, Size = 14, Center = false, Color = NewRGB(255, 0, 0), Outline = true, OutlineColor = NewRGB(0, 0, 0), Font = EspFontTiny }, true)
+
             This.Avatar = Esp.Render("ImageLabel", {
                 Parent = Esp.Overlay,
                 BackgroundTransparency = 1,
@@ -17189,6 +17553,16 @@ do
 
             Esp.Render("UICorner", { Parent = This.Avatar, CornerRadius = NewUDim(1, 0) })
             This.AvatarStroke = Esp.Render("UIStroke", { Parent = This.Avatar, Color = NewRGB(0, 0, 0), Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Round })
+
+            This.WeaponIcon = Esp.Render("ImageLabel", {
+                Parent = Esp.Overlay,
+                BackgroundTransparency = 1,
+                Size = NewUDim2(0, 36, 0, 36),
+                AnchorPoint = NewVector2(0.5, 0),
+                ScaleType = Enum.ScaleType.Fit,
+                Image = "",
+                Visible = false
+            })
 
             return This
         end)
@@ -17286,7 +17660,21 @@ do
             Renders.HealthBarInline.Visible = false
             Renders.HealthBarValue.Visible = false
             Renders.HealthBarValueShadow.Visible = false
+            Renders.AmmoBarOutline.Visible = false
+            Renders.AmmoBarInline.Visible = false
+            Renders.AmmoBarValue.Visible = false
+            Renders.AmmoBarValueShadow.Visible = false
+            Renders.Level.Visible = false
+            Renders.LevelShadow.Visible = false
+            Renders.Forcefield.Visible = false
+            Renders.ForcefieldShadow.Visible = false
+            Renders.Reloading.Visible = false
+            Renders.ReloadingShadow.Visible = false
+            Renders.Downed.Visible = false
+            Renders.DownedShadow.Visible = false
             Renders.Avatar.Visible = false
+            Renders.WeaponIcon.Visible = false
+            Esp.HideSkeleton(Renders.Skeleton)
 
             local Gradient = Renders.HealthGradient
 
@@ -17383,6 +17771,36 @@ do
                 BoxFill.Visible      = true
             else
                 Renders.BoxFill.Visible = false
+            end
+
+            if Section["Esp Skeleton"].Value then
+                local Skeleton = Renders.Skeleton
+                local BodyParts = This.BodyParts
+                local SkeletonColorFlag = Section["Esp Skeleton Color"]
+                local SkeletonColor = PriorityColor or (SkeletonColorFlag and SkeletonColorFlag.Color or NewRGB(255, 255, 255))
+                local SkeletonAlpha = 1 - (SkeletonColorFlag and (SkeletonColorFlag.Transparency or 0) or 0)
+
+                for i = 1, #SkeletonBones do
+                    local Bone = SkeletonBones[i]
+                    local PartA = BodyParts[Bone[1]]
+                    local PartB = BodyParts[Bone[3]]
+                    local Line = Skeleton[i]
+
+                    if PartA and PartB then
+                        local PosA = Camera.WorldToViewportPoint(Esp.GetBonePoint(PartA, Bone[2]))
+                        local PosB = Camera.WorldToViewportPoint(Esp.GetBonePoint(PartB, Bone[4]))
+
+                        Line.From         = NewVector2(PosA.X, PosA.Y)
+                        Line.To           = NewVector2(PosB.X, PosB.Y)
+                        Line.Color        = SkeletonColor
+                        Line.Transparency = SkeletonAlpha
+                        Line.Visible      = true
+                    else
+                        Line.Visible = false
+                    end
+                end
+            else
+                Esp.HideSkeleton(Renders.Skeleton)
             end
 
             if Section["Esp Health Bar"].Value then
@@ -17483,10 +17901,87 @@ do
 
             local StackY = BoxPosition.Y + BoxSize.Y + 1
 
+            if Section["Esp Ammo Bar"].Value and This.HasAmmo then
+                local AmmoOutline = Renders.AmmoBarOutline
+                local AmmoInline = Renders.AmmoBarInline
+                local AmmoColorFlag = Section["Esp Ammo Bar Color"]
+                local AmmoOutlineFlag = Section["Esp Ammo Bar Outline Color"]
+                local AmmoPercent = This.MaxAmmo > 0 and Clamp(This.Ammo / This.MaxAmmo, 0, 1) or 0
+                local AmmoY = StackY + 1
+
+                AmmoOutline.Color        = AmmoOutlineFlag and AmmoOutlineFlag.Color or NewRGB(0, 0, 0)
+                AmmoOutline.Size         = NewVector2(BoxSize.X + 2, 4)
+                AmmoOutline.Position     = NewVector2(BoxPosition.X - 1, AmmoY)
+                AmmoOutline.Transparency = 1 - (AmmoOutlineFlag and (AmmoOutlineFlag.Transparency or 0.8) or 0.8)
+                AmmoOutline.Visible      = true
+
+                AmmoInline.Color        = AmmoColorFlag and AmmoColorFlag.Color or NewRGB(0, 170, 255)
+                AmmoInline.Size         = NewVector2(Max(Floor(BoxSize.X * AmmoPercent), 1), 2)
+                AmmoInline.Position     = NewVector2(BoxPosition.X, AmmoY + 1)
+                AmmoInline.Transparency = 1 - (AmmoColorFlag and (AmmoColorFlag.Transparency or 0) or 0)
+                AmmoInline.Visible      = true
+
+                StackY = AmmoY + 5
+
+                if Section["Esp Ammo Text"].Value then
+                    local AmmoTextColorFlag = Section["Esp Ammo Text Color"]
+                    local AmmoTextOutlineFlag = Section["Esp Ammo Text Outline Color"]
+                    local AmmoTextFont = EspFonts[Section["Esp Ammo Text Font"].Value] or EspFontTiny
+                    local AmmoTextSize = Section["Esp Ammo Text Size"].Value
+
+                    RenderEspText(
+                        Renders.AmmoBarValue, Renders.AmmoBarValueShadow,
+                        ApplyTextCase(Format("%d/%d", This.Ammo, This.MaxAmmo), Section["Esp Ammo Text Case"].Value),
+                        AmmoTextSize, AmmoTextFont,
+                        AmmoTextColorFlag and AmmoTextColorFlag.Color or NewRGB(255, 255, 255),
+                        1 - (AmmoTextColorFlag and (AmmoTextColorFlag.Transparency or 0) or 0),
+                        NewVector2(BoxPosition.X + BoxSize.X / 2, StackY),
+                        Section["Esp Ammo Text Dropshadow"].Value,
+                        AmmoTextOutlineFlag and AmmoTextOutlineFlag.Color
+                    )
+
+                    StackY += AmmoTextSize + 1
+                else
+                    Renders.AmmoBarValue.Visible = false
+                    Renders.AmmoBarValueShadow.Visible = false
+                end
+            else
+                Renders.AmmoBarOutline.Visible = false
+                Renders.AmmoBarInline.Visible = false
+                Renders.AmmoBarValue.Visible = false
+                Renders.AmmoBarValueShadow.Visible = false
+            end
+
+            local Tool = This.Weapon
+            local RightStackY = BoxPosition.Y
+            local RightStackX = BoxPosition.X + BoxSize.X + 2
+
+            if Section["Esp Distance"].Value then
+                local DistColorFlag = Section["Esp Distance Color"]
+                local DistOutlineFlag = Section["Esp Distance Outline Color"]
+                local DistanceFont = EspFonts[Section["Esp Distance Font"].Value] or EspFontTiny
+                local DistanceSize = Section["Esp Distance Size"].Value
+
+                RenderEspText(
+                    Renders.Distance, Renders.DistanceShadow,
+                    ApplyTextCase(Ceil(This.Distance) .. "m", Section["Esp Distance Case"].Value),
+                    DistanceSize, DistanceFont,
+                    PriorityColor or (DistColorFlag and DistColorFlag.Color or NewRGB(255, 255, 255)),
+                    1 - (DistColorFlag and (DistColorFlag.Transparency or 0) or 0),
+                    NewVector2(BoxPosition.X + BoxSize.X / 2, StackY),
+                    Section["Esp Distance Dropshadow"].Value,
+                    DistOutlineFlag and DistOutlineFlag.Color
+                )
+
+                StackY += DistanceSize + 1
+            else
+                Renders.Distance.Visible = false
+                Renders.DistanceShadow.Visible = false
+            end
+
             if Section["Esp Weapon"].Value then
                 local WeaponColorFlag = Section["Esp Weapon Color"]
                 local WeaponOutlineFlag = Section["Esp Weapon Outline Color"]
-                local Tool            = This.Weapon
                 local WeaponSize      = Section["Esp Weapon Size"].Value
                 local WeaponFont      = EspFonts[Section["Esp Weapon Font"].Value] or EspFontTiny
 
@@ -17507,24 +18002,117 @@ do
                 Renders.WeaponShadow.Visible = false
             end
 
-            if Section["Esp Distance"].Value then
-                local DistColorFlag = Section["Esp Distance Color"]
-                local DistOutlineFlag = Section["Esp Distance Outline Color"]
-                local DistanceFont = EspFonts[Section["Esp Distance Font"].Value] or EspFontTiny
+            if Section["Esp Level"].Value then
+                local LevelColorFlag = Section["Esp Level Color"]
+                local LevelOutlineFlag = Section["Esp Level Outline Color"]
+                local LevelFont = EspFonts[Section["Esp Level Font"].Value] or EspFontTiny
+                local LevelSize = Section["Esp Level Size"].Value
 
                 RenderEspText(
-                    Renders.Distance, Renders.DistanceShadow,
-                    ApplyTextCase(Ceil(This.Distance) .. "m", Section["Esp Distance Case"].Value),
-                    Section["Esp Distance Size"].Value, DistanceFont,
-                    PriorityColor or (DistColorFlag and DistColorFlag.Color or NewRGB(255, 255, 255)),
-                    1 - (DistColorFlag and (DistColorFlag.Transparency or 0) or 0),
-                    NewVector2(BoxPosition.X + BoxSize.X / 2, StackY),
-                    Section["Esp Distance Dropshadow"].Value,
-                    DistOutlineFlag and DistOutlineFlag.Color
+                    Renders.Level, Renders.LevelShadow,
+                    ApplyTextCase("Lv" .. tostring(This.Level or 0), Section["Esp Level Case"].Value),
+                    LevelSize, LevelFont,
+                    PriorityColor or (LevelColorFlag and LevelColorFlag.Color or NewRGB(255, 255, 255)),
+                    1 - (LevelColorFlag and (LevelColorFlag.Transparency or 0) or 0),
+                    NewVector2(RightStackX, RightStackY),
+                    Section["Esp Level Dropshadow"].Value,
+                    LevelOutlineFlag and LevelOutlineFlag.Color
                 )
+
+                RightStackY += LevelSize + 1
             else
-                Renders.Distance.Visible = false
-                Renders.DistanceShadow.Visible = false
+                Renders.Level.Visible = false
+                Renders.LevelShadow.Visible = false
+            end
+
+            if Section["Esp Forcefield"].Value and This.HasForcefield then
+                local ForcefieldColorFlag = Section["Esp Forcefield Color"]
+                local ForcefieldOutlineFlag = Section["Esp Forcefield Outline Color"]
+                local ForcefieldFont = EspFonts[Section["Esp Forcefield Font"].Value] or EspFontTiny
+                local ForcefieldSize = Section["Esp Forcefield Size"].Value
+
+                RenderEspText(
+                    Renders.Forcefield, Renders.ForcefieldShadow,
+                    ApplyTextCase("FF", Section["Esp Forcefield Case"].Value),
+                    ForcefieldSize, ForcefieldFont,
+                    PriorityColor or (ForcefieldColorFlag and ForcefieldColorFlag.Color or NewRGB(255, 255, 255)),
+                    1 - (ForcefieldColorFlag and (ForcefieldColorFlag.Transparency or 0) or 0),
+                    NewVector2(RightStackX, RightStackY),
+                    Section["Esp Forcefield Dropshadow"].Value,
+                    ForcefieldOutlineFlag and ForcefieldOutlineFlag.Color
+                )
+
+                RightStackY += ForcefieldSize + 1
+            else
+                Renders.Forcefield.Visible = false
+                Renders.ForcefieldShadow.Visible = false
+            end
+
+            if Section["Esp Reloading"].Value and Tool and This.IsReloading then
+                local ReloadColorFlag = Section["Esp Reloading Color"]
+                local ReloadOutlineFlag = Section["Esp Reloading Outline Color"]
+                local ReloadFont = EspFonts[Section["Esp Reloading Font"].Value] or EspFontTiny
+                local ReloadSize = Section["Esp Reloading Size"].Value
+
+                RenderEspText(
+                    Renders.Reloading, Renders.ReloadingShadow,
+                    ApplyTextCase("Reloading", Section["Esp Reloading Case"].Value),
+                    ReloadSize, ReloadFont,
+                    PriorityColor or (ReloadColorFlag and ReloadColorFlag.Color or NewRGB(255, 200, 0)),
+                    1 - (ReloadColorFlag and (ReloadColorFlag.Transparency or 0) or 0),
+                    NewVector2(RightStackX, RightStackY),
+                    Section["Esp Reloading Dropshadow"].Value,
+                    ReloadOutlineFlag and ReloadOutlineFlag.Color
+                )
+
+                RightStackY += ReloadSize + 1
+            else
+                Renders.Reloading.Visible = false
+                Renders.ReloadingShadow.Visible = false
+            end
+
+            if Section["Esp Downed"].Value and This.IsDowned then
+                local DownedColorFlag = Section["Esp Downed Color"]
+                local DownedOutlineFlag = Section["Esp Downed Outline Color"]
+                local DownedFont = EspFonts[Section["Esp Downed Font"].Value] or EspFontTiny
+                local DownedSize = Section["Esp Downed Size"].Value
+
+                RenderEspText(
+                    Renders.Downed, Renders.DownedShadow,
+                    ApplyTextCase("Downed", Section["Esp Downed Case"].Value),
+                    DownedSize, DownedFont,
+                    PriorityColor or (DownedColorFlag and DownedColorFlag.Color or NewRGB(255, 0, 0)),
+                    1 - (DownedColorFlag and (DownedColorFlag.Transparency or 0) or 0),
+                    NewVector2(RightStackX, RightStackY),
+                    Section["Esp Downed Dropshadow"].Value,
+                    DownedOutlineFlag and DownedOutlineFlag.Color
+                )
+
+                RightStackY += DownedSize + 1
+            else
+                Renders.Downed.Visible = false
+                Renders.DownedShadow.Visible = false
+            end
+
+            if Section["Esp Weapon Icon"].Value then
+                local IconId = Tool and WeaponIcons[Upper(Tool.Name)]
+
+                if IconId then
+                    local Icon = Renders.WeaponIcon
+                    local IconSize = Floor(Section["Esp Weapon Icon Size"].Value)
+                    local IconColorFlag = Section["Esp Weapon Icon Color"]
+
+                    Icon.Image = IconId
+                    Icon.ImageColor3 = PriorityColor or (IconColorFlag and IconColorFlag.Color or NewRGB(255, 255, 255))
+                    Icon.ImageTransparency = IconColorFlag and (IconColorFlag.Transparency or 0) or 0
+                    Icon.Size = NewUDim2(0, IconSize, 0, IconSize)
+                    Icon.Position = NewUDim2(0, Floor(BoxPosition.X + BoxSize.X / 2), 0, Floor(StackY - 5))
+                    Icon.Visible = true
+                else
+                    Renders.WeaponIcon.Visible = false
+                end
+            else
+                Renders.WeaponIcon.Visible = false
             end
         end)
 
@@ -17669,6 +18257,27 @@ do
                         This.MaxHealth = Humanoid.MaxHealth
                         This.Distance = (RootPart.Position - CameraPosition).Magnitude
                         This.Weapon = FindFirstChildWhichIsA(Character, "Tool")
+
+                        local LevelStats = FindFirstChild(This.Player, "leaderstats")
+                        local LevelValue = LevelStats and FindFirstChild(LevelStats, "Level")
+
+                        This.Level = LevelValue and LevelValue.Value or 0
+                        This.HasForcefield = GetHasForcefield(Character, This.Name)
+
+                        local Values = GetToolValues(Character, This.Name, This.Weapon)
+                        local AmmoObj = Values and (FindFirstChild(Values, "SERVER_Ammo") or FindFirstChild(Values, "Server_Ammo") or FindFirstChild(Values, "Ammo"))
+                        local Cur, Max = ReadAmmoValue(AmmoObj)
+
+                        if Cur and Max then
+                            This.HasAmmo = true
+                            This.Ammo = Cur
+                            This.MaxAmmo = Max
+                        else
+                            This.HasAmmo = false
+                        end
+
+                        This.IsReloading = ReadReloading(Values and (FindFirstChild(Values, "Reloading") or FindFirstChild(Values, "IsReloading")))
+                        This.IsDowned = GetIsDowned(This.Name)
                     else
                         This.Alive = false
                     end
@@ -17766,6 +18375,13 @@ do
                 Health = 0,
                 MaxHealth = 100,
                 Distance = Infinite,
+                Level = 0,
+                HasForcefield = false,
+                HasAmmo = false,
+                Ammo = 0,
+                MaxAmmo = 0,
+                IsReloading = false,
+                IsDowned = false,
                 LastRefresh = 0,
                 ChamsDirty = true,
                 Renders = Esp.GetPlayerRenders(Player)
