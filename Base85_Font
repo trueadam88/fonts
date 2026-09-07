@@ -559,15 +559,17 @@ local AsusPartNames = {
 local SkeletonBones = {
     { "Head", "Center", "Torso", "Top" },
     { "Torso", "Top", "Torso", "Bottom" },
-    { "Torso", "Top", "Left Arm", "Top" },
-    { "Left Arm", "Top", "Left Arm", "Bottom" },
-    { "Torso", "Top", "Right Arm", "Top" },
-    { "Right Arm", "Top", "Right Arm", "Bottom" },
-    { "Torso", "Bottom", "Left Leg", "Top" },
-    { "Left Leg", "Top", "Left Leg", "Bottom" },
-    { "Torso", "Bottom", "Right Leg", "Top" },
-    { "Right Leg", "Top", "Right Leg", "Bottom" }
+    { "Torso", "Top", "Left Arm", "Top", "Left Arm" },
+    { "Left Arm", "Top", "Left Arm", "Bottom", "Left Arm" },
+    { "Torso", "Top", "Right Arm", "Top", "Right Arm" },
+    { "Right Arm", "Top", "Right Arm", "Bottom", "Right Arm" },
+    { "Torso", "Bottom", "Left Leg", "Top", "Left Leg" },
+    { "Left Leg", "Top", "Left Leg", "Bottom", "Left Leg" },
+    { "Torso", "Bottom", "Right Leg", "Top", "Right Leg" },
+    { "Right Leg", "Top", "Right Leg", "Bottom", "Right Leg" }
 }
+
+local MAX_LIMB_DISTANCE = 3 -- studs; hides a limb's skeleton segments if it's flung/detached this far from the Torso
 
 local HitsoundIds = {
     ["Minecraft"] = "rbxassetid://7151570575",
@@ -9265,6 +9267,7 @@ do
 
         Section:Toggle({ Name = "Enabled", Flag = "AimAssist Enabled", Callback = function(v) AimAssist.Enabled = v end }):Keybind({ Mode = "On Hold", Flag = "Aim Assist Keybind", Name = "Aim Assist" })
         Section:Toggle({ Name = "Priority Only", Flag = "AimAssist PriorityOnly", Callback = function(v) AimAssist.PriorityOnly = v end })
+        Section:Toggle({ Name = "Soft Priority", Flag = "AimAssist SoftPriority", Callback = function(v) AimAssist.SoftPriority = v end })
         Section:Dropdown({ Name = "Hitscan Priority", Options = { "Closest", "Head", "Body" }, Default = "Closest", Flag = "AimAssist Priority", Callback = function(v) AimAssist.HitscanPriority = v end })
         Section:Dropdown({ Name = "Hitscan points", Options = { "Head", "Body", "Arms", "Legs" }, Default = { "Head", "Body", "Arms", "Legs" }, Min = 1, Flag = "AimAssist Hitboxes", Callback = function(v) AimAssist.HitscanPoints = v end })
         Section:Toggle({ Name = "Wall Check", Default = false, Flag = "AimAssist WallCheck", Callback = function(v) AimAssist.WallCheck = v end })
@@ -9327,6 +9330,12 @@ end
                     Name = "Priority Only",
                     Flag = "TriggerBot PriorityOnly",
                     Callback = function(v) TriggerBot.PriorityOnly = v end
+                })
+
+                Section:Toggle({
+                    Name = "Soft Priority",
+                    Flag = "TriggerBot SoftPriority",
+                    Callback = function(v) TriggerBot.SoftPriority = v end
                 })
 
                 Section:Dropdown({
@@ -9416,6 +9425,12 @@ end
                 Section:Toggle({
                     Name = "Skip Downed",
                     Flag = "Silent Aim Skip Downed",
+                    Default = false
+                })
+
+                Section:Toggle({
+                    Name = "Soft Priority",
+                    Flag = "Silent Aim Soft Priority",
                     Default = false
                 })
 
@@ -9547,6 +9562,12 @@ end
                             Flag = "Auto Melee Skip Downed",
                             Default = false
                         })
+
+                        Section:Toggle({
+                            Name = "Soft Priority",
+                            Flag = "Auto Melee Soft Priority",
+                            Default = false
+                        })
                 end
 
                 Section = MultiSection[3]
@@ -9655,6 +9676,7 @@ X7fG2hJk9 = {
     EnAbCdEfGh = false,
     RaPiDfIrE1 = false,
     DoWnChEcK2 = true,
+    SoftPriority = false,
     TaRgEtMoDe3 = "Normal",
     HiTbOx4 = 1,
     HiTbOxNaMeS5 = { "Head", "Right Arm", "Right Leg", "Left Arm", "Left Leg", "Torso" },
@@ -9849,45 +9871,55 @@ Spawn(function()
             end
         end
 
-        if #kL8mN9oP0 > 0 then
-            eF5gH6iJ7 = kL8mN9oP0
-        end
 
-        local iJ0kL1mN2, oP3qR4sT5 = nil, math.huge
+        local function aB2cD3eF4Best(Pool)
+            local iJ0kL1mN2, oP3qR4sT5 = nil, math.huge
 
-        for uV6wX7yZ8, aB9cD0eF1 in next, eF5gH6iJ7 do
-            local gH2iJ3kL4 = aB9cD0eF1.Character
-            local mN5oP6qR7 = gH2iJ3kL4 and FindFirstChild(gH2iJ3kL4, "HumanoidRootPart")
-            local sT8uV9wX0 = gH2iJ3kL4 and gH2iJ3kL4:FindFirstChildOfClass("Humanoid")
+            for uV6wX7yZ8, aB9cD0eF1 in next, Pool do
+                local gH2iJ3kL4 = aB9cD0eF1.Character
+                local mN5oP6qR7 = gH2iJ3kL4 and FindFirstChild(gH2iJ3kL4, "HumanoidRootPart")
+                local sT8uV9wX0 = gH2iJ3kL4 and gH2iJ3kL4:FindFirstChildOfClass("Humanoid")
 
-            if mN5oP6qR7 and sT8uV9wX0 and sT8uV9wX0.Health > 0
-                and not gH2iJ3kL4:FindFirstChildOfClass("ForceField")
-                and not (X7fG2hJk9.DoWnChEcK2 and aB2cD3eF4(aB9cD0eF1.Name)) then
+                if mN5oP6qR7 and sT8uV9wX0 and sT8uV9wX0.Health > 0
+                    and not gH2iJ3kL4:FindFirstChildOfClass("ForceField")
+                    and not (X7fG2hJk9.DoWnChEcK2 and aB2cD3eF4(aB9cD0eF1.Name)) then
 
-                local yZ1aB2cD3 = true
+                    local yZ1aB2cD3 = true
 
-                if mN6oP7qR8 == "FOV" then
-                    yZ1aB2cD3 = false
+                    if mN6oP7qR8 == "FOV" then
+                        yZ1aB2cD3 = false
 
-                    local eF4gH5iJ6, kL7mN8oP9 = CurrentCamera:WorldToViewportPoint(mN5oP6qR7.Position)
+                        local eF4gH5iJ6, kL7mN8oP9 = CurrentCamera:WorldToViewportPoint(mN5oP6qR7.Position)
 
-                    if kL7mN8oP9 and (sT9uV0wX1 - NewVector2(eF4gH5iJ6.X, eF4gH5iJ6.Y)).Magnitude <= X7fG2hJk9.FoV6 then
-                        yZ1aB2cD3 = true
+                        if kL7mN8oP9 and (sT9uV0wX1 - NewVector2(eF4gH5iJ6.X, eF4gH5iJ6.Y)).Magnitude <= X7fG2hJk9.FoV6 then
+                            yZ1aB2cD3 = true
+                        end
                     end
-                end
 
-                if yZ1aB2cD3 then
-                    local qR0sT1uV2 = (yZ2aB3cD4 - mN5oP6qR7.Position).Magnitude
+                    if yZ1aB2cD3 then
+                        local qR0sT1uV2 = (yZ2aB3cD4 - mN5oP6qR7.Position).Magnitude
 
-                    if qR0sT1uV2 < oP3qR4sT5 then
-                        oP3qR4sT5 = qR0sT1uV2
-                        iJ0kL1mN2 = aB9cD0eF1
+                        if qR0sT1uV2 < oP3qR4sT5 then
+                            oP3qR4sT5 = qR0sT1uV2
+                            iJ0kL1mN2 = aB9cD0eF1
+                        end
                     end
                 end
             end
+
+            return iJ0kL1mN2
         end
 
-        return iJ0kL1mN2
+        if #kL8mN9oP0 > 0 then
+            if X7fG2hJk9.SoftPriority then
+                local PriorityTarget = aB2cD3eF4Best(kL8mN9oP0)
+                if PriorityTarget then return PriorityTarget end
+            else
+                eF5gH6iJ7 = kL8mN9oP0
+            end
+        end
+
+        return aB2cD3eF4Best(eF5gH6iJ7)
     end
 
     function wX3yZ4aB5(cD6eF7gH8, iJ9kL0mN1, oP2qR3sT4)
@@ -10089,6 +10121,7 @@ do
     Section:Toggle({ Name = "Rapid fire", Default = false, Flag = "Rage Rapid Fire", Callback = function(qR5sT6uV7) X7fG2hJk9.RaPiDfIrE1 = qR5sT6uV7 end })
     Section:Toggle({ Name = "Auto reload", Default = false, Flag = "Rage Auto Reload" })
     Section:Toggle({ Name = "ignore downed", Default = false, Flag = "Rage Skip Downed", Callback = function(wX8yZ9aB0) X7fG2hJk9.DoWnChEcK2 = wX8yZ9aB0 end })
+    Section:Toggle({ Name = "Soft Priority", Default = false, Flag = "Rage Soft Priority", Callback = function(v) X7fG2hJk9.SoftPriority = v end })
 
     Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(cD1eF2gH3) X7fG2hJk9.TaRgEtMoDe3 = cD1eF2gH3 end })
     Section:Dropdown({ Name = "Hitbox", Flag = "Rage Hitbox", Options = X7fG2hJk9.HiTbOxNaMeS5, Default = "Head", Callback = function(iJ4kL5mN6) X7fG2hJk9.HiTbOx4 = Find(X7fG2hJk9.HiTbOxNaMeS5, iJ4kL5mN6) or 1 end })
@@ -11186,7 +11219,7 @@ end
                         Flag = "Esp Enabled",
                         Category = "Player",
                         Opened = true,
-                        Size = 464
+                        Size = 520
                     })
                     do
                         Tree:Keybind({
@@ -12258,6 +12291,187 @@ end
                         Visuals.Sky()
                     end
                 })
+
+                Section:Toggle({
+                    Name = "Celestial Bodies Shown",
+                    Flag = "Celestial Bodies Shown",
+                    Default = true,
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Skybox Orientation",
+                    Flag = "Skybox Orientation",
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Skybox Orientation X",
+                    Flag = "Skybox Orientation X",
+                    Min = -180, Max = 180, Default = 0,
+                    Decimals = 1,
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Skybox Spin X",
+                    Flag = "Skybox Spin X",
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Skybox Spin Speed X",
+                    Flag = "Skybox Spin Speed X",
+                    Min = -180, Max = 180, Default = 20,
+                    Decimals = 1,
+                    Prefix = "°/s"
+                })
+
+                Section:Slider({
+                    Name = "Skybox Orientation Y",
+                    Flag = "Skybox Orientation Y",
+                    Min = -180, Max = 180, Default = 0,
+                    Decimals = 1,
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Skybox Spin Y",
+                    Flag = "Skybox Spin Y",
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Skybox Spin Speed Y",
+                    Flag = "Skybox Spin Speed Y",
+                    Min = -180, Max = 180, Default = 20,
+                    Decimals = 1,
+                    Prefix = "°/s"
+                })
+
+                Section:Slider({
+                    Name = "Skybox Orientation Z",
+                    Flag = "Skybox Orientation Z",
+                    Min = -180, Max = 180, Default = 0,
+                    Decimals = 1,
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Skybox Spin Z",
+                    Flag = "Skybox Spin Z",
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Skybox Spin Speed Z",
+                    Flag = "Skybox Spin Speed Z",
+                    Min = -180, Max = 180, Default = 20,
+                    Decimals = 1,
+                    Prefix = "°/s"
+                })
+
+                Section:Slider({
+                    Name = "Star Count",
+                    Flag = "Star Count",
+                    Min = 0, Max = 10000, Default = 3000,
+                    Decimals = 1,
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Sun Angular Size",
+                    Flag = "Sun Angular Size",
+                    Min = 0, Max = 50, Default = 21,
+                    Decimals = 0.1,
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Moon Angular Size",
+                    Flag = "Moon Angular Size",
+                    Min = 0, Max = 50, Default = 11,
+                    Decimals = 0.1,
+                    Callback = function()
+                        Visuals.Sky()
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Geographic Latitude",
+                    Flag = "Latitude",
+                    Callback = function()
+                        Visuals.World()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Latitude Value",
+                    Flag = "Latitude Value",
+                    Min = -90, Max = 90, Default = 41.733,
+                    Decimals = 0.001,
+                    Callback = function()
+                        Visuals.World()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Shadow Softness",
+                    Flag = "Shadow Softness",
+                    Min = 0, Max = 1, Default = 0.2,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.ShadowSoftness()
+                    end
+                })
+
+                Section:Toggle({
+                    Name = "Prioritize Lighting Quality",
+                    Flag = "Prioritize Lighting Quality",
+                    Callback = function(Value)
+                        Visuals.LightingQuality(Value)
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Environment Specular Scale",
+                    Flag = "Environment Specular Scale",
+                    Min = 0, Max = 1, Default = 1,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.EnvironmentScale()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Environment Diffuse Scale",
+                    Flag = "Environment Diffuse Scale",
+                    Min = 0, Max = 1, Default = 1,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.EnvironmentScale()
+                    end
+                })
             end
 
             MultiSection = Tab:MultiSection({
@@ -12277,6 +12491,34 @@ end
                         Transparency = 0,
                         Flag = "Body Chams Color"
                     })
+
+                    Tree = Section:ExpandableToggle({
+                        Name = "Local Player Highlight",
+                        Flag = "Local Highlight",
+                        Size = 60
+                    })
+                    do
+                        Tree:Colorpicker({
+                            Name = "Fill",
+                            Color = MenuTheme.Accent.A,
+                            Transparency = 0.5,
+                            Flag = "Local Highlight Fill Color"
+                        })
+
+                        Tree:Colorpicker({
+                            Name = "Outline",
+                            Color = NewRGB(255, 255, 255),
+                            Transparency = 0,
+                            Flag = "Local Highlight Outline Color"
+                        })
+
+                        Tree:Dropdown({
+                            Name = "Depth Mode",
+                            Flag = "Local Highlight Depth Mode",
+                            Options = { "AlwaysOnTop", "Occluded" },
+                            Default = "AlwaysOnTop"
+                        })
+                    end
 
                     Tree = Section:ExpandableToggle({
                         Name = "ViewModel Arms",
@@ -12578,6 +12820,41 @@ end
                         Prefix = "x",
                         Callback = function()
                             Camera.UpdateFOV()
+                        end
+                    })
+
+                    Section:Toggle({
+                        Name = "Camera Noclip",
+                        Flag = "Camera Noclip",
+                        Callback = function(Value)
+                            local SetConst = (debug and debug.setconstant) or setconstant
+                            local GetConsts = (debug and debug.getconstants) or getconstants
+
+                            if not SetConst or not GetConsts or not getgc then
+                                Library:Notify({ Text = "Incompatible Exploit: your executor doesn't support setconstant/getconstants/getgc", Time = 5 })
+                                return
+                            end
+
+                            local PlayerScripts = LocalPlayer:FindFirstChildOfClass("PlayerScripts")
+                            local PlayerModule = PlayerScripts and PlayerScripts:FindFirstChild("PlayerModule")
+                            local CameraModule = PlayerModule and PlayerModule:FindFirstChild("CameraModule")
+                            local ZoomController = CameraModule and CameraModule:FindFirstChild("ZoomController")
+                            local Popper = ZoomController and ZoomController:FindFirstChild("Popper")
+
+                            if not Popper then return end
+
+                           
+                            local From, To = Value and 0.25 or 0, Value and 0 or 0.25
+
+                            for _, Fn in next, getgc() do
+                                if type(Fn) == "function" and getfenv(Fn).script == Popper then
+                                    for Index, Constant in next, GetConsts(Fn) do
+                                        if tonumber(Constant) == From then
+                                            SetConst(Fn, Index, To)
+                                        end
+                                    end
+                                end
+                            end
                         end
                     })
 
@@ -12951,20 +13228,7 @@ end
 
 
 
-                Section:Toggle({
-                    Name = "Auto Stomp",
-                    Flag = "Auto Stomp",
-                    Unsafe = true
-                })
-
-                Section:Slider({
-                    Name = "Auto Stomp Range",
-                    Flag = "Auto Stomp Range",
-                    Min = 5, Max = 50, Default = 15
-                })
-
-
-
+       
 
 
 
@@ -15033,6 +15297,8 @@ do
     Visuals.AtmosphereObject = FindFirstChildWhichIsA(Lighting, "Atmosphere", true)
     Visuals.Bloom = FindFirstChildWhichIsA(Lighting, "BloomEffect", true)
     Visuals.ColorCorrection = FindFirstChildWhichIsA(Lighting, "ColorCorrectionEffect", true)
+    Visuals.SkyboxSpinAngle = { X = 0, Y = 0, Z = 0 }
+    Visuals.SkyboxSpinLastTick = Tick()
 
     Visuals.World = LPH_NO_VIRTUALIZE(function()
 
@@ -15069,36 +15335,16 @@ do
         end
 
         if Flags["Fog"].Value then
-     
-            local Atmosphere = FindFirstChildWhichIsA(Lighting, "Atmosphere")
-
-            if Atmosphere then
-                if not Visuals.FogHiddenAtmosphere then
-                    Visuals.FogHiddenAtmosphere = Atmosphere
-                end
-
-                Atmosphere.Parent = nil
-            end
-
             Lighting.FogColor = Flags["Fog Color"].Color
             Lighting.FogStart = Flags["Fog Start"].Value
             Lighting.FogEnd = Flags["Fog End"].Value
         else
-            local Hidden = Visuals.FogHiddenAtmosphere
-
-            if Hidden then
-                if not Hidden.Parent then
-                    Hidden.Parent = Lighting
-                end
-
-                Visuals.AtmosphereObject = Hidden
-                Visuals.FogHiddenAtmosphere = nil
-            end
-
             Lighting.FogColor = Cache.FogColor
             Lighting.FogStart = Cache.FogStart
             Lighting.FogEnd = Cache.FogEnd
         end
+
+        Visuals.Atmosphere()
 
         if Flags["Time"].Value then
             Lighting.ClockTime = Flags["Time Factor"].Value
@@ -15107,6 +15353,12 @@ do
         end
 
         Lighting.GlobalShadows = Flags["Shadows"].Value
+
+        if Flags["Latitude"] and Flags["Latitude"].Value and Flags["Latitude Value"] then
+            Lighting.GeographicLatitude = Flags["Latitude Value"].Value
+        else
+            Lighting.GeographicLatitude = Cache.GeographicLatitude
+        end
 
         if Bloom then
             if Flags["Bloom"].Value then
@@ -15164,6 +15416,37 @@ do
         for Index, Value in next, SkyBoxes[Flags["Custom Skybox"].Value] do
             Sky[Index] = Value
         end
+
+        if Flags["Celestial Bodies Shown"] then Sky.CelestialBodiesShown = Flags["Celestial Bodies Shown"].Value end
+        if Flags["Star Count"] then Sky.StarCount = Flags["Star Count"].Value end
+        if Flags["Sun Angular Size"] then Sky.SunAngularSize = Flags["Sun Angular Size"].Value end
+        if Flags["Moon Angular Size"] then Sky.MoonAngularSize = Flags["Moon Angular Size"].Value end
+
+        if Flags["Skybox Orientation"] and Flags["Skybox Orientation"].Value and Flags["Skybox Orientation X"] then
+            local Now = Tick()
+            local Delta = Now - Visuals.SkyboxSpinLastTick
+            Visuals.SkyboxSpinLastTick = Now
+
+            local function AxisAngle(Axis)
+                local SpinFlag = Flags["Skybox Spin " .. Axis]
+
+                if SpinFlag and SpinFlag.Value then
+                    local SpeedFlag = Flags["Skybox Spin Speed " .. Axis]
+                    local Speed = SpeedFlag and SpeedFlag.Value or 0
+                    local Angle = (Visuals.SkyboxSpinAngle[Axis] + Speed * Delta) % 360
+
+                    Visuals.SkyboxSpinAngle[Axis] = Angle
+
+                    return Angle
+                end
+
+                return Flags["Skybox Orientation " .. Axis].Value
+            end
+
+            Sky.SkyboxOrientation = NewVector3(AxisAngle("X"), AxisAngle("Y"), AxisAngle("Z"))
+        else
+            Sky.SkyboxOrientation = NewVector3(0, 0, 0)
+        end
     end)
 
     Visuals.AtmosphereDisablerSettings = {
@@ -15200,7 +15483,8 @@ do
             }
         end
 
-        local Settings = Flags["Atmosphere"].Value and Visuals.AtmosphereDefaultSettings or Visuals.AtmosphereDisablerSettings
+        local FogActive = Flags["Fog"] and Flags["Fog"].Value
+        local Settings = (Flags["Atmosphere"].Value and not FogActive) and Visuals.AtmosphereDefaultSettings or Visuals.AtmosphereDisablerSettings
 
         Atmosphere.Density = Settings.Density
         Atmosphere.Offset = Settings.Offset
@@ -15234,6 +15518,21 @@ do
         Clouds.Density = Flags["Cloud Density"].Value / 100
     end)
 
+    Visuals.ShadowSoftness = function()
+        if not Flags["Shadow Softness"] then return end
+        Lighting.ShadowSoftness = Flags["Shadow Softness"].Value
+    end
+
+    Visuals.LightingQuality = function(Value)
+        pcall(function() Lighting.PrioritizeLightingQuality = Value end)
+    end
+
+    Visuals.EnvironmentScale = function()
+        if not Flags["Environment Specular Scale"] or not Flags["Environment Diffuse Scale"] then return end
+        Lighting.EnvironmentSpecularScale = Flags["Environment Specular Scale"].Value
+        Lighting.EnvironmentDiffuseScale = Flags["Environment Diffuse Scale"].Value
+    end
+
     Visuals.Init = function()
         local Cache = Visuals.Cache
 
@@ -15247,6 +15546,7 @@ do
         Cache.FogColor = Lighting.FogColor
         Cache.FogStart = Lighting.FogStart
         Cache.FogEnd = Lighting.FogEnd
+        Cache.GeographicLatitude = Lighting.GeographicLatitude
 
         local ExistingCC = FindFirstChildWhichIsA(Lighting, "ColorCorrectionEffect", true)
 
@@ -15297,6 +15597,9 @@ do
         Visuals.Sky()
         Visuals.Atmosphere()
        Visuals.Clouds()
+        Visuals.ShadowSoftness()
+        Visuals.EnvironmentScale()
+        Visuals.LightingQuality(Flags["Prioritize Lighting Quality"] and Flags["Prioritize Lighting Quality"].Value)
 
         RenderStepped:Connect(function()
            Visuals.World()
@@ -17792,6 +18095,7 @@ do
             if Section["Esp Skeleton"].Value then
                 local Skeleton = Renders.Skeleton
                 local BodyParts = This.BodyParts
+                local Torso = BodyParts["Torso"]
                 local SkeletonColorFlag = Section["Esp Skeleton Color"]
                 local SkeletonColor = PriorityColor or (SkeletonColorFlag and SkeletonColorFlag.Color or NewRGB(255, 255, 255))
                 local SkeletonAlpha = 1 - (SkeletonColorFlag and (SkeletonColorFlag.Transparency or 0) or 0)
@@ -17801,8 +18105,10 @@ do
                     local PartA = BodyParts[Bone[1]]
                     local PartB = BodyParts[Bone[3]]
                     local Line = Skeleton[i]
+                    local LimbPart = Bone[5] and BodyParts[Bone[5]]
+                    local LimbValid = not LimbPart or not Torso or (LimbPart.Position - Torso.Position).Magnitude <= MAX_LIMB_DISTANCE
 
-                    if PartA and PartB then
+                    if PartA and PartB and LimbValid then
                         local PosA = Camera.WorldToViewportPoint(Esp.GetBonePoint(PartA, Bone[2]))
                         local PosB = Camera.WorldToViewportPoint(Esp.GetBonePoint(PartB, Bone[4]))
 
@@ -17818,6 +18124,7 @@ do
             else
                 Esp.HideSkeleton(Renders.Skeleton)
             end
+
 
             if Section["Esp Health Bar"].Value then
                 local HealthPercent    = This.Health / This.MaxHealth
@@ -18751,6 +19058,7 @@ do
             VisualizeFov = true,
             FovColor = NewRGB(181, 179, 253),
             PriorityOnly = false,
+            SoftPriority = false,
             SkipDowned = false
         } do
             if AimAssist[Index] == nil then
@@ -18767,6 +19075,7 @@ do
             MagnetAccuracy = 60,
             MagnetPriority = "Closest",
             PriorityOnly = false,
+            SoftPriority = false,
             SkipDowned = false
         } do
             if TriggerBot[Index] == nil then
@@ -18969,13 +19278,6 @@ do
         local SmoothedAimSpeed = nil
 
         function Proaimassist(Delta)
-            local Weapon = LocalData.Weapon
-            if not Weapon or not LocalData.WeaponVelocity then
-                CurrentTarget = nil
-                SmoothedAimSpeed = nil
-                return
-            end
-
             local MagnetActive = TriggerBot.Magnet and TriggerBot.Enabled
             if not MagnetActive and not AimAssist.Enabled then
                 CurrentTarget = nil
@@ -19007,11 +19309,11 @@ do
                         end
                     end
 
-                    if AimAssist.AdjustMovement then
+                    if AimAssist.AdjustMovement and LocalData.WeaponVelocity then
                         AimPos = SolveMovement(CamPos, AimPos, Part.Velocity, LocalData.WeaponVelocity)
                     end
 
-                    if AimAssist.AdjustBulletDrop then
+                    if AimAssist.AdjustBulletDrop and LocalData.WeaponVelocity then
                         AimPos = ResolverDrop(CamPos, LocalData.WeaponAcceleration, AimPos, LocalData.WeaponVelocity)
                     end
 
@@ -19043,6 +19345,7 @@ do
             local HitPoints = TranslateHitboxPoints(MagnetActive and TriggerBot.Hitboxes or AimAssist.HitscanPoints)
             local DoWall = MagnetActive or AimAssist.WallCheck
             local PriorityOnly = MagnetActive and TriggerBot.PriorityOnly or AimAssist.PriorityOnly
+            local SoftPriority = MagnetActive and TriggerBot.SoftPriority or AimAssist.SoftPriority
 
             local Candidates, Count = {}, 0
 
@@ -19077,6 +19380,48 @@ do
 
             local Priority = PriorityMap[MagnetActive and TriggerBot.MagnetPriority or AimAssist.HitscanPriority]
             local Accuracy = MagnetActive and TriggerBot.MagnetAccuracy or AimAssist.Accuracy
+
+
+            if SoftPriority then
+                local PriorityCandidates, PriorityCount = {}, 0
+
+                for i = 1, Count do
+                    local P = Candidates[i]
+                    local Info = Info.PlayerData[P.Data.Name]
+                    if Info and Info.Priority then
+                        PriorityCount = PriorityCount + 1
+                        PriorityCandidates[PriorityCount] = P
+                    end
+                end
+
+                if PriorityCount > 0 then
+                    if Priority and Accuracy >= Random(1, 100) then
+                        local Best, BestAngle = nil, 360
+                        for i = 1, PriorityCount do
+                            local P = PriorityCandidates[i]
+                            if P.Part.Name == Priority and P.Angle < BestAngle then
+                                BestAngle, Best = P.Angle, P
+                            end
+                        end
+                        if Best then
+                            CurrentTarget = Best
+                            PrevTargetTick = Tick()
+                            return
+                        end
+                    end
+
+                    local Best, BestAngle = nil, 360
+                    for i = 1, PriorityCount do
+                        local P = PriorityCandidates[i]
+                        if P.Angle < BestAngle then
+                            BestAngle, Best = P.Angle, P
+                        end
+                    end
+                    CurrentTarget = Best
+                    PrevTargetTick = Tick()
+                    return
+                end
+            end
 
             if Priority and Accuracy >= Random(1, 100) then
                 local Best, BestAngle = nil, 360
@@ -19305,41 +19650,54 @@ do
             local aB1cD2eF3 = Flags["Silent Aim Wall Check"].Value
             local gH4iJ5kL6 = Flags["Silent Aim Skip Downed"] and Flags["Silent Aim Skip Downed"].Value
 
-            local mN7oP8qR9, sT0uV1wX2 = nil, Flags["Silent Aim FOV"].Value
+            local function ScanSilentTarget(RequirePriority, BestPlayer, BestDist)
+                for yZ3aB4cD5, eF6gH7iJ8 in next, Players:GetPlayers() do
+                    if eF6gH7iJ8 ~= LocalPlayer and eF6gH7iJ8.Character then
+                        local kL9mN0oP1 = Info and Info.PlayerData and Info.PlayerData[eF6gH7iJ8.Name]
 
-            for yZ3aB4cD5, eF6gH7iJ8 in next, Players:GetPlayers() do
-                if eF6gH7iJ8 ~= LocalPlayer and eF6gH7iJ8.Character then
-                    local kL9mN0oP1 = Info and Info.PlayerData and Info.PlayerData[eF6gH7iJ8.Name]
+                        if not (kL9mN0oP1 and kL9mN0oP1.Whitelist) and not (gH4iJ5kL6 and iJ3kL4mN5(eF6gH7iJ8.Name))
+                            and (not RequirePriority or (kL9mN0oP1 and kL9mN0oP1.Priority)) then
+                            local qR2sT3uV4 = eF6gH7iJ8.Character
+                            local wX5yZ6aB7 = qR2sT3uV4:FindFirstChildOfClass("Humanoid")
+                            local cD8eF9gH0 = qR2sT3uV4:FindFirstChild(oP5qR6sT7)
 
-                    if not (kL9mN0oP1 and kL9mN0oP1.Whitelist) and not (gH4iJ5kL6 and iJ3kL4mN5(eF6gH7iJ8.Name)) then
-                        local qR2sT3uV4 = eF6gH7iJ8.Character
-                        local wX5yZ6aB7 = qR2sT3uV4:FindFirstChildOfClass("Humanoid")
-                        local cD8eF9gH0 = qR2sT3uV4:FindFirstChild(oP5qR6sT7)
+                            if cD8eF9gH0 and wX5yZ6aB7 and wX5yZ6aB7.Health > 0
+                                and not qR2sT3uV4:FindFirstChildOfClass("ForceField") then
+                                local iJ1kL2mN3, oP4qR5sT6 = CurrentCamera:WorldToViewportPoint(cD8eF9gH0.Position)
 
-                        if cD8eF9gH0 and wX5yZ6aB7 and wX5yZ6aB7.Health > 0
-                            and not qR2sT3uV4:FindFirstChildOfClass("ForceField") then
-                            local iJ1kL2mN3, oP4qR5sT6 = CurrentCamera:WorldToViewportPoint(cD8eF9gH0.Position)
+                                if oP4qR5sT6 then
+                                    local uV7wX8yZ9 = (NewVector2(iJ1kL2mN3.X, iJ1kL2mN3.Y) - uV8wX9yZ0).Magnitude
 
-                            if oP4qR5sT6 then
-                                local uV7wX8yZ9 = (NewVector2(iJ1kL2mN3.X, iJ1kL2mN3.Y) - uV8wX9yZ0).Magnitude
+                                    if uV7wX8yZ9 < BestDist then
+                                        local aB0cD1eF2 = false
 
-                                if uV7wX8yZ9 < sT0uV1wX2 then
-                                    local aB0cD1eF2 = false
+                                        if aB1cD2eF3 then
+                                            local gH3iJ4kL5 = { CurrentCamera, cD9eF0gH1, qR2sT3uV4 }
+                                            aB0cD1eF2 = #CurrentCamera:GetPartsObscuringTarget({ cD8eF9gH0.Position }, gH3iJ4kL5) > 0
+                                        end
 
-                                    if aB1cD2eF3 then
-                                        local gH3iJ4kL5 = { CurrentCamera, cD9eF0gH1, qR2sT3uV4 }
-                                        aB0cD1eF2 = #CurrentCamera:GetPartsObscuringTarget({ cD8eF9gH0.Position }, gH3iJ4kL5) > 0
-                                    end
-
-                                    if not aB0cD1eF2 then
-                                        mN7oP8qR9 = eF6gH7iJ8
-                                        sT0uV1wX2 = uV7wX8yZ9
+                                        if not aB0cD1eF2 then
+                                            BestPlayer = eF6gH7iJ8
+                                            BestDist = uV7wX8yZ9
+                                        end
                                     end
                                 end
                             end
                         end
                     end
                 end
+
+                return BestPlayer, BestDist
+            end
+
+            local mN7oP8qR9, sT0uV1wX2 = nil, Flags["Silent Aim FOV"].Value
+
+            if Flags["Silent Aim Soft Priority"] and Flags["Silent Aim Soft Priority"].Value then
+                mN7oP8qR9, sT0uV1wX2 = ScanSilentTarget(true, mN7oP8qR9, sT0uV1wX2)
+            end
+
+            if not mN7oP8qR9 then
+                mN7oP8qR9, sT0uV1wX2 = ScanSilentTarget(false, mN7oP8qR9, sT0uV1wX2)
             end
 
             if not mN7oP8qR9 or not mN7oP8qR9.Character then 
@@ -19403,164 +19761,10 @@ do
 end
 
 
-do
-    local ZxYwVuTsRqPoNmLk = {
-        QwErTyUiOpAsDfGh = false,
-        ZxCvBnMkLpOiUyTr = 0,
-        WeRtYuIoPaSdFgHj = "\240\159\141\158"
-    }
 
-    local AaBbCcDdEeFfGgHh, OoPpQqRrSsTtUuVv, MmNnOoPpQqRrSsTt
 
-    function AaBbCcDdEeFfGgHh(IiJjKkLlMmNnOoPp)
-        local QqRrSsTtUuVvWwXx = FindFirstChild(ReplicatedStorage, "CharStats")
-        local YyZzAaBbCcDdEeFf = QqRrSsTtUuVvWwXx and FindFirstChild(QqRrSsTtUuVvWwXx, IiJjKkLlMmNnOoPp)
-        local GgHhIiJjKkLlMmNn = YyZzAaBbCcDdEeFf and FindFirstChild(YyZzAaBbCcDdEeFf, "Downed")
-        return GgHhIiJjKkLlMmNn ~= nil and GgHhIiJjKkLlMmNn.Value == true
-    end
 
-    function OoPpQqRrSsTtUuVv()
-        local WwXxYyZzAaBbCcDd = LocalPlayer.Character
-        local EeFfGgHhIiJjKkLl = WwXxYyZzAaBbCcDd and FindFirstChildWhichIsA(WwXxYyZzAaBbCcDd, "Tool")
 
-        if EeFfGgHhIiJjKkLl and not FindFirstChild(EeFfGgHhIiJjKkLl, "IsGun") then
-            return EeFfGgHhIiJjKkLl
-        end
-
-        return nil
-    end
-
-    function MmNnOoPpQqRrSsTt(UuVvWwXxYyZzAaBb, CcDdEeFfGgHhIiJj)
-        local KkLlMmNnOoPpQqRr = FindFirstChild(Workspace, "Characters")
-        local SsTtUuVvWwXxYyZz, AaBbCcDdEeFfGgHh, IiJjKkLlMmNnOoPp = nil, nil, CcDdEeFfGgHhIiJj
-
-        for QqRrSsTtUuVvWwXx, YyZzAaBbCcDdEeFf in next, Players:GetPlayers() do
-            if YyZzAaBbCcDdEeFf ~= LocalPlayer and AaBbCcDdEeFfGgHh(YyZzAaBbCcDdEeFf.Name) then
-                local GgHhIiJjKkLlMmNn = Info and Info.PlayerData and Info.PlayerData[YyZzAaBbCcDdEeFf.Name]
-
-                if not (GgHhIiJjKkLlMmNn and GgHhIiJjKkLlMmNn.Whitelist) then
-                    local OoPpQqRrSsTtUuVv = (KkLlMmNnOoPpQqRr and FindFirstChild(KkLlMmNnOoPpQqRr, YyZzAaBbCcDdEeFf.Name)) or YyZzAaBbCcDdEeFf.Character
-                    local WwXxYyZzAaBbCcDd = OoPpQqRrSsTtUuVv and (FindFirstChild(OoPpQqRrSsTtUuVv, "Torso") or FindFirstChild(OoPpQqRrSsTtUuVv, "HumanoidRootPart") or FindFirstChild(OoPpQqRrSsTtUuVv, "Head"))
-
-                    if WwXxYyZzAaBbCcDd then
-                        local EeFfGgHhIiJjKkLl = (WwXxYyZzAaBbCcDd.Position - UuVvWwXxYyZzAaBb).Magnitude
-
-                        if EeFfGgHhIiJjKkLl < IiJjKkLlMmNnOoPp then
-                            SsTtUuVvWwXxYyZz, AaBbCcDdEeFfGgHh, IiJjKkLlMmNnOoPp = OoPpQqRrSsTtUuVv, YyZzAaBbCcDdEeFf, EeFfGgHhIiJjKkLl
-                        end
-                    end
-                end
-            end
-        end
-
-        return SsTtUuVvWwXxYyZz, AaBbCcDdEeFfGgHh
-    end
-
-    function MmNnOoPpQqRrSsTt(UuVvWwXxYyZzAaBb, CcDdEeFfGgHhIiJj)
-        local KkLlMmNnOoPpQqRr = FindFirstChild(ReplicatedStorage, "Events")
-        local SsTtUuVvWwXxYyZz = KkLlMmNnOoPpQqRr and FindFirstChild(KkLlMmNnOoPpQqRr, "XMHH.2")
-        local AaBbCcDdEeFfGgHh = KkLlMmNnOoPpQqRr and FindFirstChild(KkLlMmNnOoPpQqRr, "XMHH2.2")
-
-        if not SsTtUuVvWwXxYyZz or not AaBbCcDdEeFfGgHh then return end
-
-        local IiJjKkLlMmNnOoPp = OoPpQqRrSsTtUuVv()
-
-        if not IiJjKkLlMmNnOoPp then return end
-
-        local QqRrSsTtUuVvWwXx, YyZzAaBbCcDdEeFf = pcall(function()
-            return SsTtUuVvWwXxYyZz:InvokeServer(ZxYwVuTsRqPoNmLk.WeRtYuIoPaSdFgHj, tick(), IiJjKkLlMmNnOoPp, "EXECQX")
-        end)
-
-        if not QqRrSsTtUuVvWwXx or YyZzAaBbCcDdEeFf == nil then
-            Wait(0.4)
-            return
-        end
-
-        Wait(0.5)
-
-        for GgHhIiJjKkLlMmNn = 1, 6 do
-            local OoPpQqRrSsTtUuVv = Flags["Auto Stomp"]
-
-            if not OoPpQqRrSsTtUuVv or not OoPpQqRrSsTtUuVv.Value then
-                return
-            end
-
-            if not AaBbCcDdEeFfGgHh(CcDdEeFfGgHhIiJj.Name) then
-                return
-            end
-
-            local WwXxYyZzAaBbCcDd = LocalPlayer.Character
-            local EeFfGgHhIiJjKkLl = WwXxYyZzAaBbCcDd and FindFirstChild(WwXxYyZzAaBbCcDd, "Right Leg")
-            local MmNnOoPpQqRrSsTt = (GgHhIiJjKkLlMmNn % 2 == 0 and FindFirstChild(UuVvWwXxYyZzAaBb, "Head"))
-                or FindFirstChild(UuVvWwXxYyZzAaBb, "Torso")
-                or FindFirstChild(UuVvWwXxYyZzAaBb, "Head")
-                or FindFirstChild(UuVvWwXxYyZzAaBb, "HumanoidRootPart")
-
-            if not EeFfGgHhIiJjKkLl or not MmNnOoPpQqRrSsTt then
-                return
-            end
-
-            pcall(function()
-                AaBbCcDdEeFfGgHh:FireServer(
-                    ZxYwVuTsRqPoNmLk.WeRtYuIoPaSdFgHj,
-                    tick(),
-                    IiJjKkLlMmNnOoPp,
-                    "2389ZFX34",
-                    YyZzAaBbCcDdEeFf,
-                    false,
-                    EeFfGgHhIiJjKkLl,
-                    MmNnOoPpQqRrSsTt,
-                    UuVvWwXxYyZzAaBb,
-                    EeFfGgHhIiJjKkLl.Position,
-                    MmNnOoPpQqRrSsTt.Position
-                )
-            end)
-
-            Wait(0.05)
-        end
-    end
-
-    Heartbeat:Connect(function()
-        local AaBbCcDdEeFfGgHh = Flags["Auto Stomp"]
-
-        if not AaBbCcDdEeFfGgHh or not AaBbCcDdEeFfGgHh.Value or ZxYwVuTsRqPoNmLk.QwErTyUiOpAsDfGh then
-            return
-        end
-        if Clock() - ZxYwVuTsRqPoNmLk.ZxCvBnMkLpOiUyTr < 0.15 then
-            return
-        end
-        if AaBbCcDdEeFfGgHh(LocalPlayer.Name) then
-            return
-        end
-
-        local IiJjKkLlMmNnOoPp = LocalPlayer.Character
-        local QqRrSsTtUuVvWwXx = IiJjKkLlMmNnOoPp and FindFirstChild(IiJjKkLlMmNnOoPp, "HumanoidRootPart")
-
-        if not QqRrSsTtUuVvWwXx then
-            return
-        end
-        if not OoPpQqRrSsTtUuVv() then
-            return
-        end
-
-        local YyZzAaBbCcDdEeFf = Flags["Auto Stomp Range"]
-        local GgHhIiJjKkLlMmNn = (YyZzAaBbCcDdEeFf and YyZzAaBbCcDdEeFf.Value) or 15
-        local OoPpQqRrSsTtUuVv, WwXxYyZzAaBbCcDd = MmNnOoPpQqRrSsTt(QqRrSsTtUuVvWwXx.Position, GgHhIiJjKkLlMmNn)
-
-        if not OoPpQqRrSsTtUuVv or not WwXxYyZzAaBbCcDd then
-            return
-        end
-
-        ZxYwVuTsRqPoNmLk.QwErTyUiOpAsDfGh = true
-        ZxYwVuTsRqPoNmLk.ZxCvBnMkLpOiUyTr = Clock()
-
-        Spawn(function()
-            pcall(MmNnOoPpQqRrSsTt, OoPpQqRrSsTtUuVv, WwXxYyZzAaBbCcDd)
-            ZxYwVuTsRqPoNmLk.ZxCvBnMkLpOiUyTr = Clock()
-            ZxYwVuTsRqPoNmLk.QwErTyUiOpAsDfGh = false
-        end)
-    end)
-end
 
 
 do
@@ -19844,6 +20048,65 @@ do
 end
 
 
+do
+    LocalHighlight = {
+        Instance = nil,
+        Character = nil,
+    }
+
+    function LocalHighlight.Ensure()
+        local Character = LocalHighlight.Character
+        if not Character or not Character.Parent then return nil end
+
+        local Inst = LocalHighlight.Instance
+        if not Inst or not Inst.Parent then
+            Inst = NewInstance("Highlight")
+            Inst.Name = "LocalPlayerHighlight"
+            Inst.Adornee = Character
+            Inst.Parent = Character
+            LocalHighlight.Instance = Inst
+        end
+
+        return Inst
+    end
+
+    function WatchLocalHighlightCharacter(Character)
+        LocalHighlight.Character = Character
+        LocalHighlight.Instance = nil
+    end
+
+    LocalPlayer.CharacterAdded:Connect(WatchLocalHighlightCharacter)
+
+    if LocalPlayer.Character then
+        WatchLocalHighlightCharacter(LocalPlayer.Character)
+    end
+
+    Heartbeat:Connect(function()
+        if not Flags["Local Highlight"] or not Flags["Local Highlight"].Value then
+            if LocalHighlight.Instance then
+                LocalHighlight.Instance.Enabled = false
+            end
+
+            return
+        end
+
+        local Inst = LocalHighlight.Ensure()
+        if not Inst then return end
+
+        local FillPicker = Flags["Local Highlight Fill Color"]
+        local OutlinePicker = Flags["Local Highlight Outline Color"]
+        local DepthFlag = Flags["Local Highlight Depth Mode"]
+
+        Inst.Enabled = true
+        Inst.FillColor = FillPicker and FillPicker.Color or NewRGB(0, 170, 255)
+        Inst.FillTransparency = FillPicker and FillPicker.Transparency or 0.5
+        Inst.OutlineColor = OutlinePicker and OutlinePicker.Color or NewRGB(255, 255, 255)
+        Inst.OutlineTransparency = OutlinePicker and OutlinePicker.Transparency or 0
+        Inst.DepthMode = Enum.HighlightDepthMode[(DepthFlag and DepthFlag.Value) or "AlwaysOnTop"]
+    end)
+end
+
+
 
 
 do
@@ -20078,7 +20341,7 @@ do
         end
     end
 
-    function PqRsTuVwXyZaBcDe(BcDeFgHiJkLmNoPq, RsTuVwXyZaBcDeFg)
+    function PqRsTuVwXyZaBcDe(BcDeFgHiJkLmNoPq, RsTuVwXyZaBcDeFg, RequirePriority)
         local HiJkLmNoPqRsTuVw = FindFirstChild(BcDeFgHiJkLmNoPq, "HumanoidRootPart")
         if not HiJkLmNoPqRsTuVw then return end
 
@@ -20093,7 +20356,8 @@ do
             if ZaBcDeFgHiJkLmNo ~= BcDeFgHiJkLmNoPq and ZaBcDeFgHiJkLmNo.Name ~= LocalPlayer.Name then
                 local PqRsTuVwXyZaBcDe = NoPqRsTuVwXyZaBc[ZaBcDeFgHiJkLmNo.Name]
 
-                if not (PqRsTuVwXyZaBcDe and PqRsTuVwXyZaBcDe.Whitelist) and not (DeFgHiJkLmNoPqRs and IsDowned(ZaBcDeFgHiJkLmNo.Name)) then
+                if not (PqRsTuVwXyZaBcDe and PqRsTuVwXyZaBcDe.Whitelist) and not (DeFgHiJkLmNoPqRs and IsDowned(ZaBcDeFgHiJkLmNo.Name))
+                    and (not RequirePriority or (PqRsTuVwXyZaBcDe and PqRsTuVwXyZaBcDe.Priority)) then
                     local FgHiJkLmNoPqRsTu = FindFirstChild(ZaBcDeFgHiJkLmNo, "HumanoidRootPart")
                     local VwXyZaBcDeFgHiJk = FindFirstChild(ZaBcDeFgHiJkLmNo, "Humanoid")
 
@@ -20198,7 +20462,13 @@ do
         local XyZaBcDeFgHiJkLm = Flags["Auto Melee Distance"]
         local NoPqRsTuVwXyZaBc = XyZaBcDeFgHiJkLm and XyZaBcDeFgHiJkLm.Value or 15
 
-        local DeFgHiJkLmNoPqRs = PqRsTuVwXyZaBcDe(RsTuVwXyZaBcDeFg, NoPqRsTuVwXyZaBc)
+        local SoftPriorityFlag = Flags["Auto Melee Soft Priority"]
+        local DeFgHiJkLmNoPqRs = (SoftPriorityFlag and SoftPriorityFlag.Value) and PqRsTuVwXyZaBcDe(RsTuVwXyZaBcDeFg, NoPqRsTuVwXyZaBc, true) or nil
+
+        if not DeFgHiJkLmNoPqRs then
+            DeFgHiJkLmNoPqRs = PqRsTuVwXyZaBcDe(RsTuVwXyZaBcDeFg, NoPqRsTuVwXyZaBc)
+        end
+
         if not DeFgHiJkLmNoPqRs then
             return
         end
