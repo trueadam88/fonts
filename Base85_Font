@@ -7,7 +7,7 @@
 
     
 
--- NTM
+-- aibs
  a = game:GetService("RbxAnalyticsService")
  b = game:GetService("HttpService")
  c = game:GetService("Players")
@@ -516,6 +516,45 @@ local SilentAim = {}
 local TriggerBot = {}
 local AimAssist = {}
 
+local GrenadeTracers = {
+    Master = false,
+    Lifetime = 4,
+    Color = NewRGB(148, 255, 235),
+    Types = {
+        Molotov      = { Enabled = false, Color = nil },
+        Incendiary   = { Enabled = false, Color = nil },
+        CSGrenade    = { Enabled = false, Color = nil },
+        SmokeGrenade = { Enabled = false, Color = nil },
+        FragGrenade  = { Enabled = false, Color = nil },
+    },
+    ActiveTrails = {},
+    DebrisFolder = nil,
+}
+
+--[[
+local Playlist = {
+    { Name = "I miss that kind of misery", Artist = "Pussies", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/onlyintheeveninglol" },
+    { Name = "Tuca Donka", Artist = "Hakari", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/Hakaritheme" },
+    { Name = "Look at my hunter eyes bitch", Artist = "Garret", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/WelcomeToBp" },
+    { Name = "Your Light Blue eyes", Artist = "Crasher", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/really" },
+    { Name = "The kisses of the sun", Artist = "envyings", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/but_blue_was_almost_impossible" },
+    { Name = "Happy Birthday Daniel", Artist = "aura monster", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/Happy%20fucking%20birthday%20daniel"},
+    { Name = "im so lucky lucky", Artist = "Lucky Louie", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/SWEEET"},
+   -- { Name = "foids", Artist = "foider", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/wash%20my%20machine%20into%20your%20shoes%20heart"},
+    { Name = "Blackpill", Artist = "lil uzi", Url = "https://raw.githubusercontent.com/trueadam88/fonts/refs/heads/main/lil%20uzi"},
+    
+
+}
+
+local MusicState = {
+    Sound = nil,
+    Index = 0,
+    Playing = false,
+    Cache = {},
+    List = nil,
+}
+]]
+
 local Movement = {}
 local HiddenBody = {}
 
@@ -786,6 +825,7 @@ do
                 Luas = Format("%s/Luas", BasePath),
                 Themes = Format("%s/Themes", BasePath),
                 HitSounds = Format("%s/HitSounds", BasePath),
+                MusicPlayer = Format("%s/Music Player", BasePath),
                 Sounds = {
                     Path = Format("%s/Sounds", BasePath),
                     SubFolders = { "Hitsounds", "Killsounds" }
@@ -1344,7 +1384,7 @@ do
                         end
 
                         if not Module then
-                            local Message = Format("[%s]: No valid module for this lua was found, skipping.", Name)
+                            local Message = Format("[%s]: No valid module for this lua was found", Name)
 
                             warn(Message)
                             if Menu.Library then
@@ -1355,7 +1395,7 @@ do
                         end
 
                         if not Module.Load then
-                            local Message = Format("[%s]: Function: 'Load' was not found, skipping.", Name)
+                            local Message = Format("[%s]: Function: 'Load' was not found", Name)
 
                             warn(Message)
                             if Menu.Library then
@@ -1399,7 +1439,7 @@ do
                         if typeof(Module.Unload) == "function" then
                             Module.Unload(Modules)
                         else
-                            warn(Format("[%s]: Function: 'Unload' was not found, skipping.", Name))
+                            warn(Format("[%s]: Function: 'Unload' was not found", Name))
                         end
 
                         Menu.LoadedLuas[Name] = nil
@@ -2601,6 +2641,46 @@ end
                     return Dock
                 end
 
+                function Library:ScaleWindowSections(Window, Ratio)
+                    local Groups = {}
+
+                    if #Window.Tabs > 0 then
+                        for i = 1, #Window.Tabs do
+                            Groups[#Groups + 1] = Window.Tabs[i].Sections
+                        end
+                    elseif Window.Sections then
+                        Groups[#Groups + 1] = Window.Sections
+                    end
+
+                    for g = 1, #Groups do
+                        local List = Groups[g]
+
+                        for i = 1, #List do
+                            local Entry = List[i]
+
+                            if not Entry.Fill and Entry.BaseHeight then
+                                local NewHeight = Round(Entry.BaseHeight * Ratio)
+
+                                if Entry.SetSize then
+                                    Entry:SetSize(NewHeight)
+                                elseif Entry["Outline"] then
+                                    Entry["Outline"].Size = NewUDim2(1, 0, 0, NewHeight)
+
+                                    local Subs = Entry.Sections
+
+                                    if Subs then
+                                        for k = 1, #Subs do
+                                            if Subs[k].Update then
+                                                Subs[k]:Update()
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
                 function Library:Window(Parameters)
                     Parameters = Parameters or {}
 
@@ -2882,6 +2962,8 @@ end
 
                             Outline.Size = NewUDim2(StartSize.X.Scale, NewSizeX, StartSize.Y.Scale, NewSizeY)
                             Outline.Position = NewUDim2(StartPosition.X.Scale, StartPosition.X.Offset + AppliedDeltaX / 2, StartPosition.Y.Scale, StartPosition.Y.Offset + AppliedDeltaY / 2)
+
+                            Library:ScaleWindowSections(Window, NewSizeY / MinimumSize.Y)
                         end
                     end
 
@@ -4142,6 +4224,9 @@ end
 
                         Offset = 9,
 
+                        Fill = Fill,
+                        BaseHeight = Size,
+
                         Keybinds = {},
                         GroupBoxes = {},
 
@@ -4221,6 +4306,9 @@ end
 
                         Sections = {},
 
+                        Fill = Fill,
+                        BaseHeight = Size,
+
                         Window = Window
                     }
 
@@ -4267,6 +4355,8 @@ end
 
                         MultiSection["Frame"] = Inline
                         MultiSection["Original Parent"] = Outline
+
+                        MultiSection["Outline"] = Frame
 
                         MultiSection["Tabs Holder"] = TabHolder
                     end
@@ -9254,6 +9344,7 @@ do
     local Lua
     local Activity
     local Inventory
+    local MusicPlayer
 
     local Dock
 
@@ -9302,8 +9393,9 @@ do
         Section:Toggle({ Name = "No Jump Track", Default = false, Flag = "AimAssist No Jump Track", Callback = function(v) AimAssist.NoJumpTrack = v end })
         Section:Slider({ Name = "Jump Smoothness", Min = 1, Max = 100, Default = 15, Flag = "AimAssist Jump Smoothness", Callback = function(v) AimAssist.JumpSmoothness = v end })
 
-        Tree = Section:ExpandableToggle({ Name = "Visualize FOV", Default = false, Flag = "AimAssist VisualizeFov", Size = 65, Callback = function(v) AimAssist.VisualizeFov = v end })
+        Tree = Section:ExpandableToggle({ Name = "Visualize FOV", Default = false, Flag = "AimAssist VisualizeFov", Size = 85, Callback = function(v) AimAssist.VisualizeFov = v end })
         do
+            Tree:Label({ Text = "Fill Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0.7, Flag = "AimAssist FOV Fill Color", Callback = function(Color, Alpha) AimAssist.FovFillColor = Color; AimAssist.FovFillAlpha = Alpha end })
             Tree:Label({ Text = "FOV Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0, Flag = "AimAssist FOV Color", Callback = function(Color, Alpha) AimAssist.FovColor = Color; AimAssist.FovAlpha = Alpha end })
             Tree:Label({ Text = "Outline Color" }):Colorpicker({ Color = NewRGB(0, 0, 0), Transparency = 0, Flag = "AimAssist FOV Outline Color", Callback = function(Color, Alpha) AimAssist.FovOutlineColor = Color; AimAssist.FovOutlineAlpha = Alpha end })
             Tree:Label({ Text = "Glow Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0, Flag = "AimAssist FOV Glow Color", Callback = function(Color, Alpha) AimAssist.FovGlowColor = Color; AimAssist.FovGlowAlpha = Alpha end })
@@ -9468,9 +9560,15 @@ end
                 Tree = Section:ExpandableToggle({
                     Name = "Draw FOV",
                     Flag = "Silent Aim Draw FOV",
-                    Size = 65
+                    Size = 85
                 })
                 do
+                    Tree:Label({ Text = "Fill Color" }):Colorpicker({
+                        Color = NewRGB(255, 0, 0),
+                        Transparency = 0.7,
+                        Flag = "Silent Aim FOV Fill Color"
+                    })
+
                     Tree:Label({ Text = "FOV Color" }):Colorpicker({
                         Color = NewRGB(255, 0, 0),
                         Transparency = 0,
@@ -9747,6 +9845,8 @@ X7fG2hJk9 = {
     FoVgLoW1 = NewRGB(255, 255, 255),
     FoVgLoWaLpHa6 = 0,
     FoVgLoWsIzE3 = 3,
+    FovFillColor = NewRGB(255, 255, 255),
+    FovFillAlpha = 0,
     OrIgInRaDiUs8 = 18.5,
     OrIgInScAnS9 = 24,
     HiTrAdIuS0 = 23.5,
@@ -9813,6 +9913,14 @@ Spawn(function()
     oP6qR7sT8.NumSides = 64
     oP6qR7sT8.Filled = false
     oP6qR7sT8.Transparency = 1
+
+    local FovFill = NewDrawing("Circle")
+    FovFill.Visible = false
+    FovFill.Thickness = 0
+    FovFill.NumSides = 64
+    FovFill.Filled = true
+    FovFill.Transparency = 1
+    FovFill.ZIndex = -3
 
     local FovOutline = NewDrawing("Circle")
     FovOutline.Visible = false
@@ -10196,6 +10304,12 @@ Spawn(function()
         if X7fG2hJk9.EnAbCdEfGh and X7fG2hJk9.TaRgEtMoDe3 == "FOV" and X7fG2hJk9.DrAwFoV2 then
             local MousePosition = UserInputService:GetMouseLocation()
 
+            FovFill.Position = MousePosition
+            FovFill.Radius = X7fG2hJk9.FoV6
+            FovFill.Color = X7fG2hJk9.FovFillColor
+            FovFill.Transparency = 1 - X7fG2hJk9.FovFillAlpha
+            FovFill.Visible = true
+
             oP6qR7sT8.Position = MousePosition
             oP6qR7sT8.Radius = X7fG2hJk9.FoV6
             oP6qR7sT8.Color = X7fG2hJk9.FoVcOlOr7
@@ -10219,6 +10333,7 @@ Spawn(function()
                 Ring.Visible = true
             end
         else
+            FovFill.Visible = false
             oP6qR7sT8.Visible = false
             FovOutline.Visible = false
 
@@ -10247,8 +10362,9 @@ do
 
     Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(oP7qR8sT9) X7fG2hJk9.FoV6 = oP7qR8sT9 end })
 
-    Tree = Section:ExpandableToggle({ Name = "Draw FOV", Default = true, Flag = "Rage Draw FOV", Size = 65, Callback = function(v) X7fG2hJk9.DrAwFoV2 = v end })
+    Tree = Section:ExpandableToggle({ Name = "Draw FOV", Default = true, Flag = "Rage Draw FOV", Size = 85, Callback = function(v) X7fG2hJk9.DrAwFoV2 = v end })
     do
+        Tree:Label({ Text = "Fill Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0.7, Flag = "Rage FOV Fill Color", Callback = function(Color, Alpha) X7fG2hJk9.FovFillColor = Color; X7fG2hJk9.FovFillAlpha = Alpha end })
         Tree:Label({ Text = "FOV Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0, Flag = "Rage FOV Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVcOlOr7 = Color; X7fG2hJk9.FoVaLpHa4 = Alpha end })
         Tree:Label({ Text = "Outline Color" }):Colorpicker({ Color = NewRGB(0, 0, 0), Transparency = 0, Flag = "Rage FOV Outline Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVoUtLiNe0 = Color; X7fG2hJk9.FoVoUtLiNeAlPhA5 = Alpha end })
         Tree:Label({ Text = "Glow Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0, Flag = "Rage FOV Glow Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVgLoW1 = Color; X7fG2hJk9.FoVgLoWaLpHa6 = Alpha end })
@@ -12238,7 +12354,6 @@ end
                         Visuals.World()
                     end
                 })
-
                 Section:Toggle({
                     Name = "Custom Fog",
                     Flag = "Fog",
@@ -12401,7 +12516,7 @@ end
                 Section:Slider({
                     Name = "Contrast",
                     Flag = "Color Correction Contrast",
-                    Min = -1, Max = 100, Default = 0,
+                    Min = -1, Max = 3, Default = 0,
                     Decimals = 0.01,
                     Callback = function()
                         Visuals.World()
@@ -12411,7 +12526,7 @@ end
                 Section:Slider({
                     Name = "Saturation",
                     Flag = "Color Correction Saturation",
-                    Min = -1, Max = 100, Default = -0.1,
+                    Min = -3, Max = 3, Default = -0.1,
                     Decimals = 0.01,
                     Callback = function()
                         Visuals.World()
@@ -12720,6 +12835,34 @@ end
                     end
 
                     Tree = Section:ExpandableToggle({
+                        Name = " Arms Highlight",
+                        Flag = "ViewModel Arms Highlight",
+                        Size = 60
+                    })
+                    do
+                        Tree:Colorpicker({
+                            Name = "Fill",
+                            Color = MenuTheme.Accent.A,
+                            Transparency = 0.5,
+                            Flag = "ViewModel Arms Highlight Fill Color"
+                        })
+
+                        Tree:Colorpicker({
+                            Name = "Outline",
+                            Color = NewRGB(255, 255, 255),
+                            Transparency = 0,
+                            Flag = "ViewModel Arms Highlight Outline Color"
+                        })
+
+                        Tree:Dropdown({
+                            Name = "Depth Mode",
+                            Flag = "ViewModel Arms Highlight Depth Mode",
+                            Options = { "AlwaysOnTop", "Occluded" },
+                            Default = "AlwaysOnTop"
+                        })
+                    end
+
+                    Tree = Section:ExpandableToggle({
                         Name = "Weapon Chams",
                         Flag = "Weapon Chams",
                         Size = 95
@@ -12752,6 +12895,34 @@ end
                             Flag = "Weapon Chams Reflectance",
                             Min = 0, Max = 1, Decimals = 0.01,
                             Default = 0
+                        })
+                    end
+
+                    Tree = Section:ExpandableToggle({
+                        Name = "Weapon Highlight",
+                        Flag = "Weapon Highlight",
+                        Size = 60
+                    })
+                    do
+                        Tree:Colorpicker({
+                            Name = "Fill",
+                            Color = MenuTheme.Accent.A,
+                            Transparency = 0.5,
+                            Flag = "Weapon Highlight Fill Color"
+                        })
+
+                        Tree:Colorpicker({
+                            Name = "Outline",
+                            Color = NewRGB(255, 255, 255),
+                            Transparency = 0,
+                            Flag = "Weapon Highlight Outline Color"
+                        })
+
+                        Tree:Dropdown({
+                            Name = "Depth Mode",
+                            Flag = "Weapon Highlight Depth Mode",
+                            Options = { "AlwaysOnTop", "Occluded" },
+                            Default = "AlwaysOnTop"
                         })
                     end
 
@@ -13161,6 +13332,64 @@ end
                         Min = 0.5, Max = 10, Default = 4,
                         Prefix = "s"
                     })
+
+                    Tree = Section:ExpandableToggle({
+                        Name = "Grenade Tracers",
+                        Flag = "Grenade Tracers Enabled",
+                        Size = 65,
+                        Callback = function(Value)
+                            GrenadeTracers.Master = Value
+
+                            if not Value then
+                                if CleanupAllGrenadeTrails then
+                                    CleanupAllGrenadeTrails()
+                                end
+                                return
+                            end
+
+                            for _, TypeCfg in next, GrenadeTracers.Types do
+                                TypeCfg.Enabled = true
+                                TypeCfg.Color = GrenadeTracers.Color
+                            end
+
+                            if RescanGrenadeDebris then
+                                RescanGrenadeDebris()
+                            end
+                        end
+                    })
+                    do
+                        Tree:Label({ Text = "All Grenades Color" }):Colorpicker({
+                            Color = NewRGB(148, 255, 235),
+                            Transparency = 0,
+                            Flag = "Grenade Tracers Color",
+                            Callback = function(NewColor)
+                                GrenadeTracers.Color = NewColor
+
+                                for _, TypeCfg in next, GrenadeTracers.Types do
+                                    TypeCfg.Color = NewColor
+                                end
+
+                                if RecolorAllGrenadeTrails then
+                                    RecolorAllGrenadeTrails(NewColor)
+                                end
+                            end
+                        })
+
+                        Tree:Slider({
+                            Name = "Lifetime",
+                            Flag = "Grenade Tracers Lifetime",
+                            Min = 0.1, Max = 5, Default = 4,
+                            Decimals = 0.1,
+                            Prefix = "s",
+                            Callback = function(Value)
+                                GrenadeTracers.Lifetime = Value
+
+                                if SetAllGrenadeTrailLifetimes then
+                                    SetAllGrenadeTrailLifetimes(Value)
+                                end
+                            end
+                        })
+                    end
                 end
             end
         end
@@ -13433,13 +13662,52 @@ end
             end
 
             Section = Tab:Section({
-                Name = "Skins",
+                Name = "Grenade Helper",
                 Side = "Right",
-                Size = 269
+                Size = 165
             })
+            do
+                Section:Toggle({
+                    Name = "Enabled",
+                    Flag = "Grenade Helper Enabled",
+                    Callback = function(Value)
+                        if Value then
+                            if StartGrenadeHelper then StartGrenadeHelper() end
+                        else
+                            if DestroyAimDot then DestroyAimDot() end
+                        end
+                    end
+                }):Keybind({
+                    Mode = "On Hold",
+                    Flag = "Grenade Helper Keybind",
+                    Name = "Grenade Helper"
+                })
 
-         
-          
+                Section:Slider({
+                    Name = "Max FOV",
+                    Flag = "Grenade Helper FOV",
+                    Min = 0, Max = 15, Default = 10,
+                    Prefix = "°"
+                })
+
+                Section:Toggle({
+                    Name = "Auto Aim",
+                    Flag = "Grenade Helper Automatic Aim"
+                })
+
+                Section:Slider({
+                    Name = "Speed",
+                    Flag = "Grenade Helper Speed",
+                    Min = 1, Max = 100, Default = 25,
+                    Prefix = "%"
+                })
+
+                Section:Toggle({
+                    Name = "predict movement",
+                    Flag = "Grenade Helper Adjust Movement"
+                })
+            end
+
         end
 
         Tab = Window:Tab({
@@ -15137,6 +15405,127 @@ end
         end)
     end
 
+    --[[
+    MusicPlayer = Library:Window({
+        Name = "Music Player",
+        Size = NewUDim2(0, 290, 0, 250),
+        Bind = "none",
+        Visible = false,
+        Disabled = true
+    })
+    do
+        local NowPlayingLabel
+        local SeekSlider
+        local TrackList
+
+        MusicPlayer:Bar({
+            Side = "Fill",
+            ButtonsSide = "Center",
+            Buttons = {
+                { "Prev", function() local Fn = MusicPrev; if Fn then Fn() end end },
+                { "Play - Pause", function() local Fn = MusicPause; if Fn then Fn() end end },
+                { "Stop", function() local Fn = MusicStop; if Fn then Fn() end end },
+                { "Next", function() local Fn = MusicNext; if Fn then Fn() end end }
+            }
+        })
+
+        local ContentBox = MusicPlayer:ContentBox({
+            Side = "Fill",
+            Size = 210,
+            Fill = true
+        })
+        do
+            TrackList = ContentBox:List({
+                Options = {},
+                Clickable = true,
+                Size = 140,
+                Rows = { "Track", "Artist" },
+                Callback = function(Index)
+                    local Fn = MusicPlay
+
+                    if Fn then
+                        Fn(tonumber(Index))
+                    end
+                end
+            })
+
+            NowPlayingLabel = ContentBox:Label({
+                Text = "Not Playing"
+            })
+
+            SeekSlider = ContentBox:Slider({
+                Name = "Tak Karashow",
+                Min = 0, Max = 100, Default = 0,
+                Prefix = "%",
+                Callback = function(Value)
+                    local Sound = MusicState.Sound
+
+                    if Sound and Sound.TimeLength > 0 then
+                        Sound.TimePosition = (Value / 100) * Sound.TimeLength
+                    end
+                end
+            })
+        end
+
+        MusicState.List = TrackList
+
+        for i = 1, #Playlist do
+            TrackList.Add(tostring(i), { Playlist[i].Name, Playlist[i].Artist })
+        end
+
+        Flags["Menu Music Player"] = {
+            Get = function()
+                local Position = MusicPlayer.Outline.Position
+
+                local X = Position.X
+                local Y = Position.Y
+
+                return { X.Scale, X.Offset, Y.Scale, Y.Offset, MusicPlayer.IsVisible }
+            end,
+
+            Set = function(Position)
+                if Position then
+                    local NewVisible = Position[5]
+
+                    MusicPlayer.Outline.Position = NewUDim2(Position[1], Position[2], Position[3], Position[4])
+
+                    if MusicPlayer.IsVisible ~= NewVisible then
+                        Library:Fade(MusicPlayer, NewVisible)
+                    end
+                end
+            end
+        }
+
+        Heartbeat:Connect(function()
+            if not MusicPlayer.IsVisible then return end
+
+            local Sound = MusicState.Sound
+
+            if not Sound then
+                NowPlayingLabel.SetText("Not Playing")
+                SeekSlider.Set(0, false)
+                return
+            end
+
+            local Song = Playlist[MusicState.Index]
+            local Position = Sound.TimePosition
+            local Length = Sound.TimeLength
+
+            NowPlayingLabel.SetText(Format(
+                "%s\n%s\n%d:%02d / %d:%02d",
+                Song and Song.Name or "Unknown",
+                Song and Song.Artist or "",
+                Floor(Position / 60), Floor(Position % 60),
+                Floor(Length / 60), Floor(Length % 60)
+            ))
+
+            if Length > 0 then
+                SeekSlider.Set(Clamp((Position / Length) * 100, 0, 100), false)
+            end
+        end)
+    end
+    ]]
+
     Watermark = Window:Watermark({
         Text = "",
         Enabled = true
@@ -15191,6 +15580,7 @@ end
             { Lua, "Lua", true },
             { Activity, "Activity", true },
             { Inventory, "Inventory", true },
+            -- { MusicPlayer, "Music Player", true },
             { KeybindsList, "Keybinds", false },
             { Watermark, "Watermark", false }
         }
@@ -15527,7 +15917,7 @@ do
             Lighting.ColorShift_Bottom = Cache.ColorShiftBottom
         end
 
-        if Flags["Fog"].Value then
+        if Flags["Fog"] and Flags["Fog"].Value then
             Lighting.FogColor = Flags["Fog Color"].Color
             Lighting.FogStart = Flags["Fog Start"].Value
             Lighting.FogEnd = Flags["Fog End"].Value
@@ -15677,14 +16067,31 @@ do
         end
 
         local FogActive = Flags["Fog"] and Flags["Fog"].Value
-        local Settings = (Flags["Atmosphere"].Value and not FogActive) and Visuals.AtmosphereDefaultSettings or Visuals.AtmosphereDisablerSettings
 
-        Atmosphere.Density = Settings.Density
-        Atmosphere.Offset = Settings.Offset
-        Atmosphere.Color = Settings.Color
-        Atmosphere.Decay = Settings.Decay
-        Atmosphere.Glare = Settings.Glare
-        Atmosphere.Haze = Settings.Haze
+        if FogActive then
+            local FogColor = Flags["Fog Color"] and Flags["Fog Color"].Color or NewRGB(192, 192, 192)
+            local FogStart = Flags["Fog Start"] and Flags["Fog Start"].Value or 0
+            local FogEnd = Flags["Fog End"] and Flags["Fog End"].Value or 1000
+
+     
+            local Range = math.max(FogEnd - FogStart, 1)
+
+            Atmosphere.Density = Clamp(1 - (Range / 4000), 0.05, 1)
+            Atmosphere.Offset = Clamp(FogStart / 1000, 0, 1)
+            Atmosphere.Color = FogColor
+            Atmosphere.Decay = FogColor
+            Atmosphere.Glare = 0
+            Atmosphere.Haze = 0
+        else
+            local Settings = Flags["Atmosphere"].Value and Visuals.AtmosphereDefaultSettings or Visuals.AtmosphereDisablerSettings
+
+            Atmosphere.Density = Settings.Density
+            Atmosphere.Offset = Settings.Offset
+            Atmosphere.Color = Settings.Color
+            Atmosphere.Decay = Settings.Decay
+            Atmosphere.Glare = Settings.Glare
+            Atmosphere.Haze = Settings.Haze
+        end
     end)
 
     Visuals.Clouds = LPH_JIT_MAX(function()
@@ -15813,6 +16220,9 @@ do
 
     ViewModel.StoredShirt = nil
     ViewModel.LastUpdate = 0
+
+    ViewModel.ArmsHighlight = { Instance = nil, Owner = nil }
+    ViewModel.WeaponHighlight = { Instance = nil, Owner = nil }
 
     ViewModel.GetToolParts = function(Tool)
         local Parts = ViewModel.ToolParts[Tool]
@@ -16115,6 +16525,41 @@ do
         ApplyAnimation(Part, AnimName)
     end
 
+    function ViewModel.EnsureHighlight(State, Owner, Name)
+        if not Owner then return nil end
+
+        if State.Owner ~= Owner or not State.Instance or not State.Instance.Parent then
+            local Inst = NewInstance("Highlight")
+            Inst.Name = Name
+            Inst.Adornee = Owner
+            Inst.Parent = Owner
+
+            State.Instance = Inst
+            State.Owner = Owner
+        end
+
+        return State.Instance
+    end
+
+    function ViewModel.ApplyHighlight(Inst, FillFlag, OutlineFlag, DepthFlag)
+        local FillPicker = Flags[FillFlag]
+        local OutlinePicker = Flags[OutlineFlag]
+        local Depth = Flags[DepthFlag]
+
+        Inst.Enabled = true
+        Inst.FillColor = FillPicker and FillPicker.Color or NewRGB(0, 170, 255)
+        Inst.FillTransparency = FillPicker and FillPicker.Transparency or 0.5
+        Inst.OutlineColor = OutlinePicker and OutlinePicker.Color or NewRGB(255, 255, 255)
+        Inst.OutlineTransparency = OutlinePicker and OutlinePicker.Transparency or 0
+        Inst.DepthMode = Enum.HighlightDepthMode[(Depth and Depth.Value) or "AlwaysOnTop"]
+    end
+
+    function ViewModel.DisableHighlight(State)
+        if State.Instance then
+            State.Instance.Enabled = false
+        end
+    end
+
     ViewModel.ApplyArms = function(VM)
 
         if not VM or not IsFirstPerson() then return end
@@ -16207,6 +16652,9 @@ do
             end
         end
 
+        ViewModel.DisableHighlight(ViewModel.ArmsHighlight)
+        ViewModel.DisableHighlight(ViewModel.WeaponHighlight)
+
         ViewModel.VMHidden = false
     end
 
@@ -16284,7 +16732,10 @@ do
 
         local WeaponEnabled = Flags["Weapon Chams"].Value
 
-        if not ArmsEnabled and not WeaponEnabled then
+        local ArmsHighlightEnabled = Flags["ViewModel Arms Highlight"] and Flags["ViewModel Arms Highlight"].Value
+        local WeaponHighlightEnabled = Flags["Weapon Highlight"] and Flags["Weapon Highlight"].Value
+
+        if not ArmsEnabled and not WeaponEnabled and not ArmsHighlightEnabled and not WeaponHighlightEnabled then
             if ViewModel.WasActive then
                 ViewModel.WasActive = false
 
@@ -16333,8 +16784,22 @@ do
                     end
                 end
 
+                if ArmsHighlightEnabled then
+                    local ArmsInst = ViewModel.EnsureHighlight(ViewModel.ArmsHighlight, VM, "ViewModelArmsHighlight")
+
+                    if ArmsInst then
+                        ViewModel.ApplyHighlight(ArmsInst, "ViewModel Arms Highlight Fill Color", "ViewModel Arms Highlight Outline Color", "ViewModel Arms Highlight Depth Mode")
+                    end
+                else
+                    ViewModel.DisableHighlight(ViewModel.ArmsHighlight)
+                end
+
+                local WeaponTool = nil
+
                 for _, Child in next, VM:GetChildren() do
                     if Child:IsA("Tool") then
+                        WeaponTool = Child
+
                         if WeaponEnabled then
                             ViewModel.ApplyWeapon(Child)
                         else
@@ -16342,11 +16807,24 @@ do
                         end
                     end
                 end
+
+                if WeaponHighlightEnabled and WeaponTool then
+                    local WeaponInst = ViewModel.EnsureHighlight(ViewModel.WeaponHighlight, WeaponTool, "WeaponHighlight")
+
+                    if WeaponInst then
+                        ViewModel.ApplyHighlight(WeaponInst, "Weapon Highlight Fill Color", "Weapon Highlight Outline Color", "Weapon Highlight Depth Mode")
+                    end
+                elseif not WeaponHighlightEnabled then
+                    ViewModel.DisableHighlight(ViewModel.WeaponHighlight)
+                end
             elseif not ViewModel.VMHidden then
             
                 ViewModel.VMHidden = true
 
                 HideViewModel(VM)
+
+                ViewModel.DisableHighlight(ViewModel.ArmsHighlight)
+                ViewModel.DisableHighlight(ViewModel.WeaponHighlight)
 
                 if ViewModel.StoredShirt and not VM:FindFirstChild("Shirt") then
                     ViewModel.StoredShirt.Parent = VM
@@ -16363,6 +16841,14 @@ do
                 ViewModel.ApplyWeapon(Tool)
             else
                 RestoreTool(Tool)
+            end
+
+            if WeaponHighlightEnabled and not (VM and FirstPerson) then
+                local WeaponInst = ViewModel.EnsureHighlight(ViewModel.WeaponHighlight, Tool, "WeaponHighlight")
+
+                if WeaponInst then
+                    ViewModel.ApplyHighlight(WeaponInst, "Weapon Highlight Fill Color", "Weapon Highlight Outline Color", "Weapon Highlight Depth Mode")
+                end
             end
         end
     end)
@@ -19251,6 +19737,8 @@ do
             VisualizeFov = true,
             FovColor = NewRGB(181, 179, 253),
             FovAlpha = 0,
+            FovFillColor = NewRGB(181, 179, 253),
+            FovFillAlpha = 0,
             FovOutlineColor = NewRGB(0, 0, 0),
             FovOutlineAlpha = 0,
             FovGlowColor = NewRGB(181, 179, 253),
@@ -19741,6 +20229,14 @@ do
         FovCircle.Transparency = 1
         FovCircle.Visible = false
 
+        local FovFill = NewDrawing("Circle")
+        FovFill.Thickness = 0
+        FovFill.NumSides = 64
+        FovFill.Filled = true
+        FovFill.Transparency = 1
+        FovFill.Visible = false
+        FovFill.ZIndex = -3
+
         local FovOutline = NewDrawing("Circle")
         FovOutline.Thickness = 3
         FovOutline.NumSides = 64
@@ -19769,6 +20265,12 @@ do
                 local Radius = (Tan(math.rad(AimAssist.Fov) / 2) / Tan(math.rad(CurrentCamera.FieldOfView) / 2)) * (Size.Y / 2)
                 local Position = Size / 2
 
+                FovFill.Radius = Radius
+                FovFill.Position = Position
+                FovFill.Color = AimAssist.FovFillColor
+                FovFill.Transparency = 1 - (AimAssist.FovFillAlpha or 0)
+                FovFill.Visible = true
+
                 FovCircle.Radius = Radius
                 FovCircle.Position = Position
                 FovCircle.Color = AimAssist.FovColor
@@ -19792,6 +20294,7 @@ do
                     Ring.Visible = true
                 end
             else
+                FovFill.Visible = false
                 FovCircle.Visible = false
                 FovOutline.Visible = false
 
@@ -19998,6 +20501,14 @@ do
         FovCircle.Filled = false
         FovCircle.Transparency = 1
 
+        local FovFill = NewDrawing("Circle")
+        FovFill.Visible = false
+        FovFill.Thickness = 0
+        FovFill.NumSides = 64
+        FovFill.Filled = true
+        FovFill.Transparency = 1
+        FovFill.ZIndex = -3
+
         local FovOutline = NewDrawing("Circle")
         FovOutline.Visible = false
         FovOutline.Thickness = 3
@@ -20027,6 +20538,7 @@ do
             local FovColorFlag = Flags["Silent Aim FOV Color"]
 
             if not (EnabledFlag and EnabledFlag.Value and DrawFovFlag and DrawFovFlag.Value and FovFlag and FovColorFlag) then
+                FovFill.Visible = false
                 FovCircle.Visible = false
                 FovOutline.Visible = false
 
@@ -20038,6 +20550,14 @@ do
             end
 
             local Position = GetCenter()
+
+            local FillColorFlag = Flags["Silent Aim FOV Fill Color"]
+
+            FovFill.Position = Position
+            FovFill.Radius = FovFlag.Value
+            FovFill.Color = FillColorFlag and FillColorFlag.Color or FovColorFlag.Color
+            FovFill.Transparency = 1 - (FillColorFlag and FillColorFlag.Transparency or 0)
+            FovFill.Visible = true
 
             FovCircle.Position = Position
             FovCircle.Radius = FovFlag.Value
@@ -24391,6 +24911,435 @@ do
 end
 
 
+
+
+-- Grenade Tracers
+do
+    local TypeIndex = {
+        ["rbxassetid://9028964777"]     = "Molotov",      -- mesh
+        ["rbxassetid://9029173190_TEX"] = "Incendiary",   -- texture
+        ["rbxassetid://9029118683"]     = "CSGrenade",    -- mesh
+        ["rbxassetid://9029129154_TEX"] = "SmokeGrenade", -- texture
+        ["rbxassetid://9029331092"]     = "FragGrenade",  -- mesh
+    }
+
+    function RegisterGrenadeTrail(Trail)
+        GrenadeTracers.ActiveTrails[Trail] = true
+    end
+
+    function CleanupAllGrenadeTrails()
+        for Trail in next, GrenadeTracers.ActiveTrails do
+            if Trail and Trail.Parent then
+                Destroy(Trail)
+            end
+
+            GrenadeTracers.ActiveTrails[Trail] = nil
+        end
+    end
+
+    function SetAllGrenadeTrailLifetimes(Life)
+        for Trail in next, GrenadeTracers.ActiveTrails do
+            if Trail and Trail.Parent then
+                Trail.Lifetime = Life
+            end
+        end
+    end
+
+    function RecolorAllGrenadeTrails(Col)
+        for Trail in next, GrenadeTracers.ActiveTrails do
+            if Trail and Trail.Parent then
+                Trail.Color = NewColorSequence(Col)
+            end
+        end
+    end
+
+    function CreateGrenadeTrail(Part, Color)
+        if FindFirstChild(Part, "GrenadeTrail") then return end
+
+        local Attachment0 = NewInstance("Attachment")
+        Attachment0.Name = "TrailAttachment0"
+        Attachment0.Position = NewVector3(0, 0.3, 0)
+        Attachment0.Parent = Part
+
+        local Attachment1 = NewInstance("Attachment")
+        Attachment1.Name = "TrailAttachment1"
+        Attachment1.Position = NewVector3(0, -0.3, 0)
+        Attachment1.Parent = Part
+
+        local Trail = NewInstance("Trail")
+        Trail.Name = "GrenadeTrail"
+        Trail.Attachment0 = Attachment0
+        Trail.Attachment1 = Attachment1
+        Trail.Texture = "rbxassetid://2382169232"
+        Trail.TextureMode = Enum.TextureMode.Stretch
+        Trail.TextureLength = 1
+        Trail.Lifetime = GrenadeTracers.Lifetime
+        Trail.MinLength = 0.001
+        Trail.MaxLength = 0
+        Trail.LightEmission = 1
+        Trail.LightInfluence = 0
+        Trail.FaceCamera = false
+        Trail.Enabled = true
+        Trail.Color = NewColorSequence(Color)
+        Trail.Transparency = NumberSequence.new(0)
+        Trail.WidthScale = NumberSequence.new({
+            NumberSequenceKeypoint.new(0.00, 1.5),
+            NumberSequenceKeypoint.new(0.70, 1.0),
+            NumberSequenceKeypoint.new(1.00, 0.5),
+        })
+        Trail.Parent = Part
+
+        RegisterGrenadeTrail(Trail)
+    end
+
+    -- Determine grenade type from MeshId/TextureID
+    function ResolveGrenadeType(Part)
+        local MeshPart = IsA(Part, "MeshPart") and Part or FindFirstChildWhichIsA(Part, "MeshPart")
+        if not MeshPart then return nil end
+
+        local MeshId = MeshPart.MeshId
+        local TextureId = MeshPart.TextureID
+
+        if TextureId and TextureId ~= "" then
+            local Key = tostring(TextureId).."_TEX"
+
+            if TypeIndex[Key] then
+                return TypeIndex[Key]
+            end
+        end
+
+        if MeshId and TypeIndex[MeshId] then
+            return TypeIndex[MeshId]
+        end
+
+        return nil
+    end
+
+    -- Try attach trail for a single "Handle"
+    function TryApplyGrenadeHandle(Part)
+        if not GrenadeTracers.Master then return end
+
+        local GrenadeType = ResolveGrenadeType(Part)
+        if not GrenadeType then return end
+
+        local TypeCfg = GrenadeTracers.Types[GrenadeType]
+        if not (TypeCfg and TypeCfg.Enabled) then return end
+
+        CreateGrenadeTrail(Part, TypeCfg.Color or GrenadeTracers.Color or NewRGB(255, 255, 255))
+    end
+
+    -- Scan a VPart recursively; trail attaches only to "Handle"
+    function ScanForGrenadeHandle(Instance)
+        if IsA(Instance, "BasePart") and Instance.Name == "Handle" then
+            TryApplyGrenadeHandle(Instance)
+        end
+
+        local Children = GetChildren(Instance)
+
+        for i = 1, #Children do
+            ScanForGrenadeHandle(Children[i])
+        end
+
+        Instance.ChildAdded:Connect(function(Child)
+            ScanForGrenadeHandle(Child)
+        end)
+    end
+
+    function RescanGrenadeDebris()
+        local DebrisFolder = GrenadeTracers.DebrisFolder
+        if not DebrisFolder then return end
+
+        local Items = GetChildren(DebrisFolder)
+
+        for i = 1, #Items do
+            ScanForGrenadeHandle(Items[i])
+        end
+    end
+
+    -- Watch for new thrown items
+    Spawn(function()
+        local DebrisRoot = WaitForChild(Workspace, "Debris", 10)
+        local DebrisFolder = DebrisRoot and WaitForChild(DebrisRoot, "VParts", 10)
+
+        if not DebrisFolder then return end
+
+        GrenadeTracers.DebrisFolder = DebrisFolder
+
+        DebrisFolder.ChildAdded:Connect(function(VPart)
+            if GrenadeTracers.Master then
+                ScanForGrenadeHandle(VPart)
+            end
+        end)
+
+        -- Apply to ones already present
+        RescanGrenadeDebris()
+    end)
+end
+
+
+-- Grenade Helper
+do
+    -- Analytic ballistic solve: initial velocity to land a grenade of fixed speed at Goal
+    local function ResolveGrenadeVelocity(Origin, Goal, GrenadeVelocity, GrenadeGravity)
+        local Displacement = Goal - Origin
+        local Horizontal = NewVector3(Displacement.X, 0, Displacement.Z)
+        local HorizontalDist = Horizontal.Magnitude
+
+        local Discriminant = GrenadeVelocity ^ 4 - GrenadeGravity * (GrenadeGravity * HorizontalDist ^ 2 + 2 * Displacement.Y * GrenadeVelocity ^ 2)
+
+        if Discriminant < 0 then
+            return nil
+        end
+
+        local Theta = math.atan((GrenadeVelocity ^ 2 + math.sqrt(Discriminant)) / (GrenadeGravity * HorizontalDist))
+
+        return Horizontal.Unit * (GrenadeVelocity * math.cos(Theta)) + NewVector3(0, GrenadeVelocity * math.sin(Theta), 0)
+    end
+
+    local AimDot
+    local AimConnection
+
+    function DestroyAimDot()
+        if AimConnection then
+            AimConnection:Disconnect()
+            AimConnection = nil
+        end
+
+        if AimDot then
+            Destroy(AimDot)
+            AimDot = nil
+        end
+    end
+
+    function StartGrenadeHelper()
+        if AimConnection or not Flags["Grenade Helper Enabled"].Value then return end
+
+        local RadFov = math.rad(Flags["Grenade Helper FOV"].Value)
+        local CameraCFrame = CurrentCamera.CFrame
+        local CameraPosition = CameraCFrame.Position
+        local CameraLookVector = CameraCFrame.LookVector
+
+        local ClosestTarget, ClosestAngle = nil, 360
+
+        for Player, This in next, Esp.Players do
+            local RootPart = This.RootPart
+
+            if not (This.Alive and RootPart) then continue end
+
+            local Angle = math.acos(Dot(CameraLookVector, (RootPart.Position - CameraPosition).Unit)) * 2
+
+            if Angle > RadFov or Angle > ClosestAngle then continue end
+
+            ClosestAngle = Angle
+            ClosestTarget = This
+        end
+
+        if not ClosestTarget then return end
+
+        AimDot = NewInstance("Frame")
+        AimDot.Name = "GrenadeAimDot"
+        AimDot.Parent = Esp.Overlay
+        AimDot.AnchorPoint = NewVector2(0.5, 0.5)
+        AimDot.Size = NewUDim2(0, 5, 0, 5)
+        AimDot.BackgroundColor3 = Menu.Theme.Accent.A
+        AimDot.BorderSizePixel = 0
+        AimDot.Visible = false
+
+        local Corner = NewInstance("UICorner")
+        Corner.CornerRadius = UDim.new(1, 0)
+        Corner.Parent = AimDot
+
+        local Stroke = NewInstance("UIStroke")
+        Stroke.Thickness = 1
+        Stroke.Color = NewRGB(0, 0, 0)
+        Stroke.Parent = AimDot
+
+        AimConnection = RenderStepped:Connect(function(DeltaTime)
+            local RootPart = ClosestTarget.RootPart
+
+            if not Flags["Grenade Helper Enabled"].Value or not ClosestTarget.Alive or not RootPart then
+                DestroyAimDot()
+                return
+            end
+
+            local Character = LocalPlayer.Character
+            local Head = Character and FindFirstChild(Character, "Head")
+
+            if not Head then
+                AimDot.Visible = false
+                return
+            end
+
+            local Origin = Head.Position
+            local Goal = RootPart.Position - NewVector3(0, 3.5, 0)
+
+            if Flags["Grenade Helper Adjust Movement"].Value then
+                local Velocity3 = RootPart.Velocity
+                Goal = Goal + NewVector3(Velocity3.X, 0, Velocity3.Z) * ((Origin - Goal).Magnitude / 150 + Tickbase.GetPing() / 2)
+            end
+
+            local Velocity = ResolveGrenadeVelocity(Origin, Goal, 150, Workspace.Gravity * 0.55)
+
+            if not Velocity then
+                AimDot.Visible = false
+                return
+            end
+
+            if Flags["Grenade Helper Automatic Aim"].Value then
+                CurrentCamera.CFrame = CurrentCamera.CFrame:Lerp(
+                    NewCFrame(CurrentCamera.CFrame.Position, CurrentCamera.CFrame.Position + Velocity.Unit),
+                    Flags["Grenade Helper Speed"].Value / 10 * DeltaTime
+                )
+            end
+
+            local Position, OnScreen = Camera.WorldToViewportPoint(Origin + Velocity.Unit * 9999)
+
+            if OnScreen then
+                AimDot.Position = NewUDim2(0, Position.X, 0, Position.Y)
+                AimDot.Visible = true
+            else
+                AimDot.Visible = false
+            end
+        end)
+    end
+end
+
+
+-- Music Player
+--[[
+do
+    -- Non-cryptographic hash so the cached file/asset is keyed by the URL itself, not the
+    -- Playlist array position - reordering/inserting tracks can never reuse a stale file
+    -- that was downloaded for a different song under the same old index.
+    local function HashUrl(Url)
+        local Hash = 5381
+
+        for i = 1, #Url do
+            Hash = (Hash * 33 + string.byte(Url, i)) % 4294967296
+        end
+
+        return Format("%08X", Hash)
+    end
+
+    local function ResolveTrackAsset(Index)
+        local Song = Playlist[Index]
+
+        if not Song or not Song.Url or Song.Url == "" then return nil end
+
+        local CacheKey = Song.Url
+        local Cached = MusicState.Cache[CacheKey]
+
+        if Cached then return Cached end
+
+        local FileName = Format("%s/MusicTrack_%s.mp3", Menu.Folders.MusicPlayer, HashUrl(Song.Url))
+
+        if not IsFile(FileName) then
+            local Ok, Data = pcall(function() return game:HttpGet(Song.Url, true) end)
+
+            if not Ok or type(Data) ~= "string" or Data == "" then return nil end
+
+            Data = GSub(Data, "%s+", "")
+
+            local DecodeOk, Decoded = pcall(Decode, Data)
+
+            if not DecodeOk or not Decoded or Decoded == "" then return nil end
+
+            if not pcall(WriteFile, FileName, Decoded) then return nil end
+        end
+
+        local AssetOk, Asset = pcall(GetCustomAsset, FileName)
+
+        if not AssetOk or not Asset or Asset == "" then return nil end
+
+        MusicState.Cache[CacheKey] = Asset
+
+        return Asset
+    end
+
+    function MusicStop()
+        local Sound = MusicState.Sound
+        MusicState.Sound = nil
+        MusicState.Playing = false
+
+        if Sound then
+            pcall(function()
+                Sound:Stop()
+                Destroy(Sound)
+            end)
+        end
+    end
+
+    function MusicPlay(Index)
+        if not Index or not Playlist[Index] then return end
+
+        MusicStop()
+
+        local Asset = ResolveTrackAsset(Index)
+
+        if not Asset then
+            Library:Notify({ Text = Format("Failed to load: %s", Playlist[Index].Name), Time = 3 })
+            return
+        end
+
+        local Sound = NewInstance("Sound")
+        Sound.Name = "MusicPlayerTrack"
+        Sound.Volume = 5
+        Sound.Looped = false
+        Sound.SoundId = Asset
+        Sound.Parent = Workspace
+
+        Sound.Ended:Connect(function()
+            if MusicState.Sound == Sound then
+                MusicNext()
+            end
+        end)
+
+        MusicState.Sound = Sound
+        MusicState.Index = Index
+        MusicState.Playing = true
+
+        Sound:Play()
+    end
+
+    function MusicPause()
+        local Sound = MusicState.Sound
+
+        if not Sound then return end
+
+        if MusicState.Playing then
+            Sound:Pause()
+            MusicState.Playing = false
+        else
+            Sound:Resume()
+            MusicState.Playing = true
+        end
+    end
+
+    function MusicNext()
+        local Count = #Playlist
+
+        if Count < 1 then return end
+
+        local NextIndex = MusicState.Index + 1
+
+        if NextIndex > Count then NextIndex = 1 end
+
+        MusicPlay(NextIndex)
+    end
+
+    function MusicPrev()
+        local Count = #Playlist
+
+        if Count < 1 then return end
+
+        local PrevIndex = MusicState.Index - 1
+
+        if PrevIndex < 1 then PrevIndex = Count end
+
+        MusicPlay(PrevIndex)
+    end
+end
+]]
 
 
 do
