@@ -785,6 +785,7 @@ do
                 Configs = Format("%s/Configs", BasePath),
                 Luas = Format("%s/Luas", BasePath),
                 Themes = Format("%s/Themes", BasePath),
+                HitSounds = Format("%s/HitSounds", BasePath),
                 Sounds = {
                     Path = Format("%s/Sounds", BasePath),
                     SubFolders = { "Hitsounds", "Killsounds" }
@@ -1514,8 +1515,12 @@ do
                             Toggle.Outline = NewRGB(3, 3, 3)
                         end
 
-                        if typeof(Toggle.Active) ~= "Color3" then
-                            Toggle.Active = NewRGB(112, 112, 112)
+                        if typeof(Toggle["Gradient A"]) ~= "Color3" then
+                            Toggle["Gradient A"] = NewRGB(0, 255, 185)
+                        end
+
+                        if typeof(Toggle["Gradient B"]) ~= "Color3" then
+                            Toggle["Gradient B"] = NewRGB(0, 130, 95)
                         end
 
                         if typeof(Toggle.Inactive) ~= "Color3" then
@@ -1534,8 +1539,12 @@ do
                             Slider.Background = NewRGB(43, 43, 43)
                         end
 
-                        if typeof(Slider.Fill) ~= "Color3" then
-                            Slider.Fill = NewRGB(0, 255, 94)
+                        if typeof(Slider["Gradient A"]) ~= "Color3" then
+                            Slider["Gradient A"] = NewRGB(0, 255, 185)
+                        end
+
+                        if typeof(Slider["Gradient B"]) ~= "Color3" then
+                            Slider["Gradient B"] = NewRGB(0, 130, 95)
                         end
 
                         List.Slider = Slider
@@ -1995,13 +2004,15 @@ do
 
         ["Toggle"] = {
             ["Outline"] = NewRGB(3, 3, 3),
-            ["Active"] = NewRGB(0, 255, 185),    
+            ["Gradient A"] = NewRGB(0, 255, 185),
+            ["Gradient B"] = NewRGB(0, 130, 95),
             ["Inactive"] = NewRGB(16, 36, 27)     
         },
 
         ["Slider"] = {
             ["Background"] = NewRGB(21, 50, 36),  
-            ["Fill"] = NewRGB(0, 255, 185)          
+            ["Gradient A"] = NewRGB(0, 255, 185),
+            ["Gradient B"] = NewRGB(0, 130, 95)
         },
 
         ["Dropdown"] = {
@@ -4867,7 +4878,7 @@ end
 
                         local Inline = Menu.Draw("Frame", { Parent = Outline, Position = NewUDim2(0, 1, 0, 1), Size = NewUDim2(1, -2, 1, -2), BorderSizePixel = 0, BackgroundColor3 = Theme.Toggle.Inactive })
 
-                        Menu.Draw("ImageLabel", { Parent = Inline, Position = EmptyUDim2, Size = NewUDim2(1, 0, 1, 0), BorderSizePixel = 0, BackgroundTransparency = 1, Image = Images["Gradient 9"], ImageTransparency = 0.1 })
+                        local Gradient = Menu.Draw("UIGradient", { Parent = Inline, Color = NewColorSequence(Theme.Toggle["Gradient A"], Theme.Toggle["Gradient B"]), Rotation = 90, Enabled = Default })
 
                         local Button = Menu.Draw("TextButton", { Parent = Frame, Position = NewUDim2(0, -1, 0, -1), Size = NewUDim2(1, 3, 1, 2), BackgroundTransparency = 1, BorderSizePixel = 0, Text = "" })
 
@@ -4876,7 +4887,8 @@ end
                         -- Colors
                         do
                             Library.Colors[Outline] = { { "BackgroundColor3", "Toggle", "Outline" } }
-                            Library.Colors[Inline] = { { "BackgroundColor3", "Toggle", Default and "Active" or "Inactive" } }
+                            Library.Colors[Inline] = { { "BackgroundColor3", "Toggle", "Inactive" } }
+                            Library.Colors[Gradient] = { { "Color", "Toggle", { "Gradient A", "Gradient B" } } }
 
                             if Unsafe then
                                 Library.Colors[Label] = { { "TextColor3", "Unsafe" } }
@@ -4893,6 +4905,7 @@ end
 
                         Toggle["Frame"] = Holder
                         Toggle["Inline"] = Inline
+                        Toggle["Gradient"] = Gradient
 
                         Toggle["Button"] = Button
                         Toggle["TextLabel"] = Label
@@ -4903,6 +4916,7 @@ end
                     local Holder = Toggle["Frame"]
 
                     local Inline = Toggle["Inline"]
+                    local Gradient = Toggle["Gradient"]
                     local Button = Toggle["Button"]
 
 
@@ -4919,9 +4933,10 @@ end
 
                             Toggle.Value = Boolean
 
-                            Inline.BackgroundColor3 = Boolean and Theme.Toggle.Active or Theme.Toggle.Inactive
+                            Inline.BackgroundColor3 = Boolean and Theme.White or Theme.Toggle.Inactive
+                            Gradient.Enabled = Boolean
 
-                            Library.Colors[Inline] = { { "BackgroundColor3", "Toggle", Boolean and "Active" or "Inactive" } }
+                            Library.Colors[Inline] = Boolean and { { "BackgroundColor3", "White" } } or { { "BackgroundColor3", "Toggle", "Inactive" } }
 
                             if Fire ~= false then
                                 Callback(Boolean)
@@ -5036,7 +5051,7 @@ end
 
                         local Inline = Menu.Draw("Frame", { Parent = Outline, Position = NewUDim2(0, 1, 0, 1), Size = NewUDim2(1, -2, 1, -2), BorderSizePixel = 0, BackgroundColor3 = Theme.Toggle.Inactive })
 
-                        Menu.Draw("ImageLabel", { Parent = Inline, Position = EmptyUDim2, Size = NewUDim2(1, 0, 1, 0), BorderSizePixel = 0, BackgroundTransparency = 1, Image = Images["Gradient 9"], ImageTransparency = 0.1 })
+                        local Gradient = Menu.Draw("UIGradient", { Parent = Inline, Color = NewColorSequence(Theme.Toggle["Gradient A"], Theme.Toggle["Gradient B"]), Rotation = 90, Enabled = Default })
 
                         local Button = Menu.Draw("TextButton", { Parent = Frame, Position = NewUDim2(0, -1, 0, -1), Size = NewUDim2(1, 3, 0, 14), BackgroundTransparency = 1, BorderSizePixel = 0, Text = "" })
 
@@ -5054,6 +5069,7 @@ end
                         do
                             Library.Colors[Outline] = { { "BackgroundColor3", "Toggle", "Outline" } }
                             Library.Colors[Inline] = { { "BackgroundColor3", "Toggle", "Inactive" } }
+                            Library.Colors[Gradient] = { { "Color", "Toggle", { "Gradient A", "Gradient B" } } }
                             Library.Colors[Line] = { { "BorderColor3", "Tree", "Outline" }, { "BackgroundColor3", "Tree", "Inactive" } }
                             Library.Colors[Background] = { { "ScrollBarImageColor3", "Accent", "A" } }
 
@@ -5073,6 +5089,7 @@ end
 
                         ExpandableToggle["Outline"] = Frame
                         ExpandableToggle["Inline"] = Inline
+                        ExpandableToggle["Gradient"] = Gradient
 
                         ExpandableToggle["TextButton"] = Button
 
@@ -5087,6 +5104,7 @@ end
 
                     local Outline = ExpandableToggle["Outline"]
                     local Inline = ExpandableToggle["Inline"]
+                    local Gradient = ExpandableToggle["Gradient"]
 
                     local Line = ExpandableToggle["Line"]
                     local Arrow = ExpandableToggle["Arrow"]
@@ -5103,10 +5121,11 @@ end
 
                             ExpandableToggle.Value = Boolean
 
-                            Inline.BackgroundColor3 = Boolean and Theme.Toggle.Active or Theme.Toggle.Inactive
+                            Inline.BackgroundColor3 = Boolean and Theme.White or Theme.Toggle.Inactive
+                            Gradient.Enabled = Boolean
                             Line.BackgroundColor3 = Boolean and Theme.Tree.Active or Theme.Tree.Inactive
 
-                            Library.Colors[Inline] = { { "BackgroundColor3", "Toggle", Boolean and "Active" or "Inactive" } }
+                            Library.Colors[Inline] = Boolean and { { "BackgroundColor3", "White" } } or { { "BackgroundColor3", "Toggle", "Inactive" } }
                             Library.Colors[Line] = { { "BorderColor3", "Tree", "Outline" }, { "BackgroundColor3", "Tree", Boolean and "Active" or "Inactive" } }
 
                             if Fire ~= false then
@@ -5540,7 +5559,9 @@ end
 
                         local Holder = Menu.Draw("Frame", { Parent = Button, Position = NewUDim2(0, 1, 0, 1), Size = NewUDim2(1, -2, 1, -2), BackgroundTransparency = 1, BorderSizePixel = 0 })
 
-                        local Button2 = Menu.Draw("ImageButton", { Parent = Holder, Position = EmptyUDim2, Size = NewUDim2((Slider.Value - Slider.Min) / (Slider.Max - Slider.Min), 0, 1, 0), Image = Images.Gradient, ImageTransparency = 0.05, BackgroundColor3 = Theme.Slider.Fill, BorderSizePixel = 0, Interactable = false })
+                        local Button2 = Menu.Draw("ImageButton", { Parent = Holder, Position = EmptyUDim2, Size = NewUDim2((Slider.Value - Slider.Min) / (Slider.Max - Slider.Min), 0, 1, 0), BackgroundColor3 = Theme.White, BorderSizePixel = 0, Interactable = false })
+
+                        local Gradient = Menu.Draw("UIGradient", { Parent = Button2, Color = NewColorSequence(Theme.Slider["Gradient A"], Theme.Slider["Gradient B"]), Rotation = 90 })
 
                         local Value = Menu.Draw("TextLabel", { Parent = Button, AnchorPoint = NewVector2(0.5, 0.5), Position = NewUDim2(0.5, 0, 0.5, 0), TextColor3 = Theme["Text Color"].A })
 
@@ -5553,7 +5574,7 @@ end
                         -- Colors
                         do
                             Library.Colors[Button] = { { "BackgroundColor3", "Slider", "Background" } }
-                            Library.Colors[Button2] = { { "BackgroundColor3", "Slider", "Fill" } }
+                            Library.Colors[Gradient] = { { "Color", "Slider", { "Gradient A", "Gradient B" } } }
                             Library.Colors[Value] = { { "TextColor3", "Text Color", "A" } }
 
                             if Unsafe then
@@ -9280,7 +9301,15 @@ do
         Section:Toggle({ Name = "Skip Downed", Default = false, Flag = "AimAssist Skip Downed", Callback = function(v) AimAssist.SkipDowned = v end })
         Section:Toggle({ Name = "No Jump Track", Default = false, Flag = "AimAssist No Jump Track", Callback = function(v) AimAssist.NoJumpTrack = v end })
         Section:Slider({ Name = "Jump Smoothness", Min = 1, Max = 100, Default = 15, Flag = "AimAssist Jump Smoothness", Callback = function(v) AimAssist.JumpSmoothness = v end })
-        Section:Toggle({ Name = "Visualize FOV", Default = false, Flag = "AimAssist VisualizeFov", Callback = function(v) AimAssist.VisualizeFov = v end }):Colorpicker({ Color = NewRGB(181, 179, 253), Flag = "AimAssist FOV Color", Callback = function(Color) AimAssist.FovColor = Color end })
+
+        Tree = Section:ExpandableToggle({ Name = "Visualize FOV", Default = false, Flag = "AimAssist VisualizeFov", Size = 65, Callback = function(v) AimAssist.VisualizeFov = v end })
+        do
+            Tree:Label({ Text = "FOV Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0, Flag = "AimAssist FOV Color", Callback = function(Color, Alpha) AimAssist.FovColor = Color; AimAssist.FovAlpha = Alpha end })
+            Tree:Label({ Text = "Outline Color" }):Colorpicker({ Color = NewRGB(0, 0, 0), Transparency = 0, Flag = "AimAssist FOV Outline Color", Callback = function(Color, Alpha) AimAssist.FovOutlineColor = Color; AimAssist.FovOutlineAlpha = Alpha end })
+            Tree:Label({ Text = "Glow Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0, Flag = "AimAssist FOV Glow Color", Callback = function(Color, Alpha) AimAssist.FovGlowColor = Color; AimAssist.FovGlowAlpha = Alpha end })
+            Tree:Slider({ Name = "Glow Size", Min = 1, Max = 10, Default = 3, Decimals = 1, Flag = "AimAssist FOV Glow Size", Callback = function(v) AimAssist.FovGlowSize = v end })
+        end
+
         Section:Slider({ Name = "FOV", Min = 1, Max = 35, Default = 10, Decimals = 0.1, Prefix = "°", Flag = "AimAssist Fov", Callback = function(v) AimAssist.Fov = v end })
     
 end
@@ -9399,6 +9428,7 @@ end
                 Side = "Right"
             })
             do
+             
                 Section:Toggle({
                     Name = "Enabled",
                     Unsafe = true,
@@ -9428,12 +9458,6 @@ end
                     Default = false
                 })
 
-                Section:Toggle({
-                    Name = "Soft Priority",
-                    Flag = "Silent Aim Soft Priority",
-                    Default = false
-                })
-
                 Section:Dropdown({
                     Name = "Target Part",
                     Flag = "Silent Aim Target Part",
@@ -9441,13 +9465,37 @@ end
                     Default = "Head"
                 })
 
-                Section:Toggle({
+                Tree = Section:ExpandableToggle({
                     Name = "Draw FOV",
-                    Flag = "Silent Aim Draw FOV"
-                }):Colorpicker({
-                    Color = NewRGB(255, 0, 0),
-                    Flag = "Silent Aim FOV Color"
+                    Flag = "Silent Aim Draw FOV",
+                    Size = 65
                 })
+                do
+                    Tree:Label({ Text = "FOV Color" }):Colorpicker({
+                        Color = NewRGB(255, 0, 0),
+                        Transparency = 0,
+                        Flag = "Silent Aim FOV Color"
+                    })
+
+                    Tree:Label({ Text = "Outline Color" }):Colorpicker({
+                        Color = NewRGB(0, 0, 0),
+                        Transparency = 0,
+                        Flag = "Silent Aim FOV Outline Color"
+                    })
+
+                    Tree:Label({ Text = "Glow Color" }):Colorpicker({
+                        Color = NewRGB(255, 0, 0),
+                        Transparency = 0,
+                        Flag = "Silent Aim FOV Glow Color"
+                    })
+
+                    Tree:Slider({
+                        Name = "Glow Size",
+                        Flag = "Silent Aim FOV Glow Size",
+                        Min = 1, Max = 10, Default = 3,
+                        Decimals = 1
+                    })
+                end
 
                 Section:Dropdown({
                     Name = "FOV Position",
@@ -9467,7 +9515,7 @@ end
 
             MultiSection = Tab:MultiSection({
                 Name = "Misc",
-                Size = 230,
+                Size = 245,
                 Side = "Right",
                 Sections = {  "Gun Mods", "Melee Mods", "Skins" }
             })
@@ -9520,6 +9568,16 @@ end
                             Name = "Instant Scope",
                             Flag = "Instant Aim",
                             Unsafe = true
+                        })
+
+                        Section:Toggle({
+                            Name = "Wallbang",
+                            Flag = "Gun Wallbang",
+                            Unsafe = true,
+                            Callback = function(Value)
+                                local Fn = Wallbang and Wallbang.SetEnabled
+                                if Fn then Fn(Value) end
+                            end
                         })
 
                 end
@@ -9681,7 +9739,14 @@ X7fG2hJk9 = {
     HiTbOx4 = 1,
     HiTbOxNaMeS5 = { "Head", "Right Arm", "Right Leg", "Left Arm", "Left Leg", "Torso" },
     FoV6 = 120,
+    DrAwFoV2 = true,
     FoVcOlOr7 = NewRGB(255, 255, 255),
+    FoVaLpHa4 = 0,
+    FoVoUtLiNe0 = NewRGB(0, 0, 0),
+    FoVoUtLiNeAlPhA5 = 0,
+    FoVgLoW1 = NewRGB(255, 255, 255),
+    FoVgLoWaLpHa6 = 0,
+    FoVgLoWsIzE3 = 3,
     OrIgInRaDiUs8 = 18.5,
     OrIgInScAnS9 = 24,
     HiTrAdIuS0 = 23.5,
@@ -9749,6 +9814,29 @@ Spawn(function()
     oP6qR7sT8.Filled = false
     oP6qR7sT8.Transparency = 1
 
+    local FovOutline = NewDrawing("Circle")
+    FovOutline.Visible = false
+    FovOutline.Thickness = 3
+    FovOutline.NumSides = 64
+    FovOutline.Filled = false
+    FovOutline.Transparency = 1
+    FovOutline.ZIndex = -1
+
+    local FovGlowCount = 4
+    local FovGlow = {}
+
+    for i = FovGlowCount, 1, -1 do
+        local Ring = NewDrawing("Circle")
+        Ring.Visible = false
+        Ring.NumSides = 64
+        Ring.Filled = false
+        Ring.Thickness = 2 + i * 3
+        Ring.Transparency = 0.45 - (i * 0.08)
+        Ring.ZIndex = -2
+
+        FovGlow[i] = Ring
+    end
+
     local uV9wX0yZ1 = {
         NewVector3(1, 0, 0), NewVector3(0, 0, 1), NewVector3(0, 1, 0),
         -NewVector3(1, 0, 0), -NewVector3(0, 0, 1), -NewVector3(0, 1, 0),
@@ -9765,6 +9853,12 @@ Spawn(function()
         local mN8oP9qR0 = aB3cD4eF5 and FindFirstChild(aB3cD4eF5, gH5iJ6kL7)
         local sT1uV2wX3 = mN8oP9qR0 and FindFirstChild(mN8oP9qR0, "Downed")
         return sT1uV2wX3 and sT1uV2wX3.Value or false
+    end
+
+    function GetSoundUri(Id)
+        if not Id or Id == "" then return nil end
+        if StringFind(Id, "://") then return Id end
+        return "rbxassetid://" .. Id
     end
 
     function yZ4aB5cD6()
@@ -9795,7 +9889,7 @@ Spawn(function()
         end
 
         cD9eF0gH1.Volume = X7fG2hJk9.HiTvOlUmEsEe
-        cD9eF0gH1.SoundId = "rbxassetid://" .. kL0mN1oP2
+        cD9eF0gH1.SoundId = GetSoundUri(kL0mN1oP2)
         cD9eF0gH1:Play()
     end
 
@@ -10099,13 +10193,38 @@ Spawn(function()
     RunService.Stepped:Connect(function()
         eF8gH9iJ0.Tick = Tick()
 
-        if X7fG2hJk9.EnAbCdEfGh and X7fG2hJk9.TaRgEtMoDe3 == "FOV" then
-            oP6qR7sT8.Position = UserInputService:GetMouseLocation()
+        if X7fG2hJk9.EnAbCdEfGh and X7fG2hJk9.TaRgEtMoDe3 == "FOV" and X7fG2hJk9.DrAwFoV2 then
+            local MousePosition = UserInputService:GetMouseLocation()
+
+            oP6qR7sT8.Position = MousePosition
             oP6qR7sT8.Radius = X7fG2hJk9.FoV6
             oP6qR7sT8.Color = X7fG2hJk9.FoVcOlOr7
+            oP6qR7sT8.Transparency = 1 - X7fG2hJk9.FoVaLpHa4
             oP6qR7sT8.Visible = true
+
+            FovOutline.Position = MousePosition
+            FovOutline.Radius = X7fG2hJk9.FoV6
+            FovOutline.Color = X7fG2hJk9.FoVoUtLiNe0
+            FovOutline.Transparency = 1 - X7fG2hJk9.FoVoUtLiNeAlPhA5
+            FovOutline.Visible = true
+
+            for i = 1, FovGlowCount do
+                local Ring = FovGlow[i]
+
+                Ring.Position = MousePosition
+                Ring.Radius = X7fG2hJk9.FoV6
+                Ring.Thickness = 2 + i * X7fG2hJk9.FoVgLoWsIzE3
+                Ring.Color = X7fG2hJk9.FoVgLoW1
+                Ring.Transparency = (0.45 - (i * 0.08)) * (1 - X7fG2hJk9.FoVgLoWaLpHa6)
+                Ring.Visible = true
+            end
         else
             oP6qR7sT8.Visible = false
+            FovOutline.Visible = false
+
+            for i = 1, FovGlowCount do
+                FovGlow[i].Visible = false
+            end
         end
 
         kL5mN6oP7()
@@ -10116,7 +10235,7 @@ end)
 Section = Tab:Section({ Name = "Aimbot", Fill = true })
 do
     local yZ6aB7cD8 = Section:Toggle({ Name = "Enabled", Default = false, Unsafe = true, Flag = "Rage Enabled", Callback = function(eF9gH0iJ1) X7fG2hJk9.EnAbCdEfGh = eF9gH0iJ1 end })
-    yZ6aB7cD8:Keybind({ Mode = "Toggle", Flag = "Rage Keybind", Name = "Rage Enabled" }):Colorpicker({ Color = NewRGB(255, 255, 255), Flag = "Rage FOV Color", Callback = function(kL2mN3oP4) X7fG2hJk9.FoVcOlOr7 = kL2mN3oP4 end })
+    yZ6aB7cD8:Keybind({ Mode = "Toggle", Flag = "Rage Keybind", Name = "Rage Enabled" })
 
     Section:Toggle({ Name = "Rapid fire", Default = false, Flag = "Rage Rapid Fire", Callback = function(qR5sT6uV7) X7fG2hJk9.RaPiDfIrE1 = qR5sT6uV7 end })
     Section:Toggle({ Name = "Auto reload", Default = false, Flag = "Rage Auto Reload" })
@@ -10127,6 +10246,15 @@ do
     Section:Dropdown({ Name = "Hitbox", Flag = "Rage Hitbox", Options = X7fG2hJk9.HiTbOxNaMeS5, Default = "Head", Callback = function(iJ4kL5mN6) X7fG2hJk9.HiTbOx4 = Find(X7fG2hJk9.HiTbOxNaMeS5, iJ4kL5mN6) or 1 end })
 
     Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(oP7qR8sT9) X7fG2hJk9.FoV6 = oP7qR8sT9 end })
+
+    Tree = Section:ExpandableToggle({ Name = "Draw FOV", Default = true, Flag = "Rage Draw FOV", Size = 65, Callback = function(v) X7fG2hJk9.DrAwFoV2 = v end })
+    do
+        Tree:Label({ Text = "FOV Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0, Flag = "Rage FOV Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVcOlOr7 = Color; X7fG2hJk9.FoVaLpHa4 = Alpha end })
+        Tree:Label({ Text = "Outline Color" }):Colorpicker({ Color = NewRGB(0, 0, 0), Transparency = 0, Flag = "Rage FOV Outline Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVoUtLiNe0 = Color; X7fG2hJk9.FoVoUtLiNeAlPhA5 = Alpha end })
+        Tree:Label({ Text = "Glow Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0, Flag = "Rage FOV Glow Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVgLoW1 = Color; X7fG2hJk9.FoVgLoWaLpHa6 = Alpha end })
+        Tree:Slider({ Name = "Glow Size", Min = 1, Max = 10, Default = 3, Decimals = 1, Flag = "Rage FOV Glow Size", Callback = function(v) X7fG2hJk9.FoVgLoWsIzE3 = v end })
+    end
+
     Section:TextBox({
         Name = "Fire rate",
         Flag = "Rage Fire Rate Delay",
@@ -11209,7 +11337,7 @@ end
             MultiSection = Tab:MultiSection({
                 Name = "ESP",
                 Sections = { "Players", "Options" },
-                Size = 309
+                Size = 310
             })
             do
                 Section = MultiSection[1]
@@ -11219,7 +11347,7 @@ end
                         Flag = "Esp Enabled",
                         Category = "Player",
                         Opened = true,
-                        Size = 520
+                        Size = 335
                     })
                     do
                         Tree:Keybind({
@@ -11875,10 +12003,29 @@ end
                     Name = "Hitsound",
                     Flag = "Hitsound Enabled",
                     Default = false,
-                    Size = 52,
+                    Size = 60,
                     Opened = true
                 })
                 do
+                    local HitSoundsFolder = Menu.Folders.HitSounds
+
+                    if HitSoundsFolder and IsFolder(HitSoundsFolder) then
+                        local CustomFiles = ListFiles(HitSoundsFolder)
+
+                        for i = 1, #CustomFiles do
+                            local FilePath = CustomFiles[i]
+                            local SoundName = Match(FilePath, "([^/\\]+)%.%w+$")
+
+                            if SoundName then
+                                local Ok, Asset = pcall(GetCustomAsset, FilePath)
+
+                                if Ok and Asset then
+                                    X7fG2hJk9.SoUnDlIsTfF[SoundName] = Asset
+                                end
+                            end
+                        end
+                    end
+
                     local HitsoundOptions = {}
 
                     for SoundName in next, X7fG2hJk9.SoUnDlIsTfF do
@@ -11913,6 +12060,7 @@ end
                     })
                 end
 
+--[[
                 Tree = Section:ExpandableToggle({
                     Name = "Killsound",
                     Flag = "Killsound Enabled",
@@ -11960,9 +12108,16 @@ end
                             Misc.RefreshKillsounds()
                         end
                     })
+
+
+
+
+
                 end
+]]
 
 
+--[[
                 Tree = Section:ExpandableToggle({
                     Name = "Shoot Sound",
                     Flag = "Custom ShootSound",
@@ -12009,7 +12164,9 @@ end
                             end
                         end
                     })
+                 
                 end
+                ]]
             end
 
             Section = Tab:Section({
@@ -12244,7 +12401,7 @@ end
                 Section:Slider({
                     Name = "Contrast",
                     Flag = "Color Correction Contrast",
-                    Min = -1, Max = 1, Default = 0,
+                    Min = -1, Max = 100, Default = 0,
                     Decimals = 0.01,
                     Callback = function()
                         Visuals.World()
@@ -12254,7 +12411,7 @@ end
                 Section:Slider({
                     Name = "Saturation",
                     Flag = "Color Correction Saturation",
-                    Min = -1, Max = 1, Default = -0.1,
+                    Min = -1, Max = 100, Default = -0.1,
                     Decimals = 0.01,
                     Callback = function()
                         Visuals.World()
@@ -12293,7 +12450,7 @@ end
                 })
 
                 Section:Toggle({
-                    Name = "Celestial Bodies Shown",
+                    Name = "Show celestial bodies",
                     Flag = "Celestial Bodies Shown",
                     Default = true,
                     Callback = function()
@@ -12309,83 +12466,89 @@ end
                     end
                 })
 
-                Section:Slider({
-                    Name = "Skybox Orientation X",
-                    Flag = "Skybox Orientation X",
-                    Min = -180, Max = 180, Default = 0,
-                    Decimals = 1,
-                    Callback = function()
-                        Visuals.Sky()
-                    end
-                })
-
-                Section:Toggle({
+                Tree = Section:ExpandableToggle({
                     Name = "Skybox Spin X",
                     Flag = "Skybox Spin X",
+                    Size = 60,
                     Callback = function()
                         Visuals.Sky()
                     end
                 })
+                do
+                    Tree:Slider({
+                        Name = "Spin Speed X",
+                        Flag = "Skybox Spin Speed X",
+                        Min = -180, Max = 180, Default = 20,
+                        Decimals = 1,
+                        Prefix = "°/s"
+                    })
 
-                Section:Slider({
-                    Name = "Skybox Spin Speed X",
-                    Flag = "Skybox Spin Speed X",
-                    Min = -180, Max = 180, Default = 20,
-                    Decimals = 1,
-                    Prefix = "°/s"
-                })
+                    Tree:Slider({
+                        Name = "Orientation X",
+                        Flag = "Skybox Orientation X",
+                        Min = -180, Max = 180, Default = 0,
+                        Decimals = 1,
+                        Callback = function()
+                            Visuals.Sky()
+                        end
+                    })
+                end
 
-                Section:Slider({
-                    Name = "Skybox Orientation Y",
-                    Flag = "Skybox Orientation Y",
-                    Min = -180, Max = 180, Default = 0,
-                    Decimals = 1,
-                    Callback = function()
-                        Visuals.Sky()
-                    end
-                })
-
-                Section:Toggle({
+                Tree = Section:ExpandableToggle({
                     Name = "Skybox Spin Y",
                     Flag = "Skybox Spin Y",
+                    Size = 60,
                     Callback = function()
                         Visuals.Sky()
                     end
                 })
+                do
+                    Tree:Slider({
+                        Name = "Spin Speed Y",
+                        Flag = "Skybox Spin Speed Y",
+                        Min = -180, Max = 180, Default = 20,
+                        Decimals = 1,
+                        Prefix = "°/s"
+                    })
 
-                Section:Slider({
-                    Name = "Skybox Spin Speed Y",
-                    Flag = "Skybox Spin Speed Y",
-                    Min = -180, Max = 180, Default = 20,
-                    Decimals = 1,
-                    Prefix = "°/s"
-                })
+                    Tree:Slider({
+                        Name = "Orientation Y",
+                        Flag = "Skybox Orientation Y",
+                        Min = -180, Max = 180, Default = 0,
+                        Decimals = 1,
+                        Callback = function()
+                            Visuals.Sky()
+                        end
+                    })
+                end
 
-                Section:Slider({
-                    Name = "Skybox Orientation Z",
-                    Flag = "Skybox Orientation Z",
-                    Min = -180, Max = 180, Default = 0,
-                    Decimals = 1,
-                    Callback = function()
-                        Visuals.Sky()
-                    end
-                })
-
-                Section:Toggle({
+                Tree = Section:ExpandableToggle({
                     Name = "Skybox Spin Z",
                     Flag = "Skybox Spin Z",
+                    Size = 60,
                     Callback = function()
                         Visuals.Sky()
                     end
                 })
+                do
+                    Tree:Slider({
+                        Name = "Spin Speed Z",
+                        Flag = "Skybox Spin Speed Z",
+                        Min = -180, Max = 180, Default = 20,
+                        Decimals = 1,
+                        Prefix = "°/s"
+                    })
 
-                Section:Slider({
-                    Name = "Skybox Spin Speed Z",
-                    Flag = "Skybox Spin Speed Z",
-                    Min = -180, Max = 180, Default = 20,
-                    Decimals = 1,
-                    Prefix = "°/s"
-                })
+                    Tree:Slider({
+                        Name = "Orientation Z",
+                        Flag = "Skybox Orientation Z",
+                        Min = -180, Max = 180, Default = 0,
+                        Decimals = 1,
+                        Callback = function()
+                            Visuals.Sky()
+                        end
+                    })
+                end
 
                 Section:Slider({
                     Name = "Star Count",
@@ -12398,7 +12561,7 @@ end
                 })
 
                 Section:Slider({
-                    Name = "Sun Angular Size",
+                    Name = "Sun  Size",
                     Flag = "Sun Angular Size",
                     Min = 0, Max = 50, Default = 21,
                     Decimals = 0.1,
@@ -12408,7 +12571,7 @@ end
                 })
 
                 Section:Slider({
-                    Name = "Moon Angular Size",
+                    Name = "Moon Size",
                     Flag = "Moon Angular Size",
                     Min = 0, Max = 50, Default = 11,
                     Decimals = 0.1,
@@ -12446,7 +12609,7 @@ end
                 })
 
                 Section:Toggle({
-                    Name = "Prioritize Lighting Quality",
+                    Name = "Prioritize Light Quality",
                     Flag = "Prioritize Lighting Quality",
                     Callback = function(Value)
                         Visuals.LightingQuality(Value)
@@ -12454,7 +12617,7 @@ end
                 })
 
                 Section:Slider({
-                    Name = "Environment Specular Scale",
+                    Name = "Env spec Scale",
                     Flag = "Environment Specular Scale",
                     Min = 0, Max = 1, Default = 1,
                     Decimals = 0.01,
@@ -12464,7 +12627,7 @@ end
                 })
 
                 Section:Slider({
-                    Name = "Environment Diffuse Scale",
+                    Name = "Env diff Scale",
                     Flag = "Environment Diffuse Scale",
                     Min = 0, Max = 1, Default = 1,
                     Decimals = 0.01,
@@ -12476,7 +12639,7 @@ end
 
             MultiSection = Tab:MultiSection({
                 Name = "Others",
-                Size = 210,
+                Size = 150,
                 Side = "Right",
                 Sections = { "Local", "Camera", "3D", "Tracers" }
             })
@@ -12493,7 +12656,7 @@ end
                     })
 
                     Tree = Section:ExpandableToggle({
-                        Name = "Local Player Highlight",
+                        Name = "Body Highlight",
                         Flag = "Local Highlight",
                         Size = 60
                     })
@@ -13353,7 +13516,7 @@ end
                 Section:TextBox({
                     Name = "Custom Title",
                     Flag = "Custom Title",
-                    Default = "Luckyware.Net | {date}",
+                    Default = "Luckyware.net | {date}",
                     Placeholder = "{date}",
                     Callback = function(Text)
                         Dock.SetText(GSub(Text, "{date}", Date("%B. %d, %Y")))
@@ -13914,11 +14077,13 @@ end
                         Flags["Tree Inactive Color"].FromRGB(MenuTheme.Tree.Inactive, false)
 
                         Flags["Toggle Outline Color"].FromRGB(MenuTheme.Toggle.Outline, false)
-                        Flags["Toggle Active Color"].FromRGB(MenuTheme.Toggle.Active, false)
+                        Flags["Toggle Gradient A"].FromRGB(MenuTheme.Toggle["Gradient A"], false)
+                        Flags["Toggle Gradient B"].FromRGB(MenuTheme.Toggle["Gradient B"], false)
                         Flags["Toggle Inactive Color"].FromRGB(MenuTheme.Toggle.Inactive, false)
 
                         Flags["Slider Background Color"].FromRGB(MenuTheme.Slider.Background, false)
-                        Flags["Slider Fill Color"].FromRGB(MenuTheme.Slider.Fill, false)
+                        Flags["Slider Gradient A"].FromRGB(MenuTheme.Slider["Gradient A"], false)
+                        Flags["Slider Gradient B"].FromRGB(MenuTheme.Slider["Gradient B"], false)
 
                         Flags["Dropdown Outline Color"].FromRGB(MenuTheme.Dropdown.Outline, false)
                         Flags["Dropdown Gradient A"].FromRGB(MenuTheme.Dropdown["Gradient A"], false)
@@ -14128,7 +14293,7 @@ end
             Tree = Section:ExpandableLabel({
                 Text = "Toggle",
                 Icon = { Images["Folder Icon"], NewUDim2(0, 3, 0, 2), NewUDim2(0, 8, 0, 7) },
-                Size = 40
+                Size = 52
             })
             do
                 Tree:Label({
@@ -14146,16 +14311,30 @@ end
                 })
 
                 Tree:Label({
-                    Text = "Active"
+                    Text = "Gradient A"
                 }):Colorpicker({
-                    Color = MenuTheme.Toggle.Active,
-                    Flag = "Toggle Active Color",
+                    Color = MenuTheme.Toggle["Gradient A"],
+                    Flag = "Toggle Gradient A",
                     Side = "Left",
                     Exclude = true,
                     Callback = function(Color)
-                        MenuTheme.Toggle.Active = Color
+                        MenuTheme.Toggle["Gradient A"] = Color
 
-                        Library:SetTheme(nil, { "Toggle" }, { "Active" })
+                        Library:SetTheme(nil, { "Toggle" })
+                    end
+                })
+
+                Tree:Label({
+                    Text = "Gradient B"
+                }):Colorpicker({
+                    Color = MenuTheme.Toggle["Gradient B"],
+                    Flag = "Toggle Gradient B",
+                    Side = "Left",
+                    Exclude = true,
+                    Callback = function(Color)
+                        MenuTheme.Toggle["Gradient B"] = Color
+
+                        Library:SetTheme(nil, { "Toggle" })
                     end
                 })
 
@@ -14177,7 +14356,7 @@ end
             Tree = Section:ExpandableLabel({
                 Text = "Slider",
                 Icon = { Images["Folder Icon"], NewUDim2(0, 3, 0, 2), NewUDim2(0, 8, 0, 7) },
-                Size = 28
+                Size = 40
             })
             do
                 Tree:Label({
@@ -14195,16 +14374,30 @@ end
                 })
 
                 Tree:Label({
-                    Text = "Fill"
+                    Text = "Gradient A"
                 }):Colorpicker({
-                    Color = MenuTheme.Slider.Fill,
-                    Flag = "Slider Fill Color",
+                    Color = MenuTheme.Slider["Gradient A"],
+                    Flag = "Slider Gradient A",
                     Side = "Left",
                     Exclude = true,
                     Callback = function(Color)
-                        MenuTheme.Slider.Fill = Color
+                        MenuTheme.Slider["Gradient A"] = Color
 
-                        Library:SetTheme(nil, { "Slider" }, { "Fill" })
+                        Library:SetTheme(nil, { "Slider" })
+                    end
+                })
+
+                Tree:Label({
+                    Text = "Gradient B"
+                }):Colorpicker({
+                    Color = MenuTheme.Slider["Gradient B"],
+                    Flag = "Slider Gradient B",
+                    Side = "Left",
+                    Exclude = true,
+                    Callback = function(Color)
+                        MenuTheme.Slider["Gradient B"] = Color
+
+                        Library:SetTheme(nil, { "Slider" })
                     end
                 })
             end
@@ -14960,7 +15153,7 @@ end
 
             LastUpdate = Now
 
-            local Text = "Luckyware.Net"
+            local Text = "Luckyware.net"
 
             local Elements = Flags["Watermark Elements"].Value
             local Amount = #Elements
@@ -15234,16 +15427,16 @@ do
     do
         local Hitsound = NewInstance("Sound")
         Hitsound.Volume = 1
-
+--[[
         local Killsound = NewInstance("Sound")
         Killsound.Volume = 1
 
         local ShootSound = NewInstance("Sound")
         ShootSound.Volume = 1
-
+]]
         Visuals.Cache.Hitsound = Hitsound
-        Visuals.Cache.Killsound = Killsound
-        Visuals.Cache.ShootSound = ShootSound
+      --  Visuals.Cache.Killsound = Killsound
+     --   Visuals.Cache.ShootSound = ShootSound
 
         function RefreshSounds(Ids, FolderName, FlagName)
             local Path = Format("%s/%s", Menu.Folders.Sounds.Path, FolderName)
@@ -15284,13 +15477,13 @@ do
         Misc.RefreshHitsounds = function()
             RefreshSounds(HitsoundIds, "Hitsounds", "Hitsound")
         end
-
+--[[
         Misc.RefreshKillsounds = function()
             RefreshSounds(KillsoundIds, "Killsounds", "Killsound")
         end
-
+]]
         Misc.RefreshHitsounds()
-        Misc.RefreshKillsounds()
+    --    Misc.RefreshKillsounds()
     end
 
     Visuals.Skybox = FindFirstChildWhichIsA(Lighting, "Sky", true)
@@ -19057,6 +19250,12 @@ do
             WallCheck = true,
             VisualizeFov = true,
             FovColor = NewRGB(181, 179, 253),
+            FovAlpha = 0,
+            FovOutlineColor = NewRGB(0, 0, 0),
+            FovOutlineAlpha = 0,
+            FovGlowColor = NewRGB(181, 179, 253),
+            FovGlowAlpha = 0,
+            FovGlowSize = 3,
             PriorityOnly = false,
             SoftPriority = false,
             SkipDowned = false
@@ -19542,15 +19741,63 @@ do
         FovCircle.Transparency = 1
         FovCircle.Visible = false
 
+        local FovOutline = NewDrawing("Circle")
+        FovOutline.Thickness = 3
+        FovOutline.NumSides = 64
+        FovOutline.Filled = false
+        FovOutline.Transparency = 1
+        FovOutline.Visible = false
+        FovOutline.ZIndex = -1
+
+        local FovGlowCount = 4
+        local FovGlow = {}
+
+        for i = FovGlowCount, 1, -1 do
+            local Ring = NewDrawing("Circle")
+            Ring.NumSides = 64
+            Ring.Filled = false
+            Ring.Transparency = 0.45 - (i * 0.08)
+            Ring.Visible = false
+            Ring.ZIndex = -2
+
+            FovGlow[i] = Ring
+        end
+
         RenderStepped:Connect(function()
             if AimAssist.Enabled and AimAssist.VisualizeFov then
                 local Size = CurrentCamera.ViewportSize
-                FovCircle.Radius = (Tan(math.rad(AimAssist.Fov) / 2) / Tan(math.rad(CurrentCamera.FieldOfView) / 2)) * (Size.Y / 2)
-                FovCircle.Position = Size / 2
+                local Radius = (Tan(math.rad(AimAssist.Fov) / 2) / Tan(math.rad(CurrentCamera.FieldOfView) / 2)) * (Size.Y / 2)
+                local Position = Size / 2
+
+                FovCircle.Radius = Radius
+                FovCircle.Position = Position
                 FovCircle.Color = AimAssist.FovColor
+                FovCircle.Transparency = 1 - (AimAssist.FovAlpha or 0)
                 FovCircle.Visible = true
+
+                FovOutline.Radius = Radius
+                FovOutline.Position = Position
+                FovOutline.Color = AimAssist.FovOutlineColor
+                FovOutline.Transparency = 1 - (AimAssist.FovOutlineAlpha or 0)
+                FovOutline.Visible = true
+
+                for i = 1, FovGlowCount do
+                    local Ring = FovGlow[i]
+
+                    Ring.Radius = Radius
+                    Ring.Position = Position
+                    Ring.Thickness = 2 + i * AimAssist.FovGlowSize
+                    Ring.Color = AimAssist.FovGlowColor
+                    Ring.Transparency = (0.45 - (i * 0.08)) * (1 - (AimAssist.FovGlowAlpha or 0))
+                    Ring.Visible = true
+                end
             else
                 FovCircle.Visible = false
+                FovOutline.Visible = false
+
+                for i = 1, FovGlowCount do
+                    FovGlow[i].Visible = false
+                end
             end
         end)
     end)
@@ -19587,30 +19834,45 @@ do
 end
 
 
+ 
 do
+
     Spawn(function()
-        local aB3cD4eF5 = WaitForChild(ReplicatedStorage, "Events2", 10)
-        local gH6iJ7kL8 = aB3cD4eF5 and WaitForChild(aB3cD4eF5, "Visualize", 10)
-        local mN9oP0qR1 = WaitForChild(ReplicatedStorage, "Events", 10)
-        local sT2uV3wX4 = mN9oP0qR1 and WaitForChild(mN9oP0qR1, "ZFKLF__H", 10)
+        local Events2 = WaitForChild(ReplicatedStorage, "Events2", 10)
+        local VisualizeEvent = Events2 and WaitForChild(Events2, "Visualize", 10)
+        local EventsFolder = WaitForChild(ReplicatedStorage, "Events", 10)
+        local DamageEvent = EventsFolder and WaitForChild(EventsFolder, "ZFKLF__H", 10)
 
-        if not gH6iJ7kL8 or not sT2uV3wX4 then return end
+        if not VisualizeEvent or not DamageEvent then return end
 
-        local yZ5aB6cD7 = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }
-        local eF8gH9iJ0 = 1
-        local kL1mN2oP3 = 0
-
-        function qR4sT5uV6()
-            local wX7yZ8aB9 = Flags["Silent Aim Target Part"].Value
-
-            if wX7yZ8aB9 == "Random" then
-                return yZ5aB6cD7[eF8gH9iJ0]
-            end
-
-            return wX7yZ8aB9
+        if not (
+            Flags["Silent Aim Enabled"] and
+            Flags["Silent Aim Hit Chance"] and
+            Flags["Silent Aim Wall Check"] and
+            Flags["Silent Aim Target Part"] and
+            Flags["Silent Aim FOV Position"] and
+            Flags["Silent Aim FOV"] and
+            Flags["Silent Aim Draw FOV"] and
+            Flags["Silent Aim FOV Color"]
+        ) then
+            return
         end
 
-        function cD0eF1gH2()
+        local Randomize = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }
+        local RandomIndex = 1
+        local RandomTimer = 0
+
+        function GetTargetPart()
+            local Value = Flags["Silent Aim Target Part"].Value
+
+            if Value == "Random" then
+                return Randomize[RandomIndex]
+            end
+
+            return Value
+        end
+
+        function GetCenter()
             if Flags["Silent Aim FOV Position"].Value == "Mouse" then
                 return UserInputService:GetMouseLocation()
             end
@@ -19618,14 +19880,14 @@ do
             return NewVector2(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
         end
 
-        function iJ3kL4mN5(oP6qR7sT8)
-            local uV9wX0yZ1 = FindFirstChild(ReplicatedStorage, "CharStats")
-            local aB2cD3eF4 = uV9wX0yZ1 and FindFirstChild(uV9wX0yZ1, oP6qR7sT8)
-            local gH5iJ6kL7 = aB2cD3eF4 and FindFirstChild(aB2cD3eF4, "Downed")
-            return gH5iJ6kL7 and gH5iJ6kL7.Value or false
+        function IsHeDowned(PlayerName)
+            local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
+            local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
+            local Downed = Stats and FindFirstChild(Stats, "Downed")
+            return Downed and Downed.Value or false
         end
 
-        gH6iJ7kL8.Event:Connect(function(mN8oP9qR0, sT1uV2wX3, yZ4aB5cD6, eF7gH8iJ9, kL0mN1oP2, qR3sT4uV5, wX6yZ7aB8)
+        VisualizeEvent.Event:Connect(function(_, Key, _, Gun, _, StartPos, BulletsPerShot)
             if not Flags["Silent Aim Enabled"].Value then 
                 return 
             end
@@ -19633,133 +19895,183 @@ do
                 return 
             end
 
-            local cD9eF0gH1 = LocalPlayer.Character
-            local iJ2kL3mN4 = cD9eF0gH1 and cD9eF0gH1:FindFirstChildOfClass("Tool")
+            local Character = LocalPlayer.Character
+            local MyTool = Character and Character:FindFirstChildOfClass("Tool")
 
-            if not iJ2kL3mN4 or eF7gH8iJ9 ~= iJ2kL3mN4 then 
+            if not MyTool or Gun ~= MyTool then 
                 return 
             end
 
-            if typeof(qR3sT4uV5) ~= "Vector3" or typeof(wX6yZ7aB8) ~= "table" then 
+            if typeof(StartPos) ~= "Vector3" or typeof(BulletsPerShot) ~= "table" then 
                 return 
             end
 
-            local oP5qR6sT7 = qR4sT5uV6()
-            local uV8wX9yZ0 = cD0eF1gH2()
+            local PartName = GetTargetPart()
+            local Center = GetCenter()
+            local WallCheck = Flags["Silent Aim Wall Check"].Value
+            local SkipDowned = Flags["Silent Aim Skip Downed"] and Flags["Silent Aim Skip Downed"].Value
 
-            local aB1cD2eF3 = Flags["Silent Aim Wall Check"].Value
-            local gH4iJ5kL6 = Flags["Silent Aim Skip Downed"] and Flags["Silent Aim Skip Downed"].Value
+            local Target, ShortestDist = nil, Flags["Silent Aim FOV"].Value
 
-            local function ScanSilentTarget(RequirePriority, BestPlayer, BestDist)
-                for yZ3aB4cD5, eF6gH7iJ8 in next, Players:GetPlayers() do
-                    if eF6gH7iJ8 ~= LocalPlayer and eF6gH7iJ8.Character then
-                        local kL9mN0oP1 = Info and Info.PlayerData and Info.PlayerData[eF6gH7iJ8.Name]
+            for _, Player in next, Players:GetPlayers() do
+                if Player ~= LocalPlayer and Player.Character then
+                    local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
 
-                        if not (kL9mN0oP1 and kL9mN0oP1.Whitelist) and not (gH4iJ5kL6 and iJ3kL4mN5(eF6gH7iJ8.Name))
-                            and (not RequirePriority or (kL9mN0oP1 and kL9mN0oP1.Priority)) then
-                            local qR2sT3uV4 = eF6gH7iJ8.Character
-                            local wX5yZ6aB7 = qR2sT3uV4:FindFirstChildOfClass("Humanoid")
-                            local cD8eF9gH0 = qR2sT3uV4:FindFirstChild(oP5qR6sT7)
+                    if not (Data and Data.Whitelist) and not (SkipDowned and IsHeDowned(Player.Name)) then
 
-                            if cD8eF9gH0 and wX5yZ6aB7 and wX5yZ6aB7.Health > 0
-                                and not qR2sT3uV4:FindFirstChildOfClass("ForceField") then
-                                local iJ1kL2mN3, oP4qR5sT6 = CurrentCamera:WorldToViewportPoint(cD8eF9gH0.Position)
+                        local TargetChar = Player.Character
+                        local Humanoid = TargetChar:FindFirstChildOfClass("Humanoid")
+                        local Part = TargetChar:FindFirstChild(PartName)
 
-                                if oP4qR5sT6 then
-                                    local uV7wX8yZ9 = (NewVector2(iJ1kL2mN3.X, iJ1kL2mN3.Y) - uV8wX9yZ0).Magnitude
+                        if Part and Humanoid and Humanoid.Health > 0
+                            and not TargetChar:FindFirstChildOfClass("ForceField") then
+                            local ScreenPos, OnScreen = CurrentCamera:WorldToViewportPoint(Part.Position)
 
-                                    if uV7wX8yZ9 < BestDist then
-                                        local aB0cD1eF2 = false
+                            if OnScreen then
+                                local Dist = (NewVector2(ScreenPos.X, ScreenPos.Y) - Center).Magnitude
 
-                                        if aB1cD2eF3 then
-                                            local gH3iJ4kL5 = { CurrentCamera, cD9eF0gH1, qR2sT3uV4 }
-                                            aB0cD1eF2 = #CurrentCamera:GetPartsObscuringTarget({ cD8eF9gH0.Position }, gH3iJ4kL5) > 0
-                                        end
+                                if Dist < ShortestDist then
+                                    local Blocked = false
 
-                                        if not aB0cD1eF2 then
-                                            BestPlayer = eF6gH7iJ8
-                                            BestDist = uV7wX8yZ9
-                                        end
+                                    if WallCheck then
+                                        local Ignore = { CurrentCamera, Character, TargetChar }
+                                        Blocked = #CurrentCamera:GetPartsObscuringTarget({ Part.Position }, Ignore) > 0
+                                    end
+
+                                    if not Blocked then
+                                        Target = Player
+                                        ShortestDist = Dist
                                     end
                                 end
                             end
                         end
                     end
                 end
-
-                return BestPlayer, BestDist
             end
 
-            local mN7oP8qR9, sT0uV1wX2 = nil, Flags["Silent Aim FOV"].Value
-
-            if Flags["Silent Aim Soft Priority"] and Flags["Silent Aim Soft Priority"].Value then
-                mN7oP8qR9, sT0uV1wX2 = ScanSilentTarget(true, mN7oP8qR9, sT0uV1wX2)
-            end
-
-            if not mN7oP8qR9 then
-                mN7oP8qR9, sT0uV1wX2 = ScanSilentTarget(false, mN7oP8qR9, sT0uV1wX2)
-            end
-
-            if not mN7oP8qR9 or not mN7oP8qR9.Character then 
+            if not Target or not Target.Character then 
                 return 
             end
 
-            local mN6oP7qR8 = FindFirstChild(mN7oP8qR9.Character, oP5qR6sT7)
-            if not mN6oP7qR8 then 
+            local HitPart = FindFirstChild(Target.Character, PartName)
+            if not HitPart then 
                 return 
             end
 
-            local sT9uV0wX1 = mN6oP7qR8.Position
-            local yZ2aB3cD4 = (sT9uV0wX1 - qR3sT4uV5).Unit
+            local HitPos = HitPart.Position
+            local LookVec = (HitPos - StartPos).Unit
 
             Wait(0.005)
 
-            for eF5gH6iJ7 = 1, #wX6yZ7aB8 do
-                sT2uV3wX4:FireServer("\240\159\167\136", eF7gH8iJ9, mN8oP9qR0, eF5gH6iJ7, mN6oP7qR8, sT9uV0wX1, yZ2aB3cD4)
+            for Index = 1, #BulletsPerShot do
+                DamageEvent:FireServer("\240\159\167\136", Gun, Key, Index, HitPart, HitPos, LookVec)
             end
 
-            local kL8mN9oP0 = FindFirstChild(eF7gH8iJ9, "Hitmarker")
-            if kL8mN9oP0 then kL8mN9oP0:Fire(mN6oP7qR8) end
+            local Hitmarker = FindFirstChild(Gun, "Hitmarker")
+            if Hitmarker then Hitmarker:Fire(HitPart) end
         end)
 
-        Heartbeat:Connect(function(qR1sT2uV3)
-            if not Flags["Silent Aim Enabled"].Value then 
+        Heartbeat:Connect(function(Delta)
+            local EnabledFlag = Flags["Silent Aim Enabled"]
+            local TargetPartFlag = Flags["Silent Aim Target Part"]
+
+            if not (EnabledFlag and EnabledFlag.Value and TargetPartFlag) then
                 return 
             end
 
-            if Flags["Silent Aim Target Part"].Value ~= "Random" then 
+            if TargetPartFlag.Value ~= "Random" then 
                 return 
             end
 
-            kL1mN2oP3 = kL1mN2oP3 + qR1sT2uV3
+            RandomTimer = RandomTimer + Delta
 
-            if kL1mN2oP3 >= 0.1 then
-                kL1mN2oP3 = 0
-                eF8gH9iJ0 = (eF8gH9iJ0 % #yZ5aB6cD7) + 1
+            if RandomTimer >= 0.1 then
+                RandomTimer = 0
+                RandomIndex = (RandomIndex % #Randomize) + 1
             end
         end)
 
-        local wX4yZ5aB6 = NewDrawing("Circle")
-        wX4yZ5aB6.Visible = false
-        wX4yZ5aB6.Thickness = 1.5
-        wX4yZ5aB6.NumSides = 64
-        wX4yZ5aB6.Filled = false
-        wX4yZ5aB6.Transparency = 1
+        local FovCircle = NewDrawing("Circle")
+        FovCircle.Visible = false
+        FovCircle.Thickness = 1.5
+        FovCircle.NumSides = 64
+        FovCircle.Filled = false
+        FovCircle.Transparency = 1
+
+        local FovOutline = NewDrawing("Circle")
+        FovOutline.Visible = false
+        FovOutline.Thickness = 3
+        FovOutline.NumSides = 64
+        FovOutline.Filled = false
+        FovOutline.Transparency = 1
+        FovOutline.ZIndex = -1
+
+        local FovGlowCount = 4
+        local FovGlow = {}
+
+        for i = FovGlowCount, 1, -1 do
+            local Ring = NewDrawing("Circle")
+            Ring.Visible = false
+            Ring.NumSides = 64
+            Ring.Filled = false
+            Ring.Transparency = 0.45 - (i * 0.08)
+            Ring.ZIndex = -2
+
+            FovGlow[i] = Ring
+        end
 
         RenderStepped:Connect(function()
-            if not Flags["Silent Aim Enabled"].Value or not Flags["Silent Aim Draw FOV"].Value then
-                wX4yZ5aB6.Visible = false
+            local EnabledFlag = Flags["Silent Aim Enabled"]
+            local DrawFovFlag = Flags["Silent Aim Draw FOV"]
+            local FovFlag = Flags["Silent Aim FOV"]
+            local FovColorFlag = Flags["Silent Aim FOV Color"]
+
+            if not (EnabledFlag and EnabledFlag.Value and DrawFovFlag and DrawFovFlag.Value and FovFlag and FovColorFlag) then
+                FovCircle.Visible = false
+                FovOutline.Visible = false
+
+                for i = 1, FovGlowCount do
+                    FovGlow[i].Visible = false
+                end
+
                 return
             end
 
-            wX4yZ5aB6.Position = cD0eF1gH2()
-            wX4yZ5aB6.Radius = Flags["Silent Aim FOV"].Value
-            wX4yZ5aB6.Color = Flags["Silent Aim FOV Color"].Color
-            wX4yZ5aB6.Visible = true
+            local Position = GetCenter()
+
+            FovCircle.Position = Position
+            FovCircle.Radius = FovFlag.Value
+            FovCircle.Color = FovColorFlag.Color
+            FovCircle.Transparency = 1 - (FovColorFlag.Transparency or 0)
+            FovCircle.Visible = true
+
+            local OutlineColorFlag = Flags["Silent Aim FOV Outline Color"]
+
+            FovOutline.Position = Position
+            FovOutline.Radius = FovFlag.Value
+            FovOutline.Color = OutlineColorFlag and OutlineColorFlag.Color or NewRGB(0, 0, 0)
+            FovOutline.Transparency = 1 - (OutlineColorFlag and OutlineColorFlag.Transparency or 0)
+            FovOutline.Visible = true
+
+            local GlowColorFlag = Flags["Silent Aim FOV Glow Color"]
+            local GlowSizeFlag = Flags["Silent Aim FOV Glow Size"]
+            local GlowSize = GlowSizeFlag and GlowSizeFlag.Value or 3
+            local GlowAlpha = GlowColorFlag and GlowColorFlag.Transparency or 0
+
+            for i = 1, FovGlowCount do
+                local Ring = FovGlow[i]
+
+                Ring.Position = Position
+                Ring.Radius = FovFlag.Value
+                Ring.Thickness = 2 + i * GlowSize
+                Ring.Color = GlowColorFlag and GlowColorFlag.Color or FovColorFlag.Color
+                Ring.Transparency = (0.45 - (i * 0.08)) * (1 - GlowAlpha)
+                Ring.Visible = true
+            end
+
         end)
     end)
 end
-
 
 
 
@@ -19923,6 +20235,62 @@ do
 
         MnOpQrStUvWxYz()
     end)
+end
+
+
+do
+    Wallbang = { Enabled = false }
+
+    function Wallbang.Enable()
+        local Characters = FindFirstChild(Workspace, "Characters")
+        local Map = FindFirstChild(Workspace, "Map")
+        local Parts = Map and FindFirstChild(Map, "Parts")
+        local MapParts = Parts and FindFirstChild(Parts, "M_Parts")
+
+        if MapParts and Characters then
+            MapParts.Parent = Characters
+        end
+    end
+
+    function Wallbang.Disable()
+        local Characters = FindFirstChild(Workspace, "Characters")
+        local Map = FindFirstChild(Workspace, "Map")
+        local Parts = Map and FindFirstChild(Map, "Parts")
+        local MapParts = Characters and FindFirstChild(Characters, "M_Parts")
+
+        if MapParts and Parts then
+            MapParts.Parent = Parts
+        end
+    end
+
+    function Wallbang.Enforce()
+        local Characters = FindFirstChild(Workspace, "Characters")
+        local Map = FindFirstChild(Workspace, "Map")
+        local Parts = Map and FindFirstChild(Map, "Parts")
+
+        if not Characters or not Parts then return end
+
+        local Children = GetChildren(Characters)
+
+        for i = 1, #Children do
+            local Child = Children[i]
+
+            if Child.Name == "M_Parts" then
+                Child.Parent = Parts
+            end
+        end
+    end
+
+    function Wallbang.SetEnabled(Value)
+        Wallbang.Enabled = Value
+
+        if Value then
+            Wallbang.Enable()
+        else
+            Wallbang.Disable()
+            Wallbang.Enforce()
+        end
+    end
 end
 
 
