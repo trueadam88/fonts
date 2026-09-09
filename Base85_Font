@@ -1366,7 +1366,8 @@ do
                     local Path = Format("%s/%s", Menu.Folders.Luas, Name)
 
                     if IsFile(Path) then
-                        Menu.Lua("Unload", Name)
+                        -- pass Modules through so the previous instance's Unload gets a valid API table instead of nil
+                        Menu.Lua("Unload", Name, Modules)
 
                         local Success, Module = pcall(function()
                             return LoadFile(Path)()
@@ -1431,15 +1432,32 @@ do
                                 Menu.Library:Notify({ Text = Message, Time = 6 })
                             end
                         end
+                    else
+                        local Message = Format("[%s]: File was not found in the Luas folder", Name)
+
+                        warn(Message)
+                        if Menu.Library then
+                            Menu.Library:Notify({ Text = Message, Time = 6 })
+                        end
                     end
                 elseif Action == "Unload" then
                     local Module = Menu.LoadedLuas[Name]
 
                     if Module then
                         if typeof(Module.Unload) == "function" then
-                            Module.Unload(Modules)
+                            -- protect against a bad Unload (e.g. nil Modules) silently blocking future Loads
+                            local Success, Error = xpcall(Module.Unload, function(Err)
+                                return Format("[%s]: %s", Name, Err)
+                            end, Modules)
+
+                            if not Success then
+                                warn(Error)
+                                if Menu.Library then
+                                    Menu.Library:Notify({ Text = Error, Time = 6 })
+                                end
+                            end
                         else
-                            warn(Format("[%s]: Function: 'Unload' was not found", Name))
+                            warn(Format("[%s]: Function: 'Unload' non existent", Name))
                         end
 
                         Menu.LoadedLuas[Name] = nil
@@ -1448,7 +1466,16 @@ do
                     local Path = Format("%s/%s", Menu.Folders.Luas, Name)
 
                     if Modules then
-                        WriteFile(Path, Modules)
+                        local Success, Error = pcall(WriteFile, Path, Modules)
+
+                        if not Success then
+                            local Message = Format("[%s]: Failed to save: %s", Name, Error)
+
+                            warn(Message)
+                            if Menu.Library then
+                                Menu.Library:Notify({ Text = Message, Time = 6 })
+                            end
+                        end
                     end
                 elseif Action == "IsLoaded" then
                     return Menu.LoadedLuas[Name] and true or false
@@ -9395,7 +9422,7 @@ do
 
         Tree = Section:ExpandableToggle({ Name = "Visualize FOV", Default = false, Flag = "AimAssist VisualizeFov", Size = 85, Callback = function(v) AimAssist.VisualizeFov = v end })
         do
-            Tree:Label({ Text = "Fill Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0.7, Flag = "AimAssist FOV Fill Color", Callback = function(Color, Alpha) AimAssist.FovFillColor = Color; AimAssist.FovFillAlpha = Alpha end })
+            Tree:Label({ Text = "Fill Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0.5, Flag = "AimAssist FOV Fill Color", Callback = function(Color, Alpha) AimAssist.FovFillColor = Color; AimAssist.FovFillAlpha = Alpha end })
             Tree:Label({ Text = "FOV Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0, Flag = "AimAssist FOV Color", Callback = function(Color, Alpha) AimAssist.FovColor = Color; AimAssist.FovAlpha = Alpha end })
             Tree:Label({ Text = "Outline Color" }):Colorpicker({ Color = NewRGB(0, 0, 0), Transparency = 0, Flag = "AimAssist FOV Outline Color", Callback = function(Color, Alpha) AimAssist.FovOutlineColor = Color; AimAssist.FovOutlineAlpha = Alpha end })
             Tree:Label({ Text = "Glow Color" }):Colorpicker({ Color = NewRGB(181, 179, 253), Transparency = 0, Flag = "AimAssist FOV Glow Color", Callback = function(Color, Alpha) AimAssist.FovGlowColor = Color; AimAssist.FovGlowAlpha = Alpha end })
@@ -9837,6 +9864,7 @@ X7fG2hJk9 = {
     HiTbOx4 = 1,
     HiTbOxNaMeS5 = { "Head", "Right Arm", "Right Leg", "Left Arm", "Left Leg", "Torso" },
     FoV6 = 120,
+    MaxDistance = 1000,
     DrAwFoV2 = true,
     FoVcOlOr7 = NewRGB(255, 255, 255),
     FoVaLpHa4 = 0,
@@ -9846,7 +9874,7 @@ X7fG2hJk9 = {
     FoVgLoWaLpHa6 = 0,
     FoVgLoWsIzE3 = 3,
     FovFillColor = NewRGB(255, 255, 255),
-    FovFillAlpha = 0,
+    FovFillAlpha = 0.5,
     OrIgInRaDiUs8 = 18.5,
     OrIgInScAnS9 = 24,
     HiTrAdIuS0 = 23.5,
@@ -10101,7 +10129,7 @@ Spawn(function()
                     if yZ1aB2cD3 then
                         local qR0sT1uV2 = (yZ2aB3cD4 - mN5oP6qR7.Position).Magnitude
 
-                        if qR0sT1uV2 < oP3qR4sT5 then
+                        if qR0sT1uV2 < oP3qR4sT5 and qR0sT1uV2 <= (X7fG2hJk9.MaxDistance or math.huge) then
                             oP3qR4sT5 = qR0sT1uV2
                             iJ0kL1mN2 = aB9cD0eF1
                         end
@@ -10361,10 +10389,11 @@ do
     Section:Dropdown({ Name = "Hitbox", Flag = "Rage Hitbox", Options = X7fG2hJk9.HiTbOxNaMeS5, Default = "Head", Callback = function(iJ4kL5mN6) X7fG2hJk9.HiTbOx4 = Find(X7fG2hJk9.HiTbOxNaMeS5, iJ4kL5mN6) or 1 end })
 
     Section:Slider({ Name = "FOV", Min = 20, Max = 800, Default = 120, Prefix = "px", Flag = "Rage FOV", Callback = function(oP7qR8sT9) X7fG2hJk9.FoV6 = oP7qR8sT9 end })
+    Section:Slider({ Name = "Max Distance", Min = 10, Max = 1000, Default = 1000, Prefix = "st", Flag = "Rage Max Distance", Callback = function(v) X7fG2hJk9.MaxDistance = v end })
 
     Tree = Section:ExpandableToggle({ Name = "Draw FOV", Default = true, Flag = "Rage Draw FOV", Size = 85, Callback = function(v) X7fG2hJk9.DrAwFoV2 = v end })
     do
-        Tree:Label({ Text = "Fill Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0.7, Flag = "Rage FOV Fill Color", Callback = function(Color, Alpha) X7fG2hJk9.FovFillColor = Color; X7fG2hJk9.FovFillAlpha = Alpha end })
+        Tree:Label({ Text = "Fill Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0.5, Flag = "Rage FOV Fill Color", Callback = function(Color, Alpha) X7fG2hJk9.FovFillColor = Color; X7fG2hJk9.FovFillAlpha = Alpha end })
         Tree:Label({ Text = "FOV Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0, Flag = "Rage FOV Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVcOlOr7 = Color; X7fG2hJk9.FoVaLpHa4 = Alpha end })
         Tree:Label({ Text = "Outline Color" }):Colorpicker({ Color = NewRGB(0, 0, 0), Transparency = 0, Flag = "Rage FOV Outline Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVoUtLiNe0 = Color; X7fG2hJk9.FoVoUtLiNeAlPhA5 = Alpha end })
         Tree:Label({ Text = "Glow Color" }):Colorpicker({ Color = NewRGB(255, 255, 255), Transparency = 0, Flag = "Rage FOV Glow Color", Callback = function(Color, Alpha) X7fG2hJk9.FoVgLoW1 = Color; X7fG2hJk9.FoVgLoWaLpHa6 = Alpha end })
@@ -10404,7 +10433,7 @@ end
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
--- Junk paste ai  | Dont touch
+-- Junk replic ai  | Dont touch |  TODO: rewrite
 Spinner = { Enabled = false, Speed = 50 }
 Spinning = nil
 
@@ -12354,39 +12383,7 @@ end
                         Visuals.World()
                     end
                 })
-                Section:Toggle({
-                    Name = "Custom Fog",
-                    Flag = "Fog",
-                    Callback = function()
-                        Visuals.World()
-                    end
-                }):Colorpicker({
-                    Flag = "Fog Color",
-                    Color = NewRGB(192, 192, 192),
-                    Callback = function()
-                        Visuals.World()
-                    end
-                })
 
-                Section:Slider({
-                    Name = "Fog Start",
-                    Flag = "Fog Start",
-                    Min = 0, Max = 1000, Default = 0,
-                    Prefix = "m",
-                    Callback = function()
-                        Visuals.World()
-                    end
-                })
-
-                Section:Slider({
-                    Name = "Fog End",
-                    Flag = "Fog End",
-                    Min = 0, Max = 4000, Default = 1000,
-                    Prefix = "m",
-                    Callback = function()
-                        Visuals.World()
-                    end
-                })
 
                 Section:Toggle({
                     Name = "Custom Brightness",
@@ -12456,6 +12453,58 @@ end
                     Name = "Atmosphere Enabled",
                     Flag = "Atmosphere",
                     Default = true,
+                    Callback = function()
+                        Visuals.Atmosphere()
+                    end
+                }):Colorpicker({
+                    Flag = "Atmosphere Color",
+                    Color = NewRGB(199, 199, 199),
+                    Callback = function()
+                        Visuals.Atmosphere()
+                    end
+                }):Colorpicker({
+                    Flag = "Atmosphere Decay",
+                    Color = NewRGB(106, 112, 125),
+                    Callback = function()
+                        Visuals.Atmosphere()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Atmosphere Density",
+                    Flag = "Atmosphere Density",
+                    Min = 0, Max = 1, Default = 0.3,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.Atmosphere()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Atmosphere Offset",
+                    Flag = "Atmosphere Offset",
+                    Min = 0, Max = 1, Default = 0,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.Atmosphere()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Atmosphere Glare",
+                    Flag = "Atmosphere Glare",
+                    Min = 0, Max = 1, Default = 0,
+                    Decimals = 0.01,
+                    Callback = function()
+                        Visuals.Atmosphere()
+                    end
+                })
+
+                Section:Slider({
+                    Name = "Atmosphere Haze",
+                    Flag = "Atmosphere Haze",
+                    Min = 0, Max = 10, Default = 0,
+                    Decimals = 0.1,
                     Callback = function()
                         Visuals.Atmosphere()
                     end
@@ -15917,15 +15966,6 @@ do
             Lighting.ColorShift_Bottom = Cache.ColorShiftBottom
         end
 
-        if Flags["Fog"] and Flags["Fog"].Value then
-            Lighting.FogColor = Flags["Fog Color"].Color
-            Lighting.FogStart = Flags["Fog Start"].Value
-            Lighting.FogEnd = Flags["Fog End"].Value
-        else
-            Lighting.FogColor = Cache.FogColor
-            Lighting.FogStart = Cache.FogStart
-            Lighting.FogEnd = Cache.FogEnd
-        end
 
         Visuals.Atmosphere()
 
@@ -16054,36 +16094,15 @@ do
             Visuals.AtmosphereObject = Atmosphere
         end
 
-    
-        if not Visuals.AtmosphereDefaultSettings then
-            Visuals.AtmosphereDefaultSettings = {
-                Density = Atmosphere.Density,
-                Offset = Atmosphere.Offset,
-                Color = Atmosphere.Color,
-                Decay = Atmosphere.Decay,
-                Glare = Atmosphere.Glare,
-                Haze = Atmosphere.Haze
-            }
-        end
-
-        local FogActive = Flags["Fog"] and Flags["Fog"].Value
-
-        if FogActive then
-            local FogColor = Flags["Fog Color"] and Flags["Fog Color"].Color or NewRGB(192, 192, 192)
-            local FogStart = Flags["Fog Start"] and Flags["Fog Start"].Value or 0
-            local FogEnd = Flags["Fog End"] and Flags["Fog End"].Value or 1000
-
-     
-            local Range = math.max(FogEnd - FogStart, 1)
-
-            Atmosphere.Density = Clamp(1 - (Range / 4000), 0.05, 1)
-            Atmosphere.Offset = Clamp(FogStart / 1000, 0, 1)
-            Atmosphere.Color = FogColor
-            Atmosphere.Decay = FogColor
-            Atmosphere.Glare = 0
-            Atmosphere.Haze = 0
+        if Flags["Atmosphere"].Value then
+            Atmosphere.Density = Flags["Atmosphere Density"] and Flags["Atmosphere Density"].Value or Atmosphere.Density
+            Atmosphere.Offset = Flags["Atmosphere Offset"] and Flags["Atmosphere Offset"].Value or Atmosphere.Offset
+            Atmosphere.Color = Flags["Atmosphere Color"] and Flags["Atmosphere Color"].Color or Atmosphere.Color
+            Atmosphere.Decay = Flags["Atmosphere Decay"] and Flags["Atmosphere Decay"].Color or Atmosphere.Decay
+            Atmosphere.Glare = Flags["Atmosphere Glare"] and Flags["Atmosphere Glare"].Value or Atmosphere.Glare
+            Atmosphere.Haze = Flags["Atmosphere Haze"] and Flags["Atmosphere Haze"].Value or Atmosphere.Haze
         else
-            local Settings = Flags["Atmosphere"].Value and Visuals.AtmosphereDefaultSettings or Visuals.AtmosphereDisablerSettings
+            local Settings = Visuals.AtmosphereDisablerSettings
 
             Atmosphere.Density = Settings.Density
             Atmosphere.Offset = Settings.Offset
@@ -16143,9 +16162,6 @@ do
         Cache.ColorShiftTop = Lighting.ColorShift_Top
         Cache.ColorShiftBottom = Lighting.ColorShift_Bottom
         Cache.ClockTime = Lighting.ClockTime
-        Cache.FogColor = Lighting.FogColor
-        Cache.FogStart = Lighting.FogStart
-        Cache.FogEnd = Lighting.FogEnd
         Cache.GeographicLatitude = Lighting.GeographicLatitude
 
         local ExistingCC = FindFirstChildWhichIsA(Lighting, "ColorCorrectionEffect", true)
@@ -19738,7 +19754,7 @@ do
             FovColor = NewRGB(181, 179, 253),
             FovAlpha = 0,
             FovFillColor = NewRGB(181, 179, 253),
-            FovFillAlpha = 0,
+            FovFillAlpha = 0.5,
             FovOutlineColor = NewRGB(0, 0, 0),
             FovOutlineAlpha = 0,
             FovGlowColor = NewRGB(181, 179, 253),
@@ -20268,7 +20284,7 @@ do
                 FovFill.Radius = Radius
                 FovFill.Position = Position
                 FovFill.Color = AimAssist.FovFillColor
-                FovFill.Transparency = 1 - (AimAssist.FovFillAlpha or 0)
+                FovFill.Transparency = 1 - (AimAssist.FovFillAlpha)
                 FovFill.Visible = true
 
                 FovCircle.Radius = Radius
