@@ -17642,7 +17642,7 @@ do
 end
 
 
-
+--[[
 do
     HiddenBody.Options = {
         HipHeight = -1.975,
@@ -17780,6 +17780,8 @@ do
         HiddenBody.SetUp(LocalPlayer.Character)
     end
 end
+
+]]
 
 do
     Info.Players = {}
