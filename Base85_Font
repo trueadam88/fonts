@@ -10115,47 +10115,11 @@ Spawn(function()
         return not oP4qR5sT6 or (oP4qR5sT6.Position - cD8eF9gH0).Magnitude <= 24
     end
 
-    -- ===== DEBUG: shot radius readout =====
-    -- Radii are measured against the AIM reference point (aimed bone + ping lead),
-    -- NOT against the live HumanoidRootPart -- otherwise every direct hit would
-    -- "fail" by boneOffsetFromHRP + pingLead. aimOffHRP shows that extra offset
-    -- separately so you can see exactly where the reported gap comes from.
-    local DEBUG_SHOTS = true
 
-    local function PrintShotDebug(Origin, Hit, Target, Tag, AimO, AimH)
-        if not DEBUG_SHOTS then return end
-        if not Origin or not Hit then return end
+    local DEBUG_SHOTS = false
 
-        local MyChar = LocalPlayer.Character
-        local MyRoot = MyChar and FindFirstChild(MyChar, "HumanoidRootPart")
-        local MyPos  = MyRoot and MyRoot.Position or Origin
 
-        local TChar  = Target and Target.Character
-        local TRoot  = TChar and FindFirstChild(TChar, "HumanoidRootPart")
-        local TPos   = TRoot and TRoot.Position or Hit
 
-        local RefO = AimO or MyPos
-        local RefH = AimH or TPos
-
-        local OriginRadius = (Origin - RefO).Magnitude
-        local HitRadius    = (Hit - RefH).Magnitude
-        local AimOffHRP    = (RefH - TPos).Magnitude
-
-        print(string.format(
-            "[SHOT %s] tgt=%s | origin=(%.1f, %.1f, %.1f) | hit=(%.1f, %.1f, %.1f) | originR=%.2f (max %.1f) | hitR=%.2f (max %.1f) | aimOffHRP=%.2f",
-            tostring(Tag or "-"),
-            (Target and Target.Name) or "?",
-            Origin.X, Origin.Y, Origin.Z,
-            Hit.X, Hit.Y, Hit.Z,
-            OriginRadius, X7fG2hJk9.OrIgInRaDiUs8,
-            HitRadius,    X7fG2hJk9.HiTrAdIuS0,
-            AimOffHRP
-        ))
-    end
-    -- ===== end debug =====
-
-    -- reads the same RL_SPM buff Gun_client's fire-rate math divides by, so rapid-fire speeds up
-    -- exactly when the server-tracked buff would legitimately allow a faster shot
     local function LiveSPM()
         local ok, vF = pcall(function() return _G.GVF and _G.GVF() end)
         if not ok or not vF or not vF.Currents then return 1 end
@@ -10163,9 +10127,7 @@ Spawn(function()
         return (spm and spm.Value) or 1
     end
 
-    -- CSGD: concentric shells (33/66/100% of radius) instead of one fixed ring, golden-angle
-    -- distributed per shell -- same idea as Skeet2016.lua's CSGD scan method, ported here so a gap
-    -- reachable only through a smaller shift (not the full configured radius) can still be found
+
     function cSGDPoints(center, axis, radius, count)
         if not center or not axis then return { center } end
         if not radius or radius <= 0 or not count or count <= 0 then return { center } end
@@ -10347,9 +10309,7 @@ Spawn(function()
         local aB6cD7eF8 = cD4eF5gH6.Position
         local gH9iJ0kL1 = uV3wX4yZ5.Position
 
-        -- ping-based lead: corrects for real replication lag between when we last observed the
-        -- target and when our shot actually processes server-side (same correction Skeet2016.lua
-        -- applies) -- NOT a fictional bullet-travel simulation, this game's guns are hitscan.
+
         if X7fG2hJk9.PingLeadEnabled then
             local vel = uV3wX4yZ5.Velocity
             gH9iJ0kL1 = gH9iJ0kL1 + NewVector3(vel.X, 0, vel.Z) * Tickbase.GetPing()
@@ -10357,8 +10317,7 @@ Spawn(function()
 
         if wX7yZ8aB9 and wX7yZ8aB9.Hitbox ~= X7fG2hJk9.HiTbOx4 then wX7yZ8aB9 = nil end
 
-        -- try the direct (unshifted) trajectory first -- cheapest case and avoids offsetting when
-        -- nothing is actually blocking the shot
+
         if qR2sT3uV4(aB6cD7eF8, gH9iJ0kL1) then
             wX7yZ8aB9 = { AbsO = aB6cD7eF8, AbsH = gH9iJ0kL1, Target = qR8sT9uV0, MyPos = aB6cD7eF8, TPos = gH9iJ0kL1, Hitbox = X7fG2hJk9.HiTbOx4 }
             qR4sT5uV6 = { Origin = aB6cD7eF8, Hit = gH9iJ0kL1, Target = qR8sT9uV0, Bone = uV3wX4yZ5, AimO = aB6cD7eF8, AimH = gH9iJ0kL1 }
@@ -10409,9 +10368,6 @@ Spawn(function()
         for wX0yZ1aB2, cD3eF4gH5 in next, eF1gH2iJ3 do
             for iJ6kL7mN8, oP9qR0sT1 in next, kL4mN5oP6 do
                 if qR2sT3uV4(cD3eF4gH5, oP9qR0sT1) then
-                    PrintShotDebug(cD3eF4gH5, oP9qR0sT1, qR8sT9uV0,
-                        X7fG2hJk9.CSGDEnabled and "SCAN-CSGD" or (kL1mN2oP3.Round % 2 == 0 and "SCAN-CF" or "SCAN-SPH"),
-                        aB6cD7eF8, gH9iJ0kL1)
                     wX7yZ8aB9 = { AbsO = cD3eF4gH5, AbsH = oP9qR0sT1, Target = qR8sT9uV0, MyPos = aB6cD7eF8, TPos = gH9iJ0kL1, Hitbox = X7fG2hJk9.HiTbOx4 }
                     qR4sT5uV6 = { Origin = cD3eF4gH5, Hit = oP9qR0sT1, Target = qR8sT9uV0, Bone = uV3wX4yZ5, AimO = aB6cD7eF8, AimH = gH9iJ0kL1 }
                     return
@@ -10465,7 +10421,6 @@ Spawn(function()
         local oP8qR9sT0 = "K" .. Random(1000, 9999)
         local uV1wX2yZ3 = (qR4sT5uV6.Hit - qR4sT5uV6.Origin).Unit
 
-        PrintShotDebug(qR4sT5uV6.Origin, qR4sT5uV6.Hit, qR4sT5uV6.Target, "FIRE", qR4sT5uV6.AimO, qR4sT5uV6.AimH)
 
         sT2uV3wX4:FireServer(eF8gH9iJ0.Tick, oP8qR9sT0, gH8iJ9kL0, "FDS9I83", qR4sT5uV6.Origin, { uV1wX2yZ3 }, false)
 
@@ -10561,8 +10516,8 @@ do
     Section:Toggle({ Name = "Auto reload", Default = false, Flag = "Rage Auto Reload" })
     Section:Toggle({ Name = "ignore downed", Default = false, Flag = "Rage Skip Downed", Callback = function(wX8yZ9aB0) X7fG2hJk9.DoWnChEcK2 = wX8yZ9aB0 end })
     Section:Toggle({ Name = "Soft Priority", Default = false, Flag = "Rage Soft Priority", Callback = function(v) X7fG2hJk9.SoftPriority = v end })
-   -- Section:Toggle({ Name = "Ping prediction", Default = true, Flag = "Rage Ping Lead", Callback = function(v) X7fG2hJk9.PingLeadEnabled = v end })
-    -- Section:Toggle({ Name = "CSGD scan", Default = false, Flag = "Rage CSGD", Callback = function(v) X7fG2hJk9.CSGDEnabled = v end })
+   -- Section:Toggle({ Name = "test test", Default = true, Flag = "Rage Ping Lead", Callback = function(v) X7fG2hJk9.PingLeadEnabled = v end })
+    -- Section:Toggle({ Name = "test scan", Default = false, Flag = "Rage CSGD", Callback = function(v) X7fG2hJk9.CSGDEnabled = v end })
 
     Section:Dropdown({ Name = "Target mode", Flag = "Rage Target Mode", Options = { "Normal", "FOV" }, Default = "Normal", Callback = function(cD1eF2gH3) X7fG2hJk9.TaRgEtMoDe3 = cD1eF2gH3 end })
     Section:Dropdown({ Name = "Hitbox", Flag = "Rage Hitbox", Options = X7fG2hJk9.HiTbOxNaMeS5, Default = "Head", Callback = function(iJ4kL5mN6) X7fG2hJk9.HiTbOx4 = Find(X7fG2hJk9.HiTbOxNaMeS5, iJ4kL5mN6) or 1 end })
@@ -10614,6 +10569,23 @@ end
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- Junk replic ai  | Dont touch |  TODO: rewrite
 Spinner = { Enabled = false, Speed = 50 }
 Spinning = nil
@@ -19854,6 +19826,460 @@ end
 
 
 
+
+
+
+
+do
+    Spawn(function()
+        local Map = WaitForChild(Workspace, "Map", 30)
+        if not Map then return end
+
+        for Index, Value in next, {
+            Enabled = false,
+            Fov = 10,
+            Speed = 50,
+            Smoothing = "linear",
+            SwitchDelay = 100,
+            Accuracy = 60,
+            HitscanPriority = "Closest",
+            HitscanPoints = { "Head", "Body", "Arms", "Legs" },
+            AdjustBulletDrop = false,
+            AdjustMovement = false,
+            WallCheck = true,
+            VisualizeFov = true,
+            FovColor = NewRGB(181, 179, 253),
+            PriorityOnly = false,
+            SkipDowned = false
+        } do
+            if AimAssist[Index] == nil then
+                AimAssist[Index] = Value
+            end
+        end
+
+        for Index, Value in next, {
+            Enabled = false,
+            Hitboxes = { "Head", "Body", "Arms", "Legs" },
+            Magnet = false,
+            MagnetFov = 10,
+            MagnetSpeed = 50,
+            MagnetAccuracy = 60,
+            MagnetPriority = "Closest",
+            PriorityOnly = false,
+            SkipDowned = false
+        } do
+            if TriggerBot[Index] == nil then
+                TriggerBot[Index] = Value
+            end
+        end
+
+        local PointMap = { Head = { "Head" }, Body = { "Torso" }, Arms = { "Right Arm", "Left Arm" }, Legs = { "Right Leg", "Left Leg" } }
+        local PriorityMap = { Head = "Head", Body = "Torso" }
+        local ValidParts = { Head = true, Torso = true, ["Right Arm"] = true, ["Left Arm"] = true, ["Right Leg"] = true, ["Left Leg"] = true }
+
+        local function IsPlayerDownedByName(PlayerName)
+            local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
+            local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
+            local Downed = Stats and FindFirstChild(Stats, "Downed")
+
+            return Downed and Downed.Value or false
+        end
+
+        function TranslateHitboxPoints(Points)
+            local Result, Count = {}, 0
+            for i = 1, #Points do
+                local Names = PointMap[Points[i]]
+                if Names then
+                    for k = 1, #Names do
+                        Count = Count + 1
+                        Result[Count] = Names[k]
+                    end
+                end
+            end
+            return Result
+        end
+
+        local LocalData = { Character = nil, Humanoid = nil, RootPart = nil, Weapon = nil, WeaponVelocity = nil, WeaponAcceleration = nil }
+
+        function SetupLocal(Character)
+            LocalData.Character = Character
+            LocalData.Humanoid = WaitForChild(Character, "Humanoid", Infinite)
+            LocalData.RootPart = WaitForChild(Character, "HumanoidRootPart", Infinite)
+
+            Character.ChildAdded:Connect(function(Child)
+                if Child.ClassName ~= "Tool" then return end
+                local Config = FindFirstChild(Child, "Config")
+                if not Config then return end
+                local Ok, Cfg = pcall(Require, Config)
+                if not Ok or not Cfg or not Cfg.BulletSettings then return end
+                LocalData.Weapon = Child
+                LocalData.WeaponVelocity = Cfg.BulletSettings.Velocity * 1.5
+                LocalData.WeaponAcceleration = Cfg.BulletSettings.Acceleration
+            end)
+
+            Character.ChildRemoved:Connect(function(Child)
+                if Child == LocalData.Weapon then
+                    LocalData.Weapon = nil
+                    LocalData.WeaponVelocity = nil
+                    LocalData.WeaponAcceleration = nil
+                end
+            end)
+        end
+
+        if LocalPlayer.Character then SetupLocal(LocalPlayer.Character) end
+        LocalPlayer.CharacterAdded:Connect(SetupLocal)
+
+        local Enemies = {}
+        local EnemyCount = 0
+
+        function AddEnemy(Player)
+            if Player == LocalPlayer or Enemies[Player] then return end
+
+            local Data = {
+                Player = Player,
+                Name = Player.Name,
+                Character = nil,
+                Humanoid = nil,
+                RootPart = nil,
+                RootPosition = nil,
+                BodyParts = {},
+                IsForceField = false
+            }
+
+            function Data:OnSpawn(Character)
+                self.Character = Character
+                self.Humanoid = WaitForChild(Character, "Humanoid", Infinite)
+                self.RootPart = WaitForChild(Character, "HumanoidRootPart", Infinite)
+                self.BodyParts = {}
+                self.IsForceField = false
+
+                for _, Part in next, GetChildren(Character) do
+                    if Part.ClassName == "Part" and ValidParts[Part.Name] then
+                        self.BodyParts[Part.Name] = Part
+                    elseif Part.ClassName == "ForceField" then
+                        self.IsForceField = true
+                    end
+                end
+
+                Character.ChildAdded:Connect(function(Child)
+                    if Child.ClassName == "Part" and ValidParts[Child.Name] then
+                        self.BodyParts[Child.Name] = Child
+                    elseif Child.ClassName == "ForceField" then
+                        self.IsForceField = true
+                    end
+                end)
+
+                Character.ChildRemoved:Connect(function(Child)
+                    if Child.ClassName == "Part" and self.BodyParts[Child.Name] then
+                        self.BodyParts[Child.Name] = nil
+                    elseif Child.ClassName == "ForceField" and self.Character and not self.Character:FindFirstChildOfClass("ForceField") then
+                        self.IsForceField = false
+                    end
+                end)
+
+                self.Humanoid.Died:Connect(function()
+                    self.Character = nil
+                    self.Humanoid = nil
+                    self.RootPart = nil
+                    self.RootPosition = nil
+                    self.BodyParts = {}
+                    self.IsForceField = false
+                end)
+            end
+
+            Player.CharacterAdded:Connect(function(Character) Data:OnSpawn(Character) end)
+            if Player.Character then Data:OnSpawn(Player.Character) end
+
+            EnemyCount = EnemyCount + 1
+            Enemies[EnemyCount] = Data
+            Enemies[Player] = Data
+        end
+
+        function RemoveEnemy(Player)
+            local Data = Enemies[Player]
+            if not Data then return end
+            Enemies[Player] = nil
+            for i = 1, EnemyCount do
+                if Enemies[i] == Data then
+                    Remove(Enemies, i)
+                    EnemyCount = EnemyCount - 1
+                    break
+                end
+            end
+        end
+
+        for _, Player in next, Players:GetPlayers() do AddEnemy(Player) end
+        PlayerAdded:Connect(AddEnemy)
+        PlayerRemoving:Connect(RemoveEnemy)
+
+        Stepped:Connect(function()
+            for i = 1, EnemyCount do
+                local Data = Enemies[i]
+                if Data.RootPart then Data.RootPosition = Data.RootPart.Position end
+            end
+        end)
+
+        local RayParams = NewRayParams()
+        RayParams.FilterDescendantsInstances = { Map }
+        RayParams.FilterType = Enum.RaycastFilterType.Include
+
+        function CheckWall(Origin, Goal)
+            local Direction = Goal - Origin
+            local Unit = Direction.Unit
+            local Remaining = Direction.Magnitude
+            local Current = Origin
+
+            while Remaining > 0 do
+                local Result = Raycast(Workspace, Current, Unit * Remaining, RayParams)
+                if not Result then return false end
+                local Hit = Result.Instance
+                if Hit and Hit.CanCollide and Hit.Transparency < 1 then return true end
+                Remaining = Remaining - (Result.Position - Current).Magnitude
+                Current = Result.Position + Unit / 20
+            end
+            return false
+        end
+
+        function SolveBulletDrop(Origin, Acceleration, Goal, Velocity)
+            local Direction = Goal - Origin
+            local Time = Direction.Magnitude / Velocity
+            local HalfAccel = Acceleration / 2
+            local Change = Infinite
+            local Iter = 0
+
+            while Change > 0.00001 and Iter < 100 do
+                Iter = Iter + 1
+                local Prev = Time
+                Time = (Direction - HalfAccel * Time ^ 2).Magnitude / Velocity
+                Change = math.abs(Time - Prev)
+            end
+
+            return Origin + Direction - HalfAccel * Time ^ 2
+        end
+
+        function SolveMovement(Origin, Position, Velocity, BulletSpeed)
+            return Position + NewVector3(Velocity.X, 0, Velocity.Z) * ((Origin - Position).Magnitude / BulletSpeed + Tickbase.GetPing() / 2)
+        end
+
+        local CurrentTarget = nil
+        local PrevTargetData = nil
+        local PrevTargetTick = 0
+
+        function Proaimassist(Delta)
+            local Weapon = LocalData.Weapon
+            if not Weapon or not LocalData.WeaponVelocity then
+                CurrentTarget = nil
+                return
+            end
+
+            local MagnetActive = TriggerBot.Magnet and TriggerBot.Enabled
+            if not MagnetActive and not AimAssist.Enabled then
+                CurrentTarget = nil
+                return
+            end
+
+            local Cam = CurrentCamera.CFrame
+            local CamPos = Cam.Position
+            local CamLook = Cam.LookVector
+
+            if CurrentTarget then
+                local Part = CurrentTarget.Part
+                local Data = CurrentTarget.Data
+                local Info = Info.PlayerData[Data.Name]
+
+                if Part and Part.Parent and Data.RootPosition and not (Info and Info.Whitelist) and not (AimAssist.SkipDowned and IsPlayerDownedByName(Data.Name)) and (Data == PrevTargetData or Tick() - PrevTargetTick > AimAssist.SwitchDelay / 1000) then
+                    local AimPos = Part.Position
+
+                    if MagnetActive or AimAssist.WallCheck then
+                        if CheckWall(CamPos, AimPos) then
+                            CurrentTarget = nil
+                            return
+                        end
+                    end
+
+                    if AimAssist.AdjustMovement then
+                        AimPos = SolveMovement(CamPos, AimPos, Part.Velocity, LocalData.WeaponVelocity)
+                    end
+
+                    if AimAssist.AdjustBulletDrop then
+                        AimPos = SolveBulletDrop(CamPos, LocalData.WeaponAcceleration, AimPos, LocalData.WeaponVelocity)
+                    end
+
+                    PrevTargetData = Data
+                    PrevTargetTick = Tick()
+
+                    local Speed = MagnetActive and TriggerBot.MagnetSpeed or AimAssist.Speed
+                    local Smooth
+                    if AimAssist.Smoothing == "linear" then
+                        Smooth = Speed / 10 * Delta
+                    else
+                        Smooth = 1 - math.exp(-Speed / 2 * Delta * CurrentTarget.Angle)
+                    end
+
+                    CurrentCamera.CFrame = Cam:Lerp(NewCFrame(CamPos, AimPos), Smooth)
+                    return
+                end
+                CurrentTarget = nil
+                return
+            end
+
+            local RadFov = math.rad(MagnetActive and TriggerBot.MagnetFov or AimAssist.Fov)
+            local HitPoints = TranslateHitboxPoints(MagnetActive and TriggerBot.Hitboxes or AimAssist.HitscanPoints)
+            local DoWall = MagnetActive or AimAssist.WallCheck
+            local PriorityOnly = MagnetActive and TriggerBot.PriorityOnly or AimAssist.PriorityOnly
+
+            local Candidates, Count = {}, 0
+
+            for i = 1, EnemyCount do
+                local Data = Enemies[i]
+                local RootPos = Data.RootPosition
+                if not RootPos or Data.IsForceField then continue end
+                if AimAssist.SkipDowned and IsPlayerDownedByName(Data.Name) then continue end
+
+                local Info = Info.PlayerData[Data.Name]
+                if Info and Info.Whitelist then continue end
+                if PriorityOnly and not (Info and Info.Priority) then continue end
+
+                local ToTarget = RootPos - CamPos
+                if ToTarget.Magnitude == 0 then continue end
+                local Angle = Acos(Dot(CamLook, ToTarget.Unit)) * 2
+                if Angle > RadFov then continue end
+
+                for k = 1, #HitPoints do
+                    local Part = Data.BodyParts[HitPoints[k]]
+                    if not Part then continue end
+                    local Pos = Part.Position
+                    if DoWall and CheckWall(CamPos, Pos) then continue end
+                    Count = Count + 1
+                    Candidates[Count] = { Part = Part, Data = Data, Angle = Acos(Dot(CamLook, (Pos - CamPos).Unit)) * 2 }
+                end
+            end
+
+            if Count == 0 then return end
+
+            local Priority = PriorityMap[MagnetActive and TriggerBot.MagnetPriority or AimAssist.HitscanPriority]
+            local Accuracy = MagnetActive and TriggerBot.MagnetAccuracy or AimAssist.Accuracy
+
+            if Priority and Accuracy >= Random(1, 100) then
+                local Best, BestAngle = nil, 360
+                for i = 1, Count do
+                    local P = Candidates[i]
+                    if P.Part.Name == Priority and P.Angle < BestAngle then
+                        BestAngle, Best = P.Angle, P
+                    end
+                end
+                if Best then
+                    CurrentTarget = Best
+                    PrevTargetTick = Tick()
+                    return
+                end
+            end
+
+            local Best, BestAngle = nil, 360
+            for i = 1, Count do
+                local P = Candidates[i]
+                if P.Angle < BestAngle then
+                    BestAngle, Best = P.Angle, P
+                end
+            end
+            CurrentTarget = Best
+            PrevTargetTick = Tick()
+        end
+
+        local TriggerParams = NewRayParams()
+        TriggerParams.FilterType = Enum.RaycastFilterType.Include
+        TriggerParams.RespectCanCollide = false
+
+        function TriggerRaycast(Origin, Goal)
+            local Direction = Goal - Origin
+            local Unit = Direction.Unit
+            local Remaining = Direction.Magnitude
+            local Current = Origin
+
+            while Remaining > 0 do
+                local Result = Raycast(Workspace, Current, Unit * Remaining, TriggerParams)
+                if not Result then return false end
+                local Hit = Result.Instance
+                if Hit and Hit.Transparency < 1 then return true, Result end
+                Remaining = Remaining - (Result.Position - Current).Magnitude
+                Current = Result.Position + Unit / 20
+            end
+            return false
+        end
+
+        function Protrigger()
+            if not TriggerBot.Enabled or TriggerBot.Magnet then return end
+
+            local HitPoints = TranslateHitboxPoints(TriggerBot.Hitboxes)
+            local Parts, Count = {}, 0
+
+            for i = 1, EnemyCount do
+                local Data = Enemies[i]
+                if not Data.RootPosition or Data.IsForceField then continue end
+                if TriggerBot.SkipDowned and IsPlayerDownedByName(Data.Name) then continue end
+                local Info = Info.PlayerData[Data.Name]
+                if Info and Info.Whitelist then continue end
+                if TriggerBot.PriorityOnly and not (Info and Info.Priority) then continue end
+
+                for k = 1, #HitPoints do
+                    local Part = Data.BodyParts[HitPoints[k]]
+                    if Part then
+                        Count = Count + 1
+                        Parts[Count] = Part
+                    end
+                end
+            end
+
+            if Count == 0 then return end
+
+            local Cam = CurrentCamera.CFrame
+            local CamPos = Cam.Position
+            TriggerParams.FilterDescendantsInstances = Parts
+
+            local Hit, Result = TriggerRaycast(CamPos, CamPos + Cam.LookVector * 750)
+            if not Hit then return end
+            if CheckWall(CamPos, Result.Instance.Position) then return end
+
+            Spawn(function()
+                if mouse1press and mouse1release then
+                    mouse1press()
+                    Wait(1 / 60)
+                    mouse1release()
+                end
+            end)
+        end
+
+        RenderStepped:Connect(Proaimassist)
+        RenderStepped:Connect(Protrigger)
+
+        local FovCircle = NewDrawing("Circle")
+        FovCircle.Thickness = 1
+        FovCircle.NumSides = 64
+        FovCircle.Filled = false
+        FovCircle.Transparency = 1
+        FovCircle.Visible = false
+
+        RenderStepped:Connect(function()
+            if AimAssist.Enabled and AimAssist.VisualizeFov then
+                local Size = CurrentCamera.ViewportSize
+                FovCircle.Radius = (Tan(math.rad(AimAssist.Fov) / 2) / Tan(math.rad(CurrentCamera.FieldOfView) / 2)) * (Size.Y / 2)
+                FovCircle.Position = Size / 2
+                FovCircle.Color = AimAssist.FovColor
+                FovCircle.Visible = true
+            else
+                FovCircle.Visible = false
+            end
+        end)
+    end)
+end
+
+
+
+
+
+
+
+
 do
     InfinitySound = {
         Sound = nil,
@@ -20080,9 +20506,9 @@ end
 
 
 
-
+-- AI silent aim, im killing my self
 Spawn(function()
-    -- Prevent stacking hooks on re-execute
+
     if _G.__SILENT_AIM_V3 then return end
     _G.__SILENT_AIM_V3 = true
 
@@ -20399,7 +20825,7 @@ Spawn(function()
         local UIS = self.Services.UserInputService
 
         UIS.InputBegan:Connect(function(input, gp)
-            -- Don't require gp=false for LMB — tool fire may set gp=true in some UI contexts
+   
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 L.Firing = true; L._mouseHeld = true
             end
@@ -20417,10 +20843,6 @@ Spawn(function()
         end)
     end
 
-
-    -- ─────────────────────────────────────────────────────────────
-    -- Bullet-raycast filter check (excludes Poppercam / camera occlusion)
-    -- ─────────────────────────────────────────────────────────────
     local function isBulletRaycast(params)
         if not params then return false end
         local ok, filt = pcall(function() return params.FilterDescendantsInstances end)
@@ -20441,7 +20863,6 @@ Spawn(function()
 
             local method = getnamecallmethod()
 
-            -- Fast path: only 3 methods matter
             if method ~= "Raycast"
                and method ~= "ScreenPointToRay"
                and method ~= "FindPartOnRayWithWhitelist" then
@@ -20460,10 +20881,6 @@ Spawn(function()
                 return oldNamecall(self, ...)
             end
 
-            -- ─────────────────────────────────────────────
-            -- ScreenPointToRay — needs modeOK (avoid body rotation)
-            -- args after self: [1]=X, [2]=Y
-            -- ─────────────────────────────────────────────
             if method == "ScreenPointToRay"
                and self == SilentAimSystem.Services.Camera
                and F.CursorValidationBypass
@@ -20478,11 +20895,6 @@ Spawn(function()
                 return oldNamecall(self, ...)
             end
 
-            -- ─────────────────────────────────────────────
-            -- FindPartOnRayWithWhitelist — Get3DPosition shot ray
-            -- args after self: [1]=Ray, [2]=whitelist, [3]=ignoreWater
-            -- Only fire when Ray.Origin == Camera position (Get3DPosition signature)
-            -- ─────────────────────────────────────────────
             if method == "FindPartOnRayWithWhitelist"
                and self == SilentAimSystem.Services.Workspace
                and F.CursorValidationBypass then
@@ -20504,7 +20916,7 @@ Spawn(function()
                                     local now = tick()
                                     if now - L._lastDebug > 1 then
                                         L._lastDebug = now
-                                        print("[SA] FindPartOnRayWithWhitelist redirect →", target.Name)
+                                      --  print("[SA] FindPartOnRayWithWhitelist redirect →", target.Name)
                                     end
                                 end
                                 return nil, tp.Position, Vector3.new(0, 1, 0), Enum.Material.Air
@@ -20515,10 +20927,7 @@ Spawn(function()
                 return oldNamecall(self, ...)
             end
 
-            -- ─────────────────────────────────────────────
-            -- Raycast — FastCast bullet ray
-            -- args after self: [1]=origin, [2]=direction, [3]=params
-            -- ─────────────────────────────────────────────
+
             if method == "Raycast"
                and self == SilentAimSystem.Services.Workspace then
                 local args = table.pack(...)
