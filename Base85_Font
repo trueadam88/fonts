@@ -283,19 +283,23 @@ end
 
 
 for _, Data in next, getgc(true) do
+
 	if typeof(Data) == "table" then
+
 		if typeof(rawget(Data, "DTXC1")) == "function" then   
+
 			Data.DTXC1 = function() end 
+
 		elseif rawget(Data, "Detected") and typeof(rawget(Data, "Detected")) == "function" then
+
 			hookfunction(Data.Detected, function(A, I, N)
+
 				return (rawequal(A,"") or rawequal(I,"")) and true or task.wait(9e9)
+
 			end)
 		end
 	end
 end
-
-
-
 
 
 local Game = game
@@ -9541,102 +9545,130 @@ end
                 })
             end
 
-            Section = Tab:Section({
-                Name = "Silent Aim",
-                Size = 300,
-                Side = "Right"
-            })
-            do
-             
-                Section:Toggle({
-                    Name = "Enabled",
-                    Unsafe = true,
-                    Flag = "Silent Aim Enabled"
-                }):Keybind({
-                    Mode = "Toggle",
-                    Flag = "Silent Aim Keybind",
-                    Name = "Silent Aim"
-                })
+    Section = Tab:Section({
+    Name = "Silent Aim",
+    Size = 300,
+    Side = "Right"
+})
+do
+    Section:Toggle({
+        Name = "Enabled",
+        Unsafe = true,
+        Flag = "Silent Aim Enabled"
+    }):Keybind({
+        Mode = "Toggle",
+        Flag = "Silent Aim Keybind",
+        Name = "Silent Aim"
+    })
 
-                Section:Slider({
-                    Name = "Hit Chance",
-                    Flag = "Silent Aim Hit Chance",
-                    Min = 0, Max = 100, Default = 100,
-                    Prefix = "%"
-                })
+    Section:Slider({
+        Name = "Hit Chance",
+        Flag = "Silent Aim Hit Chance",
+        Min = 0, Max = 100, Default = 100,
+        Prefix = "%"
+    })
 
-                Section:Toggle({
-                    Name = "Wall Check",
-                    Flag = "Silent Aim Wall Check",
-                    Default = true
-                })
+    Section:Dropdown({
+        Name = "Target Mode",
+        Flag = "Silent Aim Target Mode",
+        Options = { "Mouse", "Distance" },
+        Default = "Mouse"
+    })
 
-                Section:Toggle({
-                    Name = "Skip Downed",
-                    Flag = "Silent Aim Skip Downed",
-                    Default = false
-                })
+    Section:Dropdown({
+        Name = "Target Part",
+        Flag = "Silent Aim Target Part",
+        Options = { "Random", "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" },
+        Default = "Head"
+    })
 
-                Section:Dropdown({
-                    Name = "Target Part",
-                    Flag = "Silent Aim Target Part",
-                    Options = { "Random", "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" },
-                    Default = "Head"
-                })
+    Section:Toggle({
+        Name = "Wall Check",
+        Flag = "Silent Aim Wall Check",
+        Default = true
+    })
 
-                Tree = Section:ExpandableToggle({
-                    Name = "Draw FOV",
-                    Flag = "Silent Aim Draw FOV",
-                    Size = 85
-                })
-                do
-                    Tree:Label({ Text = "Fill Color" }):Colorpicker({
-                        Color = NewRGB(255, 0, 0),
-                        Transparency = 0.7,
-                        Flag = "Silent Aim FOV Fill Color"
-                    })
+    Section:Toggle({
+        Name = "Skip Downed",
+        Flag = "Silent Aim Skip Downed",
+        Default = false
+    })
 
-                    Tree:Label({ Text = "FOV Color" }):Colorpicker({
-                        Color = NewRGB(255, 0, 0),
-                        Transparency = 0,
-                        Flag = "Silent Aim FOV Color"
-                    })
+    Section:Toggle({
+        Name = "Team Check",
+        Flag = "Silent Aim Team Check",
+        Default = false
+    })
 
-                    Tree:Label({ Text = "Outline Color" }):Colorpicker({
-                        Color = NewRGB(0, 0, 0),
-                        Transparency = 0,
-                        Flag = "Silent Aim FOV Outline Color"
-                    })
+    Section:Toggle({
+        Name = "Friend Check",
+        Flag = "Silent Aim Friend Check",
+        Default = false
+    })
 
-                    Tree:Label({ Text = "Glow Color" }):Colorpicker({
-                        Color = NewRGB(255, 0, 0),
-                        Transparency = 0,
-                        Flag = "Silent Aim FOV Glow Color"
-                    })
+    Section:Toggle({
+        Name = "Distance Check",
+        Flag = "Silent Aim Distance Check",
+        Default = false
+    })
 
-                    Tree:Slider({
-                        Name = "Glow Size",
-                        Flag = "Silent Aim FOV Glow Size",
-                        Min = 1, Max = 10, Default = 3,
-                        Decimals = 1
-                    })
-                end
+    Section:Slider({
+        Name = "Max Distance",
+        Flag = "Silent Aim Max Distance",
+        Min = 10, Max = 2000, Default = 500
+    })
 
-                Section:Dropdown({
-                    Name = "FOV Position",
-                    Flag = "Silent Aim FOV Position",
-                    Options = { "Center", "Mouse" },
-                    Default = "Center"
-                })
+    Section:Toggle({
+        Name = "Draw FOV",
+        Flag = "Silent Aim Draw FOV"
+    }):Colorpicker({
+        Color = NewRGB(255, 0, 0),
+        Flag = "Silent Aim FOV Color"
+    })
 
-                Section:Slider({
-                    Name = "FOV Radius",
-                    Flag = "Silent Aim FOV",
-                    Min = 10, Max = 600, Default = 100,
-                    Prefix = "px"
-                })
-             
-            end
+
+    Section:Dropdown({
+        Name = "FOV Position",
+        Flag = "Silent Aim FOV Position",
+        Options = { "Center", "Mouse" },
+        Default = "Center"
+    })
+
+    Section:Slider({
+        Name = "FOV Radius",
+        Flag = "Silent Aim FOV",
+        Min = 10, Max = 600, Default = 100,
+        Prefix = "px"
+    })
+
+    Section:Toggle({
+        Name = "Draw Tracer",
+        Flag = "Silent Aim Tracer"
+    }):Colorpicker({
+        Color = NewRGB(255, 255, 255),
+        Flag = "Silent Aim Tracer Color"
+    })
+--[[
+    Section:Toggle({
+        Name = "Bypass Cursor Validation",
+        Flag = "Silent Aim Cursor Bypass",
+        Default = true
+    })
+    
+    Section:Dropdown({
+        Name = "Bypass Mode",
+        Flag = "Silent Aim Cursor Mode",
+        Options = { "FireOnly", "Always" },
+        Default = "Always"
+    })
+
+    Section:Toggle({
+        Name = "Debug Log",
+        Flag = "Silent Aim Debug Log",
+        Default = false
+    })
+]]
+end
 
             MultiSection = Tab:MultiSection({
                 Name = "Misc",
@@ -9855,6 +9887,8 @@ end
 
 
 
+
+            
 X7fG2hJk9 = {
     EnAbCdEfGh = false,
     RaPiDfIrE1 = false,
@@ -10375,6 +10409,8 @@ Spawn(function()
     end)
 end)
 
+
+
 Section = Tab:Section({ Name = "Aimbot", Fill = true })
 do
     local yZ6aB7cD8 = Section:Toggle({ Name = "Enabled", Default = false, Unsafe = true, Flag = "Rage Enabled", Callback = function(eF9gH0iJ1) X7fG2hJk9.EnAbCdEfGh = eF9gH0iJ1 end })
@@ -10418,12 +10454,11 @@ do
     })
     Section:Slider({ Name = "Origin radius", Min = 0.1, Max = 20, Default = 18.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Origin Radius", Callback = function(mN9oP0qR1) X7fG2hJk9.OrIgInRaDiUs8 = mN9oP0qR1 end })
     Section:Slider({ Name = "Origin points", Min = 1, Max = 50, Default = 24, Flag = "Rage Origin Scans", Callback = function(sT2uV3wX4) X7fG2hJk9.OrIgInScAnS9 = sT2uV3wX4 end })
-    Section:Slider({ Name = "Hit radius", Min = 0.1, Max = 25, Default = 23.5, Prefix = "st", Decimals = 0.1, Flag = "Rage Hit Radius", Callback = function(yZ5aB6cD7) X7fG2hJk9.HiTrAdIuS0 = yZ5aB6cD7 end })
+    Section:Slider({ Name = "Hit radius", Min = 0.1, Max = 3.8, Default = 3.6, Prefix = "st", Decimals = 0.1, Flag = "Rage Hit Radius", Callback = function(yZ5aB6cD7) X7fG2hJk9.HiTrAdIuS0 = yZ5aB6cD7 end })
     Section:Slider({ Name = "Hit points", Min = 1, Max = 50, Default = 24, Flag = "Rage Hit Scans", Callback = function(eF8gH9iJ0) X7fG2hJk9.HiTsCaNsAa = eF8gH9iJ0 end })
     Section:Slider({ Name = "Rays", Min = 1, Max = 60, Default = 14, Prefix = "%", Flag = "Rage Scan Rate", Callback = function(kL1mN2oP3) X7fG2hJk9.ScAnRaTeBb = kL1mN2oP3 end })
     Section:Slider({ Name = "Cache Value", Min = 0.1, Max = 25, Default = 0.5, Prefix = "st", Decimals = 0.01, Flag = "Rage Cache Threshold", Callback = function(qR4sT5uV6) X7fG2hJk9.CaChEtHrEsHoLdCc = qR4sT5uV6 end })
 end
-
 
 end
 
@@ -10433,6 +10468,7 @@ end
 
     Section = Tab:Section({ Name = "Anti Aim", Side = "Right", Fill = true })
     do
+
 -- Junk replic ai  | Dont touch |  TODO: rewrite
 Spinner = { Enabled = false, Speed = 50 }
 Spinning = nil
@@ -13118,26 +13154,29 @@ end
 
                         local TargetPosition
 
-        if Flags["Camera Teleport Mode"].Value == "Mouse" then
-            local Hit = Mouse.Hit
+                        if Flags["Camera Teleport Mode"].Value == "Mouse" then
+                           local Hit = Mouse.Hit
 
-            TargetPosition = Hit and Hit.Position
-        else
-            local CameraCFrame = CurrentCamera.CFrame
-            local TeleportRayParams = NewRayParams()
+                           TargetPosition = Hit and Hit.Position
+                        else
+                          local CameraCFrame = CurrentCamera.CFrame
+                                     local TeleportRayParams = NewRayParams()
 
-            TeleportRayParams.FilterType = Enum.RaycastFilterType.Blacklist
-            TeleportRayParams.FilterDescendantsInstances = { Character }
+                                               TeleportRayParams.FilterType = Enum.RaycastFilterType.Blacklist
+                                                                             TeleportRayParams.FilterDescendantsInstances = { Character }
 
-            local Ray = Raycast(Workspace, CameraCFrame.Position, CameraCFrame.LookVector * 1000, TeleportRayParams)
+                                                                                                                  local Ray = Raycast(Workspace, CameraCFrame.Position, CameraCFrame.LookVector * 1000, TeleportRayParams)
 
-            TargetPosition = Ray and Ray.Position or (CameraCFrame.Position + CameraCFrame.LookVector * 1000)
-        end
+                                                                                                                                               TargetPosition = Ray and Ray.Position or (CameraCFrame.Position + CameraCFrame.LookVector * 1000)
+                                                                                                                     end
 
         if TargetPosition then
-            Root.CFrame = NewCFrame(TargetPosition + NewVector3(0, 3, 0))
+                                                                                                               Root.CFrame = NewCFrame(TargetPosition + NewVector3(0, 3, 0))
         end
     end
+
+
+
 }):Keybind({
     Mode = "On Hold",
     Flag = "Camera Teleport Keybind",
@@ -13243,61 +13282,157 @@ end
 
                 end
 
-                Section = MultiSection[3]
-                do
-                 
+Section = MultiSection[3]
+do
+    local Wind = {
+        Enabled = false,
+        Speed   = 10,
+        Yaw     = 0,
+        Pitch   = 0,
+    }
 
-                    Section:Toggle({
-                        Name = "Cloud Modulation",
-                        Flag = "Cloud Modulation",
-                        Callback = function()
-                            Visuals.Clouds()
-                        end
-                    }):Colorpicker({
-                        Color = NewRGB(216, 216, 216),
-                        Flag = "Clouds Color",
-                        Callback = function()
-                            Visuals.Clouds()
-                        end
-                    })
+    local OriginalWind = nil
 
-                                       Section:Toggle({
-                        Name = "Hide Clouds",
-                        Flag = "Hide Clouds",
-                        Callback = function()
-                            Visuals.Clouds()
-                        end
-                    })
+    local function ComputeWind()
+        local yaw   = math.rad(Wind.Yaw)
+        local pitch = math.rad(Wind.Pitch)
+        local horiz = math.cos(pitch) * Wind.Speed
+
+        return Vector3.new(
+            math.sin(yaw) * horiz,
+            math.sin(pitch) * Wind.Speed,
+           -math.cos(yaw) * horiz
+        )
+    end
+
+    local function UpdateWind()
+        if not Wind.Enabled then return end
+        Workspace.GlobalWind = ComputeWind()
+    end
 
 
-                    Section:Slider({
-                        Name = "Cloud Cover",
-                        Flag = "Cloud Cover",
-                        Min = 0, Max = 100, Default = 70,
-                        Prefix = "%",
-                        Callback = function()
-                            Visuals.Clouds()
-                        end
-                    })
 
-                    Section:Slider({
-                        Name = "Cloud Density",
-                        Flag = "Cloud Density",
-                        Min = 0, Max = 100, Default = 70,
-                        Prefix = "%",
-                        Callback = function()
-                            Visuals.Clouds()
-                        end
-                    })
+    Section:Toggle({
+        Name = "Cloud Modulation",
+        Flag = "Cloud Modulation",
+        Callback = function()
+            Visuals.Clouds()
+        end
+    }):Colorpicker({
+        Color = NewRGB(216, 216, 216),
+        Flag = "Clouds Color",
+        Callback = function()
+            Visuals.Clouds()
+        end
+    })
 
-                    Section:Toggle({
-                        Name = "Remove Grass",
-                        Flag = "Remove Grass",
-                        Callback = function(Value)
-                            SetHiddenProperty(Terrain, "Decoration", not Value)
-                        end
-                    })
-                end
+    Section:Toggle({
+        Name = "Hide Clouds",
+        Flag = "Hide Clouds",
+        Callback = function()
+            Visuals.Clouds()
+        end
+    })
+
+    Section:Slider({
+        Name = "Cloud Cover",
+        Flag = "Cloud Cover",
+        Min = 0, Max = 100, Default = 70,
+        Prefix = "%",
+        Callback = function()
+            Visuals.Clouds()
+        end
+    })
+
+    Section:Slider({
+        Name = "Cloud Density",
+        Flag = "Cloud Density",
+        Min = 0, Max = 100, Default = 70,
+        Prefix = "%",
+        Callback = function()
+            Visuals.Clouds()
+        end
+    })
+
+    Section:Toggle({
+        Name = "Remove Grass",
+        Flag = "Remove Grass",
+        Callback = function(Value)
+            SetHiddenProperty(Terrain, "Decoration", not Value)
+        end
+    })
+
+
+
+    Section:Toggle({
+        Name = "Wind Enabled",
+        Flag = "Wind Enabled",
+        Callback = function(Value)
+            Wind.Enabled = Value
+
+            if Value then
+                OriginalWind = Workspace.GlobalWind
+                UpdateWind()
+            elseif OriginalWind then
+                Workspace.GlobalWind = OriginalWind
+                OriginalWind = nil
+            else
+                Workspace.GlobalWind = Vector3.zero
+            end
+        end
+    }):Keybind({
+        Mode = "Toggle",
+        Flag = "Wind Enabled Keybind",
+        Name = "Wind Enabled"
+    })
+
+  
+
+    Section:Slider({
+        Name = "Wind Speed",
+        Flag = "Wind Speed",
+        Min = 0, Max = 1000, Default = 10,
+        Prefix = " u/s",
+        Callback = function(Value)
+            Wind.Speed = Value
+            UpdateWind()
+        end
+    })
+
+    Section:Slider({
+        Name = "Wind Yaw",
+        Flag = "Wind Yaw",
+        Min = -180, Max = 180, Default = 0,
+        Decimals = 1,
+        Prefix = "°",
+        Callback = function(Value)
+            Wind.Yaw = Value
+            UpdateWind()
+        end
+    })
+
+    Section:Slider({
+        Name = "Wind Pitch",
+        Flag = "Wind Pitch",
+        Min = -90, Max = 90, Default = 0,
+        Decimals = 1,
+        Prefix = "°",
+        Callback = function(Value)
+            Wind.Pitch = Value
+            UpdateWind()
+        end
+    })
+
+
+        Heartbeat:Connect(function()
+           if not Wind.Enabled then return end
+
+           local target = ComputeWind()
+        if (Workspace.GlobalWind - target).Magnitude > 0.01 then
+            Workspace.GlobalWind = target
+        end
+    end)
+end
 
                 Section = MultiSection[4]
                 do
@@ -13531,6 +13666,8 @@ end
                         end
                     })
 
+
+                    --[[
                     Section:Toggle({
                         Name = "Hidden Body",
                         Flag = "Hidden Body",
@@ -13546,6 +13683,8 @@ end
                         Flag = "Hidden Body Keybind",
                         Name = "Hidden Body"
                     })
+
+                    ]]
 
                     Section:Toggle({
                         Name = "Fly Enabled",
@@ -16901,6 +17040,7 @@ do
 end
 
 
+
 do
     Movement.Connections = {}
 
@@ -16959,7 +17099,7 @@ do
         Movement.SetUp = function(Character)
             if Movement.Connections.WalkSpeed then
                 Movement.Connections.WalkSpeed:Disconnect()
-                
+
                 Movement.Connections.WalkSpeed = nil
             end
 
@@ -17153,7 +17293,6 @@ do
             Movement.DisableFly()
             compfly(Character)
 
-
             if Movement.Connections.FlyDied then
                 Movement.Connections.FlyDied:Disconnect()
                 Movement.Connections.FlyDied = nil
@@ -17212,7 +17351,7 @@ do
         end)
     end
 
-    do
+       do
         local Freecam = {
             Active = false,
             CameraPos = nil,
@@ -17225,7 +17364,11 @@ do
             ifanchor = false,
             platfourm = nil,
             rotationsing = nil,
-            LastEnforce = 0
+            LastEnforce = 0,
+            MB2Held = false,
+            OriginalMouseBehavior = nil,
+            OriginalMouseIcon = nil,
+            MB2Connections = {},
         }
 
         Movement.Freecam = Freecam
@@ -17244,7 +17387,8 @@ do
         end
 
         function wwwwwwwwwwwwwweewwwwweeeeeewwwweeee()
-            if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+
+            if Freecam.MB2Held then
                 local Delta = UserInputService:GetMouseDelta()
                 return NewVector2(Delta.Y, Delta.X)
             end
@@ -17322,15 +17466,31 @@ do
         Movement.StepFreecam = LPH_JIT_MAX(function(Dt)
             if not Freecam.Active then return end
 
-            if CurrentCamera.CameraType ~= Enum.CameraType.Custom then
-                Movement.DisableFreecam()
-                return
+
+            if CurrentCamera.CameraType ~= Enum.CameraType.Scriptable then
+                CurrentCamera.CameraType = Enum.CameraType.Scriptable
+            end
+
+            if Freecam.MB2Held then
+                if UserInputService.MouseBehavior ~= Enum.MouseBehavior.LockCenter then
+                    UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+                end
+                if UserInputService.MouseIconEnabled then
+                    UserInputService.MouseIconEnabled = false
+                end
+            else
+                if UserInputService.MouseBehavior ~= Enum.MouseBehavior.Default then
+                    UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                end
+                if not UserInputService.MouseIconEnabled then
+                    UserInputService.MouseIconEnabled = true
+                end
             end
 
             Freecam.VelValue = wwwwwwwwwweewwwwweeeeeewwwweeee(Freecam.VelValue, wwwwwwwwwffwwwwwweewwwwweeeeeewwwweeee(), 5, Dt)
             Freecam.PanValue = wwwwwwwwwweewwwwweeeeeewwwweeee(Freecam.PanValue, wwwwwwwwwwwwwweewwwwweeeeeewwwweeee(), 5, Dt)
 
-            if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+            if Freecam.MB2Held then
                 Freecam.CameraRot -= Freecam.PanValue * NewVector2(0.75, 1) * 0.5 * Dt
 
                 Freecam.CameraRot = NewVector2(
@@ -17355,24 +17515,65 @@ do
         Movement.EnableFreecam = function()
             if Freecam.Active then return end
 
-            Freecam.Active = true
+            local cam = CurrentCamera
+            local look = cam.CFrame.LookVector
 
-            Freecam.CameraRot = NewVector2(0, 0)
-            Freecam.CameraPos = CurrentCamera.CFrame.Position
-            Freecam.CameraFov = CurrentCamera.FieldOfView
+            Freecam.CameraRot = NewVector2(
+                math.asin(Clamp(look.Y, -1, 1)),
+                Atan2(-look.X, -look.Z)
+            )
+            Freecam.CameraPos = cam.CFrame.Position
+            Freecam.CameraFov = cam.FieldOfView
+
+            Freecam.OriginalMouseBehavior = UserInputService.MouseBehavior
+            Freecam.OriginalMouseIcon = UserInputService.MouseIconEnabled
 
             Freecam.VelValue = EmptyVector3
             Freecam.PanValue = NewVector2(0, 0)
+            Freecam.MB2Held = false
+            Freecam.Active = true
 
             DisableCharacterMovement()
 
-            CurrentCamera.CameraType = Enum.CameraType.Custom
+            cam.CameraType = Enum.CameraType.Scriptable
+            cam.CFrame = NewCFrame(Freecam.CameraPos) *
+                CFrame.fromOrientation(Freecam.CameraRot.X, Freecam.CameraRot.Y, 0)
+
+            UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+            UserInputService.MouseIconEnabled = true
+
+            for _, c in ipairs(Freecam.MB2Connections) do c:Disconnect() end
+            Freecam.MB2Connections = {}
+            table.insert(Freecam.MB2Connections, UserInputService.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton2 then
+                    Freecam.MB2Held = true
+                end
+            end))
+            table.insert(Freecam.MB2Connections, UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton2 then
+                    Freecam.MB2Held = false
+                end
+            end))
         end
 
         Movement.DisableFreecam = function()
             if not Freecam.Active then return end
 
             Freecam.Active = false
+
+            for _, c in ipairs(Freecam.MB2Connections) do c:Disconnect() end
+            Freecam.MB2Connections = {}
+
+            CurrentCamera.CameraType = Enum.CameraType.Custom
+
+            if Freecam.OriginalMouseBehavior then
+                UserInputService.MouseBehavior = Freecam.OriginalMouseBehavior
+            end
+            if Freecam.OriginalMouseIcon ~= nil then
+                UserInputService.MouseIconEnabled = Freecam.OriginalMouseIcon
+            end
+            Freecam.OriginalMouseBehavior = nil
+            Freecam.OriginalMouseIcon = nil
 
             wwwwwweeeeeeeewwwweeee()
 
@@ -17422,6 +17623,7 @@ do
         RenderStepped:Connect(Movement.StepFreecam)
     end
 end
+
 
 
 do
@@ -19733,885 +19935,411 @@ do
     end
 end
 
-do
-    Spawn(function()
-        local Map = WaitForChild(Workspace, "Map", 30)
-        if not Map then return end
 
-        for Index, Value in next, {
-            Enabled = false,
-            Fov = 10,
-            Speed = 50,
-            Smoothing = "linear",
-            SwitchDelay = 100,
-            Accuracy = 60,
-            HitscanPriority = "Closest",
-            HitscanPoints = { "Head", "Body", "Arms", "Legs" },
-            AdjustBulletDrop = false,
-            AdjustMovement = false,
-            WallCheck = true,
-            VisualizeFov = true,
-            FovColor = NewRGB(181, 179, 253),
-            FovAlpha = 0,
-            FovFillColor = NewRGB(181, 179, 253),
-            FovFillAlpha = 0.5,
-            FovOutlineColor = NewRGB(0, 0, 0),
-            FovOutlineAlpha = 0,
-            FovGlowColor = NewRGB(181, 179, 253),
-            FovGlowAlpha = 0,
-            FovGlowSize = 3,
-            PriorityOnly = false,
-            SoftPriority = false,
-            SkipDowned = false
-        } do
-            if AimAssist[Index] == nil then
-                AimAssist[Index] = Value
-            end
-        end
+Spawn(function()
+    local AQWERASDF = game:GetService("Players")
+    local BPOIUYTRE = game:GetService("RunService")
+    local CXCVBNMA  = game:GetService("Workspace")
+    local DLKJHGFD  = game:GetService("ReplicatedStorage")
+    local EQWERTYU  = game:GetService("UserInputService")
+    local FZXCVBNM  = CXCVBNMA.CurrentCamera
 
-        for Index, Value in next, {
-            Enabled = false,
-            Hitboxes = { "Head", "Body", "Arms", "Legs" },
-            Magnet = false,
-            MagnetFov = 10,
-            MagnetSpeed = 50,
-            MagnetAccuracy = 60,
-            MagnetPriority = "Closest",
-            PriorityOnly = false,
-            SoftPriority = false,
-            SkipDowned = false
-        } do
-            if TriggerBot[Index] == nil then
-                TriggerBot[Index] = Value
-            end
-        end
-
-        local PointMap = { Head = { "Head" }, Body = { "Torso" }, Arms = { "Right Arm", "Left Arm" }, Legs = { "Right Leg", "Left Leg" } }
-        local PriorityMap = { Head = "Head", Body = "Torso" }
-        local ValidParts = { Head = true, Torso = true, ["Right Arm"] = true, ["Left Arm"] = true, ["Right Leg"] = true, ["Left Leg"] = true }
-
-        function IsHeDowned(PlayerName)
-            local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
-            local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
-            local Downed = Stats and FindFirstChild(Stats, "Downed")
-
-            return Downed and Downed.Value or false
-        end
-
-        function TranslateHitboxPoints(Points)
-            local Result, Count = {}, 0
-            for i = 1, #Points do
-                local Names = PointMap[Points[i]]
-                if Names then
-                    for k = 1, #Names do
-                        Count = Count + 1
-                        Result[Count] = Names[k]
-                    end
-                end
-            end
-            return Result
-        end
-
-        local LocalData = { Character = nil, Humanoid = nil, RootPart = nil, Weapon = nil, WeaponVelocity = nil, WeaponAcceleration = nil }
-
-        function SetupLocal(Character)
-            LocalData.Character = Character
-            LocalData.Humanoid = WaitForChild(Character, "Humanoid", Infinite)
-            LocalData.RootPart = WaitForChild(Character, "HumanoidRootPart", Infinite)
-
-            Character.ChildAdded:Connect(function(Child)
-                if Child.ClassName ~= "Tool" then return end
-                local Config = FindFirstChild(Child, "Config")
-                if not Config then return end
-                local Ok, Cfg = pcall(Require, Config)
-                if not Ok or not Cfg or not Cfg.BulletSettings then return end
-                LocalData.Weapon = Child
-                LocalData.WeaponVelocity = Cfg.BulletSettings.Velocity * 1.5
-                LocalData.WeaponAcceleration = Cfg.BulletSettings.Acceleration
-            end)
-
-            Character.ChildRemoved:Connect(function(Child)
-                if Child == LocalData.Weapon then
-                    LocalData.Weapon = nil
-                    LocalData.WeaponVelocity = nil
-                    LocalData.WeaponAcceleration = nil
-                end
-            end)
-        end
-
-        if LocalPlayer.Character then SetupLocal(LocalPlayer.Character) end
-        LocalPlayer.CharacterAdded:Connect(SetupLocal)
-
-        local Enemies = {}
-        local EnemyCount = 0
-
-        function AddEnemy(Player)
-            if Player == LocalPlayer or Enemies[Player] then return end
-
-            local Data = {
-                Player = Player,
-                Name = Player.Name,
-                Character = nil,
-                Humanoid = nil,
-                RootPart = nil,
-                RootPosition = nil,
-                BodyParts = {},
-                IsForceField = false
+    local GXKQJZMWN = {
+        HQWIEURTY = {
+            MAQWERAS = AQWERASDF, NBPOIUY = BPOIUYTRE, OCXCVBNM = CXCVBNMA,
+            PDLKJHGF = DLKJHGFD, QEQWERTY = EQWERTYU,
+            RFZXCVBN = FZXCVBNM,
+        },
+        IPOIUYTRE = AQWERASDF.LocalPlayer,
+        JMNBVCXZ = {
+            SHGFDSAQ = {
+                WAQSDFGHJK     = false,
+                XZXCVBNMA      = 200,
+                YQWERTYUI      = 100,
+                ZLKJHGFD       = false,
+                AMNBVCXZ       = false,
+                BPOIUYTR       = false,
+                CASDFGHJ       = false,
+                DZXCVBNM       = false,
+                EQWERASD       = false,
+                FLKJHGFD       = false,
+                GOIUYTREW      = "Mouse",
+                HMNBVCXZ       = "Mouse",
+                IASDFGHJK      = 500,
+                JZXCVBNM       = "Head",
+                KQWERASDF      = false,
+                LLKJHGFDS      = false,
+                MPOIUTREW      = true,
+                NMNBVCXZX      = "Always",
+                OASDFGHJ       = false,
+            },
+            TTYUIOPA = {
+                PZXCVBNM   = Color3.fromRGB(255, 255, 255),
+                QQWERASDF  = Color3.fromRGB(255, 255, 255),
+                RLKJHGFDS  = Color3.fromRGB(0, 0, 0),
+                SPOIUYTRE  = Color3.new(0, 0, 0),
+            },
+            UGHJKLZX = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "HumanoidRootPart" },
+            VNMQWERT = {
+                TGWERTYU = nil, UWERTYUIO = nil,
+                VIOPASDFG = false, WZXCVBNMQ = false, XQWERASDF = 0, YASDFGHJK = 0,
             }
+        },
+        KLKJHGFD = {
+            ZLKJHGFD = { BMNBVCX = nil, CNBVCXZL = nil, DZXCVBNM = nil, EQWERASD = nil },
+            APLOKIJUH = nil,
+        },
+        LASDFGHJ = { FXCVBNML = nil, GZXCVBNQ = nil },
+    }
 
-            function Data:OnSpawn(Character)
-                self.Character = Character
-                self.Humanoid = WaitForChild(Character, "Humanoid", Infinite)
-                self.RootPart = WaitForChild(Character, "HumanoidRootPart", Infinite)
-                self.BodyParts = {}
-                self.IsForceField = false
+    local function HPOIUTREW(TGBYHNQ)
+        local JASDFGHJ, KLKJHGF = pcall(function() return Flags[TGBYHNQ] end)
+        if not JASDFGHJ then return nil end
+        return KLKJHGF
+    end
 
-                for _, Part in next, GetChildren(Character) do
-                    if Part.ClassName == "Part" and ValidParts[Part.Name] then
-                        self.BodyParts[Part.Name] = Part
-                    elseif Part.ClassName == "ForceField" then
-                        self.IsForceField = true
-                    end
-                end
+    function GXKQJZMWN:IQWERASDF()
+        local RFVTGBY = self.JMNBVCXZ.SHGFDSAQ
+        local BZXCVBN = self.JMNBVCXZ.TTYUIOPA
 
-                Character.ChildAdded:Connect(function(Child)
-                    if Child.ClassName == "Part" and ValidParts[Child.Name] then
-                        self.BodyParts[Child.Name] = Child
-                    elseif Child.ClassName == "ForceField" then
-                        self.IsForceField = true
-                    end
-                end)
-
-                Character.ChildRemoved:Connect(function(Child)
-                    if Child.ClassName == "Part" and self.BodyParts[Child.Name] then
-                        self.BodyParts[Child.Name] = nil
-                    elseif Child.ClassName == "ForceField" and self.Character and not self.Character:FindFirstChildOfClass("ForceField") then
-                        self.IsForceField = false
-                    end
-                end)
-
-                self.Humanoid.Died:Connect(function()
-                    self.Character = nil
-                    self.Humanoid = nil
-                    self.RootPart = nil
-                    self.RootPosition = nil
-                    self.BodyParts = {}
-                    self.IsForceField = false
-                end)
-            end
-
-            Player.CharacterAdded:Connect(function(Character) Data:OnSpawn(Character) end)
-            if Player.Character then Data:OnSpawn(Player.Character) end
-
-            EnemyCount = EnemyCount + 1
-            Enemies[EnemyCount] = Data
-            Enemies[Player] = Data
+        local function LMNBVCX(TGBYHNQ, YHNUJMR)
+            local KLKJHGF = HPOIUTREW(TGBYHNQ)
+            if KLKJHGF and KLKJHGF.Value ~= nil then YHNUJMR(KLKJHGF.Value) end
+        end
+        local function MPOIUYT(TGBYHNQ, YHNUJMR)
+            local KLKJHGF = HPOIUTREW(TGBYHNQ)
+            if KLKJHGF and KLKJHGF.Color then YHNUJMR(KLKJHGF.Color) end
         end
 
-        function RemoveEnemy(Player)
-            local Data = Enemies[Player]
-            if not Data then return end
-            Enemies[Player] = nil
-            for i = 1, EnemyCount do
-                if Enemies[i] == Data then
-                    Remove(Enemies, i)
-                    EnemyCount = EnemyCount - 1
-                    break
+        LMNBVCX("Silent Aim Enabled",           function(ZQWERTYU) RFVTGBY.WAQSDFGHJK = ZQWERTYU end)
+        LMNBVCX("Silent Aim Hit Chance",        function(ZQWERTYU) RFVTGBY.YQWERTYUI  = ZQWERTYU end)
+        LMNBVCX("Silent Aim FOV",               function(ZQWERTYU) RFVTGBY.XZXCVBNMA  = ZQWERTYU end)
+        LMNBVCX("Silent Aim Draw FOV",          function(ZQWERTYU) RFVTGBY.ZLKJHGFD   = ZQWERTYU end)
+        LMNBVCX("Silent Aim Wall Check",        function(ZQWERTYU) RFVTGBY.BPOIUYTR   = ZQWERTYU end)
+        LMNBVCX("Silent Aim Skip Downed",       function(ZQWERTYU) RFVTGBY.FLKJHGFD   = ZQWERTYU end)
+        LMNBVCX("Silent Aim Target Part",       function(ZQWERTYU) RFVTGBY.JZXCVBNM   = ZQWERTYU end)
+        LMNBVCX("Silent Aim FOV Position",      function(ZQWERTYU) RFVTGBY.GOIUYTREW  = ZQWERTYU end)
+
+        LMNBVCX("Silent Aim Target Mode",       function(ZQWERTYU) RFVTGBY.HMNBVCXZ   = ZQWERTYU end)
+        LMNBVCX("Silent Aim Team Check",        function(ZQWERTYU) RFVTGBY.CASDFGHJ   = ZQWERTYU end)
+        LMNBVCX("Silent Aim Friend Check",      function(ZQWERTYU) RFVTGBY.EQWERASD   = ZQWERTYU end)
+        LMNBVCX("Silent Aim Distance Check",    function(ZQWERTYU) RFVTGBY.DZXCVBNM   = ZQWERTYU end)
+        LMNBVCX("Silent Aim Max Distance",      function(ZQWERTYU) RFVTGBY.IASDFGHJK  = ZQWERTYU end)
+        LMNBVCX("Silent Aim FOV Outline",       function(ZQWERTYU) RFVTGBY.KQWERASDF  = ZQWERTYU end)
+        LMNBVCX("Silent Aim FOV Fill",          function(ZQWERTYU) RFVTGBY.LLKJHGFDS  = ZQWERTYU end)
+        LMNBVCX("Silent Aim Tracer",            function(ZQWERTYU) RFVTGBY.AMNBVCXZ   = ZQWERTYU end)
+        LMNBVCX("Silent Aim Cursor Bypass",     function(ZQWERTYU) RFVTGBY.MPOIUTREW  = ZQWERTYU end)
+        LMNBVCX("Silent Aim Cursor Mode",       function(ZQWERTYU) RFVTGBY.NMNBVCXZX  = ZQWERTYU end)
+        LMNBVCX("Silent Aim Debug Log",         function(ZQWERTYU) RFVTGBY.OASDFGHJ   = ZQWERTYU end)
+
+        MPOIUYT("Silent Aim FOV Color",         function(ZQWERTYU) BZXCVBN.PZXCVBNM   = ZQWERTYU end)
+        MPOIUYT("Silent Aim Tracer Color",      function(ZQWERTYU) BZXCVBN.QQWERASDF  = ZQWERTYU end)
+    end
+
+    local RASDFGH
+    local function JZXCVBNMA()
+        if not RASDFGH or not RASDFGH.Parent then
+            local SMNBVCX = CXCVBNMA:FindFirstChild("Map")
+            RASDFGH = SMNBVCX and SMNBVCX:FindFirstChild("Parts")
+        end
+        return RASDFGH
+    end
+
+    local function KLKJHGFDS()
+        local QPLMOKN = Drawing.new
+        local WSXEDCR = GXKQJZMWN.KLKJHGFD.ZLKJHGFD
+        local BZXCVBN = GXKQJZMWN.JMNBVCXZ
+
+        WSXEDCR.BMNBVCX = QPLMOKN("Circle")
+        WSXEDCR.BMNBVCX.Filled = false; WSXEDCR.BMNBVCX.Transparency = 1
+        WSXEDCR.BMNBVCX.Color = BZXCVBN.TTYUIOPA.PZXCVBNM; WSXEDCR.BMNBVCX.Thickness = 2
+        WSXEDCR.BMNBVCX.NumSides = 64; WSXEDCR.BMNBVCX.Radius = BZXCVBN.SHGFDSAQ.XZXCVBNMA
+        WSXEDCR.BMNBVCX.Visible = false
+
+        WSXEDCR.CNBVCXZL = QPLMOKN("Circle")
+        WSXEDCR.CNBVCXZL.Filled = false; WSXEDCR.CNBVCXZL.Transparency = 1
+        WSXEDCR.CNBVCXZL.Color = BZXCVBN.TTYUIOPA.RLKJHGFDS; WSXEDCR.CNBVCXZL.Thickness = 1
+        WSXEDCR.CNBVCXZL.NumSides = 64; WSXEDCR.CNBVCXZL.Visible = false
+
+        WSXEDCR.DZXCVBNM = QPLMOKN("Circle")
+        WSXEDCR.DZXCVBNM.Filled = false; WSXEDCR.DZXCVBNM.Transparency = 1
+        WSXEDCR.DZXCVBNM.Color = BZXCVBN.TTYUIOPA.RLKJHGFDS; WSXEDCR.DZXCVBNM.Thickness = 1
+        WSXEDCR.DZXCVBNM.NumSides = 64; WSXEDCR.DZXCVBNM.Visible = false
+
+        WSXEDCR.EQWERASD = QPLMOKN("Circle")
+        WSXEDCR.EQWERASD.Filled = true; WSXEDCR.EQWERASD.Transparency = 0.5
+        WSXEDCR.EQWERASD.Color = BZXCVBN.TTYUIOPA.SPOIUYTRE; WSXEDCR.EQWERASD.NumSides = 64
+        WSXEDCR.EQWERASD.Visible = false
+    end
+
+    local function LMNBVCXZQ()
+        local UJMIKOL = Drawing.new("Line")
+        UJMIKOL.Visible = false; UJMIKOL.Thickness = 1
+        UJMIKOL.Color = GXKQJZMWN.JMNBVCXZ.TTYUIOPA.QQWERASDF
+        GXKQJZMWN.KLKJHGFD.APLOKIJUH = UJMIKOL
+    end
+
+    function GXKQJZMWN:MPOIUTREW()
+        local RFVTGBY = self.JMNBVCXZ.SHGFDSAQ
+        local BZXCVBN = self.JMNBVCXZ.TTYUIOPA
+        local WSXEDCR = self.KLKJHGFD.ZLKJHGFD
+
+        local IKOLPQS = (RFVTGBY.GOIUYTREW == "Mouse")
+            and self.HQWIEURTY.QEQWERTY:GetMouseLocation()
+            or Vector2.new(self.HQWIEURTY.RFZXCVBN.ViewportSize.X/2, self.HQWIEURTY.RFZXCVBN.ViewportSize.Y/2)
+        local LOPQAZW = RFVTGBY.XZXCVBNMA
+
+        WSXEDCR.BMNBVCX.Position = IKOLPQS; WSXEDCR.BMNBVCX.Radius = LOPQAZW; WSXEDCR.BMNBVCX.Color = BZXCVBN.PZXCVBNM
+        WSXEDCR.BMNBVCX.Visible = RFVTGBY.ZLKJHGFD
+
+        WSXEDCR.CNBVCXZL.Position = IKOLPQS
+        WSXEDCR.CNBVCXZL.Radius = LOPQAZW + (WSXEDCR.BMNBVCX.Thickness/2) + 0.5
+        WSXEDCR.CNBVCXZL.Visible = RFVTGBY.ZLKJHGFD and RFVTGBY.KQWERASDF
+
+        WSXEDCR.DZXCVBNM.Position = IKOLPQS
+        WSXEDCR.DZXCVBNM.Radius = LOPQAZW - (WSXEDCR.BMNBVCX.Thickness/2) - 0.2
+        WSXEDCR.DZXCVBNM.Visible = RFVTGBY.ZLKJHGFD and RFVTGBY.KQWERASDF
+
+        WSXEDCR.EQWERASD.Position = IKOLPQS; WSXEDCR.EQWERASD.Radius = LOPQAZW
+        WSXEDCR.EQWERASD.Visible = RFVTGBY.ZLKJHGFD and RFVTGBY.LLKJHGFDS
+    end
+
+    function GXKQJZMWN:NQWERTYUI(YHNUJMQ)
+        local RFVTGBY = self.JMNBVCXZ.SHGFDSAQ
+        local TGBYHNU = self.KLKJHGFD.APLOKIJUH
+
+        if RFVTGBY.AMNBVCXZ and YHNUJMQ and YHNUJMQ.Character
+           and YHNUJMQ.Character:FindFirstChild(RFVTGBY.JZXCVBNM) then
+            local QAZWSXE = self.HQWIEURTY.RFZXCVBN:WorldToViewportPoint(YHNUJMQ.Character[RFVTGBY.JZXCVBNM].Position)
+            local IKOLPQS = (RFVTGBY.GOIUYTREW == "Mouse")
+                and self.HQWIEURTY.QEQWERTY:GetMouseLocation()
+                or Vector2.new(self.HQWIEURTY.RFZXCVBN.ViewportSize.X/2, self.HQWIEURTY.RFZXCVBN.ViewportSize.Y/2)
+            TGBYHNU.From = IKOLPQS; TGBYHNU.To = Vector2.new(QAZWSXE.X, QAZWSXE.Y)
+            TGBYHNU.Color = self.JMNBVCXZ.TTYUIOPA.QQWERASDF
+            TGBYHNU.Visible = true
+        else
+            TGBYHNU.Visible = false
+        end
+    end
+
+    function GXKQJZMWN:OASDFGHJK(RFVTGBM)
+        return self.JMNBVCXZ.SHGFDSAQ.EQWERASD and self.IPOIUYTRE:IsFriendsWith(RFVTGBM.UserId)
+    end
+
+    function GXKQJZMWN:PZXCVBNML(RFVTGBM)
+        if not self.JMNBVCXZ.SHGFDSAQ.BPOIUYTR then return true end
+        local RFVTGBH, TGBYHNB = RFVTGBM.Character, self.IPOIUYTRE.Character
+        if RFVTGBH and RFVTGBH:FindFirstChild("Head") and TGBYHNB and TGBYHNB:FindFirstChild("Head") then
+            local UJMIKOM, IKOLPQN = self.HQWIEURTY.RFZXCVBN:WorldToViewportPoint(RFVTGBH.Head.Position)
+            if IKOLPQN and UJMIKOM.Z > 0 then
+                local WSXEDRF = RaycastParams.new()
+                WSXEDRF.FilterDescendantsInstances = { TGBYHNB }
+                WSXEDRF.FilterType = Enum.RaycastFilterType.Blacklist
+                local EDCRFVY = self.HQWIEURTY.OCXCVBNM:Raycast(
+                    self.HQWIEURTY.RFZXCVBN.CFrame.Position,
+                    RFVTGBH.Head.Position - self.HQWIEURTY.RFZXCVBN.CFrame.Position, WSXEDRF)
+                return EDCRFVY == nil or EDCRFVY.Instance:IsDescendantOf(RFVTGBH)
+            end
+        end
+        return false
+    end
+
+    function GXKQJZMWN:QMNBVCXZ(RFVTGBM)
+        local YHNUJMJ = RFVTGBM.Character and RFVTGBM.Character:FindFirstChildOfClass("Humanoid")
+        return YHNUJMJ and YHNUJMJ.Health > 0
+    end
+
+    function GXKQJZMWN:RLKJHGFD(RFVTGBM)
+        local LOPQAZX = self.HQWIEURTY.PDLKJHGF:FindFirstChild("CharStats")
+        local QAZWSXF = LOPQAZX and LOPQAZX:FindFirstChild(RFVTGBM.Name) and LOPQAZX[RFVTGBM.Name]:FindFirstChild("Downed")
+        return self.JMNBVCXZ.SHGFDSAQ.FLKJHGFD and QAZWSXF and QAZWSXF.Value
+    end
+
+    function GXKQJZMWN:SPOIUYTREW(RFVTGBM)
+        if self.JMNBVCXZ.SHGFDSAQ.CASDFGHJ and self.IPOIUYTRE.Team and RFVTGBM.Team then
+            return self.IPOIUYTRE.Team == RFVTGBM.Team
+        end
+        return false
+    end
+
+    function GXKQJZMWN:TASDFGHJK()
+        local TGBYHNR, YHNUJMS = nil, self.JMNBVCXZ.SHGFDSAQ.XZXCVBNMA
+        for _, RFVTGBM in ipairs(self.HQWIEURTY.MAQWERAS:GetPlayers()) do
+            if RFVTGBM ~= self.IPOIUYTRE and RFVTGBM.Character
+               and RFVTGBM.Character:FindFirstChild("HumanoidRootPart")
+               and RFVTGBM.Character:FindFirstChild(self.JMNBVCXZ.SHGFDSAQ.JZXCVBNM) then
+                if not self:OASDFGHJK(RFVTGBM) and self:QMNBVCXZ(RFVTGBM)
+                   and not self:RLKJHGFD(RFVTGBM) and not self:SPOIUYTREW(RFVTGBM) then
+                    local TGBYHNO = self.HQWIEURTY.RFZXCVBN:WorldToViewportPoint(RFVTGBM.Character[self.JMNBVCXZ.SHGFDSAQ.JZXCVBNM].Position)
+                    local YHNUJMP = (self.JMNBVCXZ.SHGFDSAQ.GOIUYTREW == "Mouse")
+                        and self.HQWIEURTY.QEQWERTY:GetMouseLocation()
+                        or Vector2.new(self.HQWIEURTY.RFZXCVBN.ViewportSize.X/2, self.HQWIEURTY.RFZXCVBN.ViewportSize.Y/2)
+                    local UJMIKOQ = (YHNUJMP - Vector2.new(TGBYHNO.X, TGBYHNO.Y)).Magnitude
+                    local IKOLPQR = (RFVTGBM.Character.HumanoidRootPart.Position - self.HQWIEURTY.RFZXCVBN.CFrame.Position).Magnitude
+                    if UJMIKOQ <= self.JMNBVCXZ.SHGFDSAQ.XZXCVBNMA and UJMIKOQ < YHNUJMS
+                       and self:PZXCVBNML(RFVTGBM) and TGBYHNO.Z > 0
+                       and (not self.JMNBVCXZ.SHGFDSAQ.DZXCVBNM or IKOLPQR <= self.JMNBVCXZ.SHGFDSAQ.IASDFGHJK) then
+                        TGBYHNR, YHNUJMS = RFVTGBM, UJMIKOQ
+                    end
                 end
             end
         end
+        return TGBYHNR
+    end
 
-        for _, Player in next, Players:GetPlayers() do AddEnemy(Player) end
-        PlayerAdded:Connect(AddEnemy)
-        PlayerRemoving:Connect(RemoveEnemy)
-
-        Stepped:Connect(function()
-            for i = 1, EnemyCount do
-                local Data = Enemies[i]
-                if Data.RootPart then Data.RootPosition = Data.RootPart.Position end
+    function GXKQJZMWN:UWERTYUIOP()
+        local TGBYHNR, YHNUJMS = nil, math.huge
+        for _, RFVTGBM in ipairs(self.HQWIEURTY.MAQWERAS:GetPlayers()) do
+            if RFVTGBM ~= self.IPOIUYTRE and RFVTGBM.Character
+               and RFVTGBM.Character:FindFirstChild("HumanoidRootPart")
+               and RFVTGBM.Character:FindFirstChild(self.JMNBVCXZ.SHGFDSAQ.JZXCVBNM) then
+                if not self:OASDFGHJK(RFVTGBM) and self:QMNBVCXZ(RFVTGBM)
+                   and not self:RLKJHGFD(RFVTGBM) and not self:SPOIUYTREW(RFVTGBM) then
+                    local WSXEDRH = RFVTGBM.Character.HumanoidRootPart.Position
+                    local TGBYHNO = self.HQWIEURTY.RFZXCVBN:WorldToViewportPoint(RFVTGBM.Character[self.JMNBVCXZ.SHGFDSAQ.JZXCVBNM].Position)
+                    local YHNUJMP = (self.JMNBVCXZ.SHGFDSAQ.GOIUYTREW == "Mouse")
+                        and self.HQWIEURTY.QEQWERTY:GetMouseLocation()
+                        or Vector2.new(self.HQWIEURTY.RFZXCVBN.ViewportSize.X/2, self.HQWIEURTY.RFZXCVBN.ViewportSize.Y/2)
+                    local LOPQAZQ = (YHNUJMP - Vector2.new(TGBYHNO.X, TGBYHNO.Y)).Magnitude
+                    local QAZWSXG = (WSXEDRH - self.HQWIEURTY.RFZXCVBN.CFrame.Position).Magnitude
+                    if LOPQAZQ <= self.JMNBVCXZ.SHGFDSAQ.XZXCVBNMA and QAZWSXG < YHNUJMS
+                       and self:PZXCVBNML(RFVTGBM) and TGBYHNO.Z > 0
+                       and (not self.JMNBVCXZ.SHGFDSAQ.DZXCVBNM or QAZWSXG <= self.JMNBVCXZ.SHGFDSAQ.IASDFGHJK) then
+                        TGBYHNR, YHNUJMS = RFVTGBM, QAZWSXG
+                    end
+                end
             end
-        end)
-
-        local RayParams = NewRayParams()
-        RayParams.FilterDescendantsInstances = { Map }
-        RayParams.FilterType = Enum.RaycastFilterType.Include
-
-        function CheckWall(Origin, Goal)
-
-            local Direction = Goal - Origin
-            local Unit = Direction.Unit
-            local Remaining = Direction.Magnitude
-            local Current = Origin
-
-            while Remaining > 0 do
-                local Result = Raycast(Workspace, Current, Unit * Remaining, RayParams)
-                if not Result then return false end
-                local Hit = Result.Instance
-                if Hit and Hit.CanCollide and Hit.Transparency < 1 then return true end
-                Remaining = Remaining - (Result.Position - Current).Magnitude
-                Current = Result.Position + Unit / 20
-            end
-            return false
         end
-
-        function ResolverDrop(Origin, Acceleration, Goal, Velocity)
-            local Direction = Goal - Origin
-            local Time = Direction.Magnitude / Velocity
-            local HalfAccel = Acceleration / 2
-            local Change = Infinite
-            local Iter = 0
-
-            while Change > 0.00001 and Iter < 100 do
-                Iter = Iter + 1
-                local Prev = Time
-                Time = (Direction - HalfAccel * Time ^ 2).Magnitude / Velocity
-                Change = math.abs(Time - Prev)
-            end
-
-            return Origin + Direction - HalfAccel * Time ^ 2
-        end
-
-        function SolveMovement(Origin, Position, Velocity, BulletSpeed)
-            return Position + NewVector3(Velocity.X, 0, Velocity.Z) * ((Origin - Position).Magnitude / BulletSpeed + Tickbase.GetPing() / 2)
-        end
-
-        local CurrentTarget = nil
-        local PrevTargetData = nil
-        local PrevTargetTick = 0
-        local SmoothedAimSpeed = nil
-
-        function Proaimassist(Delta)
-            local MagnetActive = TriggerBot.Magnet and TriggerBot.Enabled
-            if not MagnetActive and not AimAssist.Enabled then
-                CurrentTarget = nil
-                SmoothedAimSpeed = nil
-                return
-            end
-
-            local Cam = CurrentCamera.CFrame
-            local CamPos = Cam.Position
-            local CamLook = Cam.LookVector
-
-            if CurrentTarget then
-                local Part = CurrentTarget.Part
-                local Data = CurrentTarget.Data
-                local Info = Info.PlayerData[Data.Name]
-                local Humanoid = Data.Humanoid
-                local HumanoidState = Humanoid and Humanoid:GetState()
-                local IsAirborne = HumanoidState == Enum.HumanoidStateType.Jumping or
-                                   HumanoidState == Enum.HumanoidStateType.Freefall or
-                                   HumanoidState == Enum.HumanoidStateType.Flying
-
-                if Part and Part.Parent and Data.RootPosition and not (Info and Info.Whitelist) and not (AimAssist.SkipDowned and IsHeDowned(Data.Name)) and (Data == PrevTargetData or Tick() - PrevTargetTick > AimAssist.SwitchDelay / 1000) then
-                    local AimPos = Part.Position
-
-                    if MagnetActive or AimAssist.WallCheck then
-                        if CheckWall(CamPos, AimPos) then
-                            CurrentTarget = nil
-                            return
-                        end
-                    end
-
-                    if AimAssist.AdjustMovement and LocalData.WeaponVelocity then
-                        AimPos = SolveMovement(CamPos, AimPos, Part.Velocity, LocalData.WeaponVelocity)
-                    end
-
-                    if AimAssist.AdjustBulletDrop and LocalData.WeaponVelocity then
-                        AimPos = ResolverDrop(CamPos, LocalData.WeaponAcceleration, AimPos, LocalData.WeaponVelocity)
-                    end
-
-                    PrevTargetData = Data
-                    PrevTargetTick = Tick()
-
-                    local Speed = MagnetActive and TriggerBot.MagnetSpeed or AimAssist.Speed
-                    local TargetSpeed = (not MagnetActive and AimAssist.NoJumpTrack and IsAirborne) and AimAssist.JumpSmoothness or Speed
-
-                    SmoothedAimSpeed = SmoothedAimSpeed or Speed
-                    SmoothedAimSpeed += (TargetSpeed - SmoothedAimSpeed) * (1 - math.exp(-8 * Delta))
-
-                    local Smooth
-                    if AimAssist.Smoothing == "linear" then
-                        Smooth = SmoothedAimSpeed / 10 * Delta
-                    else
-                        Smooth = 1 - math.exp(-SmoothedAimSpeed / 2 * Delta * CurrentTarget.Angle)
-                    end
-
-                    CurrentCamera.CFrame = Cam:Lerp(NewCFrame(CamPos, AimPos), Smooth)
-                    return
-                end
-                CurrentTarget = nil
-                SmoothedAimSpeed = nil
-                return
-            end
-
-            local RadFov = math.rad(MagnetActive and TriggerBot.MagnetFov or AimAssist.Fov)
-            local HitPoints = TranslateHitboxPoints(MagnetActive and TriggerBot.Hitboxes or AimAssist.HitscanPoints)
-            local DoWall = MagnetActive or AimAssist.WallCheck
-            local PriorityOnly = MagnetActive and TriggerBot.PriorityOnly or AimAssist.PriorityOnly
-            local SoftPriority = MagnetActive and TriggerBot.SoftPriority or AimAssist.SoftPriority
-
-            local Candidates, Count = {}, 0
-
-            for i = 1, EnemyCount do
-                local Data = Enemies[i]
-                local RootPos = Data.RootPosition
-                if not RootPos or Data.IsForceField then continue end
-                if AimAssist.SkipDowned and IsHeDowned(Data.Name) then continue end
-
-                local Info = Info.PlayerData[Data.Name]
-                if Info and Info.Whitelist then continue end
-                if PriorityOnly and not (Info and Info.Priority) then continue end
-
-                local ToTarget = RootPos - CamPos
-                if ToTarget.Magnitude == 0 then continue end
-                local Angle = Acos(Dot(CamLook, ToTarget.Unit)) * 2
-                if Angle > RadFov then continue end
-
-                for k = 1, #HitPoints do
-                    local Part = Data.BodyParts[HitPoints[k]]
-                    if not Part then continue end
-                    local Pos = Part.Position
-                    if DoWall and CheckWall(CamPos, Pos) then continue end
-                    Count = Count + 1
-                    Candidates[Count] = { Part = Part, Data = Data, Angle = Acos(Dot(CamLook, (Pos - CamPos).Unit)) * 2 }
-                end
-            end
-
-            if Count == 0 then 
-                return 
-            end
-
-            local Priority = PriorityMap[MagnetActive and TriggerBot.MagnetPriority or AimAssist.HitscanPriority]
-            local Accuracy = MagnetActive and TriggerBot.MagnetAccuracy or AimAssist.Accuracy
-
-
-            if SoftPriority then
-                local PriorityCandidates, PriorityCount = {}, 0
-
-                for i = 1, Count do
-                    local P = Candidates[i]
-                    local Info = Info.PlayerData[P.Data.Name]
-                    if Info and Info.Priority then
-                        PriorityCount = PriorityCount + 1
-                        PriorityCandidates[PriorityCount] = P
-                    end
-                end
-
-                if PriorityCount > 0 then
-                    if Priority and Accuracy >= Random(1, 100) then
-                        local Best, BestAngle = nil, 360
-                        for i = 1, PriorityCount do
-                            local P = PriorityCandidates[i]
-                            if P.Part.Name == Priority and P.Angle < BestAngle then
-                                BestAngle, Best = P.Angle, P
-                            end
-                        end
-                        if Best then
-                            CurrentTarget = Best
-                            PrevTargetTick = Tick()
-                            return
-                        end
-                    end
-
-                    local Best, BestAngle = nil, 360
-                    for i = 1, PriorityCount do
-                        local P = PriorityCandidates[i]
-                        if P.Angle < BestAngle then
-                            BestAngle, Best = P.Angle, P
-                        end
-                    end
-                    CurrentTarget = Best
-                    PrevTargetTick = Tick()
-                    return
-                end
-            end
-
-            if Priority and Accuracy >= Random(1, 100) then
-                local Best, BestAngle = nil, 360
-                for i = 1, Count do
-                    local P = Candidates[i]
-                    if P.Part.Name == Priority and P.Angle < BestAngle then
-                        BestAngle, Best = P.Angle, P
-                    end
-                end
-                if Best then
-                    CurrentTarget = Best
-                    PrevTargetTick = Tick()
-                    return
-                end
-            end
-
-            local Best, BestAngle = nil, 360
-            for i = 1, Count do
-                local P = Candidates[i]
-                if P.Angle < BestAngle then
-                    BestAngle, Best = P.Angle, P
-                end
-            end
-            CurrentTarget = Best
-            PrevTargetTick = Tick()
-        end
-
-        local TriggerParams = NewRayParams()
-        TriggerParams.FilterType = Enum.RaycastFilterType.Include
-        TriggerParams.RespectCanCollide = false
-
-        function TriggerRay(Origin, Goal)
-            local Direction = Goal - Origin
-            local Unit = Direction.Unit
-            local Remaining = Direction.Magnitude
-            local Current = Origin
-
-            while Remaining > 0 do
-                local Result = Raycast(Workspace, Current, Unit * Remaining, TriggerParams)
-                if not Result then return false end
-                local Hit = Result.Instance
-                if Hit and Hit.Transparency < 1 then return true, Result end
-                Remaining = Remaining - (Result.Position - Current).Magnitude
-                Current = Result.Position + Unit / 20
-            end
-            return false
-        end
-
-        function Protrigger()
-            if not TriggerBot.Enabled or TriggerBot.Magnet then 
-                return 
-            end
-
-            local HitPoints = TranslateHitboxPoints(TriggerBot.Hitboxes)
-
-            local Parts, Count = {}, 0
-
-            for i = 1, EnemyCount do
-                local Data = Enemies[i]
-                if not Data.RootPosition or Data.IsForceField then 
-                    continue 
-                end
-                if TriggerBot.SkipDowned and IsHeDowned(Data.Name) then 
-                    continue 
-                end
-
-                local Info = Info.PlayerData[Data.Name]
-                if Info and Info.Whitelist then 
-                    continue 
-                end
-
-                if TriggerBot.PriorityOnly and not (Info and Info.Priority) then 
-                    continue 
-                end
-
-                for k = 1, #HitPoints do
-                    local Part = Data.BodyParts[HitPoints[k]]
-                    if Part then
-                        Count = Count + 1
-                        Parts[Count] = Part
-                    end
-                end
-            end
-
-            if Count == 0 then 
-                return 
-            end
-
-            local Cam = CurrentCamera.CFrame
-            local CamPos = Cam.Position
-            TriggerParams.FilterDescendantsInstances = Parts
-
-            local Hit, Result = TriggerRay(CamPos, CamPos + Cam.LookVector * 750)
-            if not Hit then 
-                return 
-            end
-
-            if CheckWall(CamPos, Result.Instance.Position) then 
-                return 
-            end
-
-            Spawn(function()
-                if mouse1press and mouse1release then
-                    mouse1press()
-                    Wait(1 / 60)
-                    mouse1release()
-                end
-            end)
-        end
-
-        RenderStepped:Connect(Proaimassist)
-        RenderStepped:Connect(Protrigger)
-
-        local FovCircle = NewDrawing("Circle")
-        FovCircle.Thickness = 1
-        FovCircle.NumSides = 64
-        FovCircle.Filled = false
-        FovCircle.Transparency = 1
-        FovCircle.Visible = false
-
-        local FovFill = NewDrawing("Circle")
-        FovFill.Thickness = 0
-        FovFill.NumSides = 64
-        FovFill.Filled = true
-        FovFill.Transparency = 1
-        FovFill.Visible = false
-        FovFill.ZIndex = -3
-
-        local FovOutline = NewDrawing("Circle")
-        FovOutline.Thickness = 3
-        FovOutline.NumSides = 64
-        FovOutline.Filled = false
-        FovOutline.Transparency = 1
-        FovOutline.Visible = false
-        FovOutline.ZIndex = -1
-
-        local FovGlowCount = 4
-        local FovGlow = {}
-
-        for i = FovGlowCount, 1, -1 do
-            local Ring = NewDrawing("Circle")
-            Ring.NumSides = 64
-            Ring.Filled = false
-            Ring.Transparency = 0.45 - (i * 0.08)
-            Ring.Visible = false
-            Ring.ZIndex = -2
-
-            FovGlow[i] = Ring
-        end
-
-        RenderStepped:Connect(function()
-            if AimAssist.Enabled and AimAssist.VisualizeFov then
-                local Size = CurrentCamera.ViewportSize
-                local Radius = (Tan(math.rad(AimAssist.Fov) / 2) / Tan(math.rad(CurrentCamera.FieldOfView) / 2)) * (Size.Y / 2)
-                local Position = Size / 2
-
-                FovFill.Radius = Radius
-                FovFill.Position = Position
-                FovFill.Color = AimAssist.FovFillColor
-                FovFill.Transparency = 1 - (AimAssist.FovFillAlpha)
-                FovFill.Visible = true
-
-                FovCircle.Radius = Radius
-                FovCircle.Position = Position
-                FovCircle.Color = AimAssist.FovColor
-                FovCircle.Transparency = 1 - (AimAssist.FovAlpha or 0)
-                FovCircle.Visible = true
-
-                FovOutline.Radius = Radius
-                FovOutline.Position = Position
-                FovOutline.Color = AimAssist.FovOutlineColor
-                FovOutline.Transparency = 1 - (AimAssist.FovOutlineAlpha or 0)
-                FovOutline.Visible = true
-
-                for i = 1, FovGlowCount do
-                    local Ring = FovGlow[i]
-
-                    Ring.Radius = Radius
-                    Ring.Position = Position
-                    Ring.Thickness = 2 + i * AimAssist.FovGlowSize
-                    Ring.Color = AimAssist.FovGlowColor
-                    Ring.Transparency = (0.45 - (i * 0.08)) * (1 - (AimAssist.FovGlowAlpha or 0))
-                    Ring.Visible = true
-                end
-            else
-                FovFill.Visible = false
-                FovCircle.Visible = false
-                FovOutline.Visible = false
-
-                for i = 1, FovGlowCount do
-                    FovGlow[i].Visible = false
-                end
-            end
-        end)
-    end)
-end
-
-
-do
-    RunService:BindToRenderStep("ratioed", Enum.RenderPriority.Camera.Value + 1, function()
-        local Enabled = Flags["Aspect Ratio"]
-
-        if not Enabled or not Enabled.Value then return end
-
-        local Horizontal = (Flags["Aspect Horizontal"].Value or 100) / 100
-        local Vertical = (Flags["Aspect Vertical"].Value or 100) / 100
-
-        if Horizontal == 1 and Vertical == 1 then return end
-
-        local Camera = Workspace.CurrentCamera
-
-        if not Camera then return end
-
-        local X, Y, Z,
-            R00, R01, R02,
-            R10, R11, R12,
-            R20, R21, R22 = Camera.CFrame:GetComponents()
-
-        Camera.CFrame = NewCFrame(
-            X, Y, Z,
-            R00 * Horizontal, R01 * Vertical, R02,
-            R10,              R11 * Vertical, R12,
-            R20 * Horizontal, R21 * Vertical, R22
-        )
-    end)
-end
-
-
- 
-do
-
-    Spawn(function()
-        local Events2 = WaitForChild(ReplicatedStorage, "Events2", 10)
-        local VisualizeEvent = Events2 and WaitForChild(Events2, "Visualize", 10)
-        local EventsFolder = WaitForChild(ReplicatedStorage, "Events", 10)
-        local DamageEvent = EventsFolder and WaitForChild(EventsFolder, "ZFKLF__H", 10)
-
-        if not VisualizeEvent or not DamageEvent then return end
-
-        if not (
-            Flags["Silent Aim Enabled"] and
-            Flags["Silent Aim Hit Chance"] and
-            Flags["Silent Aim Wall Check"] and
-            Flags["Silent Aim Target Part"] and
-            Flags["Silent Aim FOV Position"] and
-            Flags["Silent Aim FOV"] and
-            Flags["Silent Aim Draw FOV"] and
-            Flags["Silent Aim FOV Color"]
-        ) then
+        return TGBYHNR
+    end
+
+    function GXKQJZMWN:VZXCVBNMQ()
+        if not self.JMNBVCXZ.SHGFDSAQ.WAQSDFGHJK then
+            self.JMNBVCXZ.VNMQWERT.TGWERTYU = nil
+            self.JMNBVCXZ.VNMQWERT.UWERTYUIO = nil
+            self.KLKJHGFD.APLOKIJUH.Visible = false
             return
         end
 
-        local Randomize = { "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }
-        local RandomIndex = 1
-        local RandomTimer = 0
+        local YHNUJMQ = (self.JMNBVCXZ.SHGFDSAQ.HMNBVCXZ == "Mouse")
+            and self:TASDFGHJK()
+            or  self:UWERTYUIOP()
 
-        function GetTargetPart()
-            local Value = Flags["Silent Aim Target Part"].Value
-
-            if Value == "Random" then
-                return Randomize[RandomIndex]
-            end
-
-            return Value
+        if YHNUJMQ and YHNUJMQ.Character and YHNUJMQ.Character:FindFirstChild(self.JMNBVCXZ.SHGFDSAQ.JZXCVBNM) then
+            self.JMNBVCXZ.VNMQWERT.TGWERTYU = YHNUJMQ
+            local WSXEDRI = YHNUJMQ.Character[self.JMNBVCXZ.SHGFDSAQ.JZXCVBNM]
+            local TGBYHNO, IKOLPQN = self.HQWIEURTY.RFZXCVBN:WorldToScreenPoint(WSXEDRI.Position)
+            self.JMNBVCXZ.VNMQWERT.UWERTYUIO = (IKOLPQN and TGBYHNO.Z > 0)
+                and Vector2.new(TGBYHNO.X, TGBYHNO.Y) or nil
+            self:NQWERTYUI(YHNUJMQ)
+        else
+            self.JMNBVCXZ.VNMQWERT.TGWERTYU = nil
+            self.JMNBVCXZ.VNMQWERT.UWERTYUIO = nil
+            self.KLKJHGFD.APLOKIJUH.Visible = false
         end
+    end
 
-        function GetCenter()
-            if Flags["Silent Aim FOV Position"].Value == "Mouse" then
-                return UserInputService:GetMouseLocation()
+    function GXKQJZMWN:WQWERASDFG()
+        local TGBYHNU = self.JMNBVCXZ.VNMQWERT
+        local YHNUJMI = self.HQWIEURTY.QEQWERTY
+
+        YHNUJMI.InputBegan:Connect(function(IKOLPQU, LOPQAZZ)
+            if LOPQAZZ then return end
+            if IKOLPQU.UserInputType == Enum.UserInputType.MouseButton1 then
+                TGBYHNU.VIOPASDFG = true; TGBYHNU.WZXCVBNMQ = true
             end
-
-            return NewVector2(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
-        end
-
-        function IsHeDowned(PlayerName)
-            local CharStats = FindFirstChild(ReplicatedStorage, "CharStats")
-            local Stats = CharStats and FindFirstChild(CharStats, PlayerName)
-            local Downed = Stats and FindFirstChild(Stats, "Downed")
-            return Downed and Downed.Value or false
-        end
-
-        VisualizeEvent.Event:Connect(function(_, Key, _, Gun, _, StartPos, BulletsPerShot)
-            if not Flags["Silent Aim Enabled"].Value then 
-                return 
+        end)
+        YHNUJMI.InputEnded:Connect(function(IKOLPQU)
+            if IKOLPQU.UserInputType == Enum.UserInputType.MouseButton1 then
+                TGBYHNU.WZXCVBNMQ = false; TGBYHNU.XQWERASDF = tick() + 1.5
             end
-            if math.random(1, 100) > Flags["Silent Aim Hit Chance"].Value then 
-                return 
+        end)
+        self.HQWIEURTY.NBPOIUY.Heartbeat:Connect(function()
+            if TGBYHNU.VIOPASDFG and not TGBYHNU.WZXCVBNMQ and TGBYHNU.XQWERASDF > 0 and tick() > TGBYHNU.XQWERASDF then
+                TGBYHNU.VIOPASDFG = false; TGBYHNU.XQWERASDF = 0
             end
+        end)
+    end
 
-            local Character = LocalPlayer.Character
-            local MyTool = Character and Character:FindFirstChildOfClass("Tool")
+    function GXKQJZMWN:XLKJHGFDS()
+        local EDCRFVW
+        EDCRFVW = hookmetamethod(game, "__namecall", function(...)
+            if checkcaller() then return EDCRFVW(...) end
 
-            if not MyTool or Gun ~= MyTool then 
-                return 
-            end
+            local RFVTGBK = getnamecallmethod()
+            local TGBYHNP = { ... }
 
-            if typeof(StartPos) ~= "Vector3" or typeof(BulletsPerShot) ~= "table" then 
-                return 
-            end
+            local RFVTGBY = self.JMNBVCXZ.SHGFDSAQ
+            local YHNUJMQ = self.JMNBVCXZ.VNMQWERT.TGWERTYU
+            local UJMIKOR = self.JMNBVCXZ.VNMQWERT.UWERTYUIO
+            local IKOLPQT = (RFVTGBY.NMNBVCXZX == "Always") or self.JMNBVCXZ.VNMQWERT.VIOPASDFG
 
-            local PartName = GetTargetPart()
-            local Center = GetCenter()
-            local WallCheck = Flags["Silent Aim Wall Check"].Value
-            local SkipDowned = Flags["Silent Aim Skip Downed"] and Flags["Silent Aim Skip Downed"].Value
-
-            local Target, ShortestDist = nil, Flags["Silent Aim FOV"].Value
-
-            for _, Player in next, Players:GetPlayers() do
-                if Player ~= LocalPlayer and Player.Character then
-                    local Data = Info and Info.PlayerData and Info.PlayerData[Player.Name]
-
-                    if not (Data and Data.Whitelist) and not (SkipDowned and IsHeDowned(Player.Name)) then
-
-                        local TargetChar = Player.Character
-                        local Humanoid = TargetChar:FindFirstChildOfClass("Humanoid")
-                        local Part = TargetChar:FindFirstChild(PartName)
-
-                        if Part and Humanoid and Humanoid.Health > 0
-                            and not TargetChar:FindFirstChildOfClass("ForceField") then
-                            local ScreenPos, OnScreen = CurrentCamera:WorldToViewportPoint(Part.Position)
-
-                            if OnScreen then
-                                local Dist = (NewVector2(ScreenPos.X, ScreenPos.Y) - Center).Magnitude
-
-                                if Dist < ShortestDist then
-                                    local Blocked = false
-
-                                    if WallCheck then
-                                        local Ignore = { CurrentCamera, Character, TargetChar }
-                                        Blocked = #CurrentCamera:GetPartsObscuringTarget({ Part.Position }, Ignore) > 0
-                                    end
-
-                                    if not Blocked then
-                                        Target = Player
-                                        ShortestDist = Dist
-                                    end
-                                end
-                            end
+            if RFVTGBK == "Raycast" and TGBYHNP[1] == self.HQWIEURTY.OCXCVBNM then
+                if RFVTGBY.WAQSDFGHJK and YHNUJMQ and YHNUJMQ.Character then
+                    if math.random(1, 100) <= RFVTGBY.YQWERTYUI then
+                        local QAZWSXE = YHNUJMQ.Character[RFVTGBY.JZXCVBNM]
+                        if QAZWSXE then
+                            TGBYHNP[3] = (QAZWSXE.Position - TGBYHNP[2]).Unit * 500
+                            return EDCRFVW(unpack(TGBYHNP))
                         end
                     end
                 end
+                return EDCRFVW(...)
             end
 
-            if not Target or not Target.Character then 
-                return 
-            end
-
-            local HitPart = FindFirstChild(Target.Character, PartName)
-            if not HitPart then 
-                return 
-            end
-
-            local HitPos = HitPart.Position
-            local LookVec = (HitPos - StartPos).Unit
-
-            Wait(0.005)
-
-            for Index = 1, #BulletsPerShot do
-                DamageEvent:FireServer("\240\159\167\136", Gun, Key, Index, HitPart, HitPos, LookVec)
-            end
-
-            local Hitmarker = FindFirstChild(Gun, "Hitmarker")
-            if Hitmarker then Hitmarker:Fire(HitPart) end
-        end)
-
-        Heartbeat:Connect(function(Delta)
-            local EnabledFlag = Flags["Silent Aim Enabled"]
-            local TargetPartFlag = Flags["Silent Aim Target Part"]
-
-            if not (EnabledFlag and EnabledFlag.Value and TargetPartFlag) then
-                return 
-            end
-
-            if TargetPartFlag.Value ~= "Random" then 
-                return 
-            end
-
-            RandomTimer = RandomTimer + Delta
-
-            if RandomTimer >= 0.1 then
-                RandomTimer = 0
-                RandomIndex = (RandomIndex % #Randomize) + 1
-            end
-        end)
-
-        local FovCircle = NewDrawing("Circle")
-        FovCircle.Visible = false
-        FovCircle.Thickness = 1.5
-        FovCircle.NumSides = 64
-        FovCircle.Filled = false
-        FovCircle.Transparency = 1
-
-        local FovFill = NewDrawing("Circle")
-        FovFill.Visible = false
-        FovFill.Thickness = 0
-        FovFill.NumSides = 64
-        FovFill.Filled = true
-        FovFill.Transparency = 1
-        FovFill.ZIndex = -3
-
-        local FovOutline = NewDrawing("Circle")
-        FovOutline.Visible = false
-        FovOutline.Thickness = 3
-        FovOutline.NumSides = 64
-        FovOutline.Filled = false
-        FovOutline.Transparency = 1
-        FovOutline.ZIndex = -1
-
-        local FovGlowCount = 4
-        local FovGlow = {}
-
-        for i = FovGlowCount, 1, -1 do
-            local Ring = NewDrawing("Circle")
-            Ring.Visible = false
-            Ring.NumSides = 64
-            Ring.Filled = false
-            Ring.Transparency = 0.45 - (i * 0.08)
-            Ring.ZIndex = -2
-
-            FovGlow[i] = Ring
-        end
-
-        RenderStepped:Connect(function()
-            local EnabledFlag = Flags["Silent Aim Enabled"]
-            local DrawFovFlag = Flags["Silent Aim Draw FOV"]
-            local FovFlag = Flags["Silent Aim FOV"]
-            local FovColorFlag = Flags["Silent Aim FOV Color"]
-
-            if not (EnabledFlag and EnabledFlag.Value and DrawFovFlag and DrawFovFlag.Value and FovFlag and FovColorFlag) then
-                FovFill.Visible = false
-                FovCircle.Visible = false
-                FovOutline.Visible = false
-
-                for i = 1, FovGlowCount do
-                    FovGlow[i].Visible = false
+            if RFVTGBK == "ScreenPointToRay" and TGBYHNP[1] == self.HQWIEURTY.RFZXCVBN then
+                if RFVTGBY.WAQSDFGHJK and RFVTGBY.MPOIUTREW
+                   and YHNUJMQ and UJMIKOR and IKOLPQT then
+                    TGBYHNP[2] = UJMIKOR.X
+                    TGBYHNP[3] = UJMIKOR.Y
+                    return EDCRFVW(unpack(TGBYHNP))
                 end
-
-                return
+                return EDCRFVW(...)
             end
 
-            local Position = GetCenter()
-
-            local FillColorFlag = Flags["Silent Aim FOV Fill Color"]
-
-            FovFill.Position = Position
-            FovFill.Radius = FovFlag.Value
-            FovFill.Color = FillColorFlag and FillColorFlag.Color or FovColorFlag.Color
-            FovFill.Transparency = 1 - (FillColorFlag and FillColorFlag.Transparency or 0)
-            FovFill.Visible = true
-
-            FovCircle.Position = Position
-            FovCircle.Radius = FovFlag.Value
-            FovCircle.Color = FovColorFlag.Color
-            FovCircle.Transparency = 1 - (FovColorFlag.Transparency or 0)
-            FovCircle.Visible = true
-
-            local OutlineColorFlag = Flags["Silent Aim FOV Outline Color"]
-
-            FovOutline.Position = Position
-            FovOutline.Radius = FovFlag.Value
-            FovOutline.Color = OutlineColorFlag and OutlineColorFlag.Color or NewRGB(0, 0, 0)
-            FovOutline.Transparency = 1 - (OutlineColorFlag and OutlineColorFlag.Transparency or 0)
-            FovOutline.Visible = true
-
-            local GlowColorFlag = Flags["Silent Aim FOV Glow Color"]
-            local GlowSizeFlag = Flags["Silent Aim FOV Glow Size"]
-            local GlowSize = GlowSizeFlag and GlowSizeFlag.Value or 3
-            local GlowAlpha = GlowColorFlag and GlowColorFlag.Transparency or 0
-
-            for i = 1, FovGlowCount do
-                local Ring = FovGlow[i]
-
-                Ring.Position = Position
-                Ring.Radius = FovFlag.Value
-                Ring.Thickness = 2 + i * GlowSize
-                Ring.Color = GlowColorFlag and GlowColorFlag.Color or FovColorFlag.Color
-                Ring.Transparency = (0.45 - (i * 0.08)) * (1 - GlowAlpha)
-                Ring.Visible = true
+            if RFVTGBK == "FindPartOnRayWithWhitelist" and TGBYHNP[1] == self.HQWIEURTY.OCXCVBNM then
+                if RFVTGBY.WAQSDFGHJK and RFVTGBY.MPOIUTREW
+                   and YHNUJMQ and YHNUJMQ.Character and IKOLPQT then
+                    local QAZWSXE = YHNUJMQ.Character[RFVTGBY.JZXCVBNM]
+                    local LOPQAZY = TGBYHNP[3]
+                    local QAZWSXI = JZXCVBNMA()
+                    if QAZWSXE and LOPQAZY and type(LOPQAZY) == "table" and #LOPQAZY == 1 and QAZWSXI and LOPQAZY[1] == QAZWSXI then
+                        if RFVTGBY.OASDFGHJ then
+                            local QAZWSXH = tick()
+                            if QAZWSXH - self.JMNBVCXZ.VNMQWERT.YASDFGHJK > 1 then
+                                self.JMNBVCXZ.VNMQWERT.YASDFGHJK = QAZWSXH
+                                print("[SA] FindPartOnRayWithWhitelist redirect →", YHNUJMQ.Name)
+                            end
+                        end
+                        return nil, QAZWSXE.Position, Vector3.new(0, 1, 0), Enum.Material.Air
+                    end
+                end
+                return EDCRFVW(...)
             end
 
+            return EDCRFVW(...)
         end)
-    end)
-end
+        self.LASDFGHJ.GZXCVBNQ = EDCRFVW
+    end
 
+    function GXKQJZMWN:YPOIUYTRE()
+        self:IQWERASDF()
+        self:MPOIUTREW()
+        if self.JMNBVCXZ.SHGFDSAQ.WAQSDFGHJK then
+            self:VZXCVBNMQ()
+        end
+    end
 
+    KLKJHGFDS()
+    LMNBVCXZQ()
+    GXKQJZMWN:XLKJHGFDS()
+    GXKQJZMWN:WQWERASDFG()
 
-
+    GXKQJZMWN.LASDFGHJ.FXCVBNML =
+        GXKQJZMWN.HQWIEURTY.NBPOIUY.RenderStepped:Connect(function()
+            GXKQJZMWN:YPOIUYTRE()
+        end)
+end)
 
 
 
@@ -24929,14 +24657,13 @@ end
 
 
 
--- Grenade Tracers
 do
     local TypeIndex = {
-        ["rbxassetid://9028964777"]     = "Molotov",      -- mesh
-        ["rbxassetid://9029173190_TEX"] = "Incendiary",   -- texture
-        ["rbxassetid://9029118683"]     = "CSGrenade",    -- mesh
-        ["rbxassetid://9029129154_TEX"] = "SmokeGrenade", -- texture
-        ["rbxassetid://9029331092"]     = "FragGrenade",  -- mesh
+        ["rbxassetid://9028964777"]     = "Molotov",      
+        ["rbxassetid://9029173190_TEX"] = "Incendiary",   
+        ["rbxassetid://9029118683"]     = "CSGrenade",    
+        ["rbxassetid://9029129154_TEX"] = "SmokeGrenade", 
+        ["rbxassetid://9029331092"]     = "FragGrenade",  
     }
 
     function RegisterGrenadeTrail(Trail)
@@ -25008,7 +24735,6 @@ do
         RegisterGrenadeTrail(Trail)
     end
 
-    -- Determine grenade type from MeshId/TextureID
     function ResolveGrenadeType(Part)
         local MeshPart = IsA(Part, "MeshPart") and Part or FindFirstChildWhichIsA(Part, "MeshPart")
         if not MeshPart then return nil end
@@ -25031,7 +24757,6 @@ do
         return nil
     end
 
-    -- Try attach trail for a single "Handle"
     function TryApplyGrenadeHandle(Part)
         if not GrenadeTracers.Master then return end
 
@@ -25044,7 +24769,6 @@ do
         CreateGrenadeTrail(Part, TypeCfg.Color or GrenadeTracers.Color or NewRGB(255, 255, 255))
     end
 
-    -- Scan a VPart recursively; trail attaches only to "Handle"
     function ScanForGrenadeHandle(Instance)
         if IsA(Instance, "BasePart") and Instance.Name == "Handle" then
             TryApplyGrenadeHandle(Instance)
@@ -25072,7 +24796,6 @@ do
         end
     end
 
-    -- Watch for new thrown items
     Spawn(function()
         local DebrisRoot = WaitForChild(Workspace, "Debris", 10)
         local DebrisFolder = DebrisRoot and WaitForChild(DebrisRoot, "VParts", 10)
@@ -25087,15 +24810,13 @@ do
             end
         end)
 
-        -- Apply to ones already present
         RescanGrenadeDebris()
     end)
 end
 
 
--- Grenade Helper
 do
-    -- Analytic ballistic solve: initial velocity to land a grenade of fixed speed at Goal
+
     local function ResolveGrenadeVelocity(Origin, Goal, GrenadeVelocity, GrenadeGravity)
         local Displacement = Goal - Origin
         local Horizontal = NewVector3(Displacement.X, 0, Displacement.Z)
@@ -25224,9 +24945,7 @@ end
 -- Music Player
 --[[
 do
-    -- Non-cryptographic hash so the cached file/asset is keyed by the URL itself, not the
-    -- Playlist array position - reordering/inserting tracks can never reuse a stale file
-    -- that was downloaded for a different song under the same old index.
+
     local function HashUrl(Url)
         local Hash = 5381
 
@@ -25361,6 +25080,7 @@ end
 do
 
    
+    Tickbase.Init()
     Camera.Init()
     Visuals.Init()
     ViewModel.Init()
